@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xml.amadeus.com/TTSTDR_04_1_1A" xmlns="http://xml.amadeus.com/TTSTDR_04_1_1A" elementFormDefault="qualified">
+  <xs:element name="Ticket_DeleteTSTReply">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Delete Transitional Stored Ticket(s) reply
+Acknowledgement of the TST delete process
+Alias of TST Delete response (TTSTDR 03.1.1). Returns any error or Ok processed. T   : Ticketing TST : Transitional stored Ticket D   : Delete  R   : Reply</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="processStatus" minOccurs="0" type="ResponseAnalysisDetailsTypeI">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">Process status after the TST delete</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="applicationError" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">Application error information</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="applicationErrorInfo" type="ApplicationErrorInformationType">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">General error information returned by ticketing application</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="errorText" minOccurs="0" type="InteractiveFreeTextTypeI">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">Description in free flow text of the error returned by ticketing application</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="pnrLocatorData" minOccurs="0" type="ReservationControlInformationTypeI">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">PNR record locator information for this transaction. This PNR record locator is used for tracing purpose.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="ApplicationErrorDetailType">
+    <xs:sequence>
+      <xs:element name="applicationErrorCode" type="AlphaNumericString_Length1To5">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Code identifying the data validation error condition.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="codeListQualifier" minOccurs="0" type="AlphaNumericString_Length1To3">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Identification of a code list.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="codeListResponsibleAgency" minOccurs="0" type="AlphaNumericString_Length1To3">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Code identifying the agency responsible for a code list.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ApplicationErrorInformationType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To identify the type of application error within a message.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="applicationErrorDetail" type="ApplicationErrorDetailType">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Application error details.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="InteractiveFreeTextTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To provide error free text information.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="errorFreeText" minOccurs="0" type="AlphaNumericString_Length1To70">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Free flow text describing the error</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReservationControlInformationDetailsTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To specify the information required to identify a reservation.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="controlNumber" type="AlphaNumericString_Length1To20">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Record locator.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReservationControlInformationTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To specify a reference to a reservation.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="reservationInformation" type="ReservationControlInformationDetailsTypeI">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Reservation control information</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ResponseAnalysisDetailsTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To specify the type of query and the processing status associated with this response.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="responseType" type="AlphaString_Length1To1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Type of the response (update/cancel request)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="processingStatus" type="AlphaString_Length1To1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Status of the process ran.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="AlphaString_Length1To1">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: a1</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AlphaNumericString_Length1To70">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..70</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="70" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AlphaNumericString_Length1To5">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..5</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="5" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AlphaNumericString_Length1To3">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..3</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="3" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AlphaNumericString_Length1To20">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..20</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="20" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+<!-- SchemaRules="2010/01"-->
+<!--Created with SchemaBuilder 5.0.0 by Amadeus S.A.S.-->
+<!--"Amadeus Proprietary and Confidential Information: unauthorized use and disclosure strictly forbidden. 2010 - Amadeus s.a.s - All Rights Reserved."-->
+<!--Build Key:
+1F8B080000000000000095534D6FDB3810BDF35710B9F45058969BECB630C0831A29E962D749602B3703064D8E6D2214A9E55041D420FFBD4349DE664FBBBD0833C3D17CBCF7E6B6BAABD6455D95BBFB3BF1295F5CCDF22FB345CE379DD3B2E7F96FCBCBCBE5D5677EBBAA3FE6F932CF59B12A62DF02DE180B4E362028B0FB2AD1A83A85B317D46C2F11EEE80D5BA9409C626C97F3F94B6333D9480D1D66CA3773B6A71E164A13C41C2146E38E38D746215327504F1BFA3652C4D001535E03A5A070DE25AF69C09137BD35AD747D6A275C672D05DA3E98E3298A8B626CC71F826F83812843CFA5D3FCDABB83D154C348CBFF70071F1A198D774BDE39D9C5930FE63B68DE210CE9DAA0B21EBB001C63302ADA9ED33F7BA3A946C609B69CCFF8B9196632C3E45BCBD7690EE46B9A3E3C83CE2E988683EC6CBC0D6D824B8B83B4084CFB6E6F61037F77E0143CC8A84ED30BB8AFFF0B4C703F735E13416FBBD76708485B9115C00295214B1EA943FFC60E44DFBAB384994F4C0EFE40E7F073B2FEA380F54ADA0972EB8F9A682C97DB6F55516E2B6D0E52C5DA7B8BDBAADE9506A374F19A9822FE88B9ED4A8627488C8F3938708DDBBFFC916AB9E33088D1F7CEF6AC817084098CC1BE3160356E7C88FFC0478B23CD5560C2F4DFB192583776528EFB25885A6F5CBC8338D231882D781FDF2134F849C0191B57488862BAA37C9E2FA618DEF8505843B527C5262D1805589292A837897244111B1962AAFBE88C32B19F1689413AB4833E091F4158E37CAA5C17ABF9AB066B680D49027ACBE895A5F1F4FBF321B15C9F6F66AC499101AAE1928D53EC056DBCEF62DBC51B6F350491028CCD66AB11C60FC8CDCF3B99CDD808925814EC5D7F513C14BBDA28E276B7C8E59E74DD48E344FD67C5E0A525CA76127765752BEAF56375A688CB00527CFAFDEC8BBADED4E59AB57413064FC4F288FD48905890F56C126B640EE0C8014731352E292F029560679EC4144AB96680DC6EA20FA0C73FD6D092CE262588FC92FD0069CDBD8615050000
+-->
+

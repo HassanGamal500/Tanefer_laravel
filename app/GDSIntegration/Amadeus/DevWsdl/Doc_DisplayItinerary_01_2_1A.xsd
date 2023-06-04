@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xml.amadeus.com/ITIRQT_01_2_1A" xmlns="http://xml.amadeus.com/ITIRQT_01_2_1A" elementFormDefault="qualified">
+  <xs:element name="Doc_DisplayItinerary">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="language">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="code">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:annotation>
+                      <xs:documentation xml:lang="en">Format limitations: an2</xs:documentation>
+                    </xs:annotation>
+                    <xs:minLength value="2" />
+                    <xs:maxLength value="2" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+<!-- SchemaRules="2009/09"-->
+<!--Created with SchemaBuilder 4.1 by Amadeus S.A.S.-->
+<!--Build Key:
+1F8B080000000000000085903F6FC23010C5777F0AF6AAC4B465205286481026D20AA83A22631F60C97F529F5335427CF79E935075ABE4E1F9EEFCDECFB75ED5AB6DB95F2D0FAF75F1C467FC91CFE94C3E40394025BA095FE4F3977CF63C596FF60F9CE79C33272C60232414D7D835703B5CBF20A0F68E54000302534D9CC1C9EEC6A4B7165CC4E2240C0233DE9D934111430B4CF9F66860079F2D0DC39B88F232344EDAC0B63550385F91ECEFFDB33E32A97F620911492F210A6D906C1C502D9C61E4F8B6664F4E43A3DC94C916AB7B0A4379012B1201D25EF822E30B9646D4AE6F8C268DD72ED610FF808FB925F6EEC398F40A10E2487124D0FA778597189B3CCB08672AAC50D0E2943696B1E07DFCF35986568498E4BBD352C76EB41E38B1F2A1349A8CF14E413FAD3418853B1F22A871FC07FDC53048F0010000
+-->
+
