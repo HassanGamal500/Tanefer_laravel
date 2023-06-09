@@ -15,10 +15,20 @@ class PackageActivity extends Model
     public function tourCity(){
         return $this->belongsTo(TourCity::class , 'tour_city_id');
     }
+    public function availabilityTour(){
+        return $this->hasMany(AvailabilitiesTour::class , 'package_activity_id','id');
+    }
 
     public function packageActivitySideActivity(){
         return $this->hasMany(PackageActivitySideActivity::class,'package_activity_id','id');
     }
+
+    public function packageActivityPricingTiers()
+    {
+        return $this->hasMany(PricingTiersTour::class,'package_activity_id','id');
+
+    }
+
 
     public function getImageAttribute()
     {

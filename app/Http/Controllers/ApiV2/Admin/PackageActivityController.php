@@ -7,7 +7,9 @@ use App\Http\Requests\Admin\PackageActivityRequest;
 use App\Http\Resources\Admin\PackageActivityListResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Http\Resources\TourCityResource;
+use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
+use App\Models\PricingTiersTour;
 use App\Models\TourCity;
 use App\Services\Packages\PackageActivityStoreService;
 use App\Services\Packages\PackageHotelStoreService;
@@ -63,11 +65,22 @@ class PackageActivityController extends Controller
     public function store(PackageActivityRequest $request)
     {
         $validated = $request->validated();
+        $PricingTiersTour =  PackageActivityStoreService::storePricingTiersTourValid($request->availabilities);
+        if(isset($PricingTiersTour['status']) && $PricingTiersTour['status'] == 400) {
+            return response()->json($PricingTiersTour);
+        }
         DB::transaction(function () use ( $request, $validated ) {
-            $packageActivity = PackageActivityStoreService::storePackageActivityMainData( $validated);
+            $packageActivity = PackageActivityStoreService::storePackageActivityMainData($validated);
+            // if(! empty($request->seasons)){
+            //     PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
+            // }
 
-            if(! empty($request->seasons)){
-                PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
+
+            if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
+                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id']);
+                if(! empty($request->availabilities[0]['pricingtiers'])){
+                    PackageActivityStoreService::storePricingTiersTour($request->availabilities,$availabilityTime, $packageActivity['id']);
+                }
             }
 
             if ($validated['activity_type'] == 'camping') {
@@ -100,18 +113,6 @@ class PackageActivityController extends Controller
             'data'=> new PackageActivityResource( $packageActivity )
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\PackageActivity  $packageActivity
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function edit(PackageActivity $packageActivity)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -125,14 +126,36 @@ class PackageActivityController extends Controller
         if(is_null($packageActivity)){
             abort(404);
         }
+        $PricingTiersTour =  PackageActivityStoreService::storePricingTiersTourValid($request->availabilities);
+        if(isset($PricingTiersTour['status']) && $PricingTiersTour['status'] == 400) {
+            return response()->json($PricingTiersTour);
+        }
+
         $validated = $request->validated();
         DB::transaction(function () use ($validated,$request,$packageActivity ) {
             $packageActivity->update( PackageActivityStoreService::collectPackageActivityMainData( $validated) );
 
-            $packageActivity->seasons()->delete();
+            // $packageActivity->seasons()->delete();
 
-            if(! empty($request->seasons)){
-                PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
+            // if(! empty($request->seasons)){
+            //     PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
+            // }
+
+            // if(!empty($packageActivity['id'])) {
+            //     $availabilityTime =  PackageActivityStoreService::storeAvailabilityTime($validated, $packageActivity['id']);
+            //     if(! empty($request->pricingtiers)){
+            //         PricingTiersTour::where('availabilities_tour_id', '=', $availabilityTime)->delete();
+            //         PackageActivityStoreService::storePricingTiersTour($request->pricingtiers,$availabilityTime,$packageActivity['id']);
+            //     }
+            // }
+
+            if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
+                AvailabilitiesTour::where('package_activity_id', '=', $packageActivity['id'])->delete();
+                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id']);
+                if(! empty($request->availabilities[0]['pricingtiers'])){
+                    PricingTiersTour::where('availabilities_tour_id', '=', $availabilityTime)->delete();
+                    PackageActivityStoreService::storePricingTiersTour($request->availabilities,$availabilityTime, $packageActivity['id']);
+                }
             }
 
             if ($validated['activity_type'] == 'camping') {
