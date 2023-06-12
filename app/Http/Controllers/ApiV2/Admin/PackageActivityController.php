@@ -69,6 +69,10 @@ class PackageActivityController extends Controller
         if(isset($PricingTiersTour['status']) && $PricingTiersTour['status'] == 400) {
             return response()->json($PricingTiersTour);
         }
+        $errorAvailability =  PackageActivityStoreService::errorAvailabilityTime($request->availabilities, $validated);
+        if(isset($errorAvailability['status']) && $errorAvailability['status'] == 400) {
+            return response()->json($errorAvailability);
+        }
         DB::transaction(function () use ( $request, $validated ) {
             $packageActivity = PackageActivityStoreService::storePackageActivityMainData($validated);
             // if(! empty($request->seasons)){
@@ -77,7 +81,7 @@ class PackageActivityController extends Controller
 
 
             if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
-                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id']);
+                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id'],$validated);
                 if(! empty($request->availabilities[0]['pricingtiers'])){
                     PackageActivityStoreService::storePricingTiersTour($request->availabilities,$availabilityTime, $packageActivity['id']);
                 }
@@ -123,6 +127,7 @@ class PackageActivityController extends Controller
     public function update(PackageActivityRequest $request,$packageActivityId)
     {
         $packageActivity = PackageActivity::find($packageActivityId);
+        $validated = $request->validated();
         if(is_null($packageActivity)){
             abort(404);
         }
@@ -131,7 +136,12 @@ class PackageActivityController extends Controller
             return response()->json($PricingTiersTour);
         }
 
-        $validated = $request->validated();
+        $errorAvailability =  PackageActivityStoreService::errorAvailabilityTime($request->availabilities, $validated);
+        if(isset($errorAvailability['status']) && $errorAvailability['status'] == 400) {
+            return response()->json($errorAvailability);
+        }
+
+
         DB::transaction(function () use ($validated,$request,$packageActivity ) {
             $packageActivity->update( PackageActivityStoreService::collectPackageActivityMainData( $validated) );
 
@@ -151,7 +161,7 @@ class PackageActivityController extends Controller
 
             if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
                 AvailabilitiesTour::where('package_activity_id', '=', $packageActivity['id'])->delete();
-                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id']);
+                $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id'],$validated);
                 if(! empty($request->availabilities[0]['pricingtiers'])){
                     PricingTiersTour::where('availabilities_tour_id', '=', $availabilityTime)->delete();
                     PackageActivityStoreService::storePricingTiersTour($request->availabilities,$availabilityTime, $packageActivity['id']);
