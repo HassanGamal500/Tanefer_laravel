@@ -33,6 +33,24 @@ class SearchService
 
         return $packageActivityQuery;
     }
+    public static function activityFilterSearch( $Title = null, $cityID = null, $duration = null, $type = null){
+        $packageActivityQuery = PackageActivity::query();
+        $packageActivityQuery->where('is_published',1);
+
+        if($cityID )
+            $packageActivityQuery->where('tour_city_id',$cityID);
+
+        if($Title)
+            $packageActivityQuery->where('title', 'like', '%' . $Title . '%');
+
+        if($duration )
+            $packageActivityQuery->where('duration_digits',$duration);
+
+        if($type)
+            $packageActivityQuery->where('activity_type',$type);
+
+        return $packageActivityQuery;
+    }
 
 
     public static function hotelSearch( $cityID = null, $checkInDate = null,$checkoutDate = null, $adultNumber = null,$childNumber = null)
@@ -78,6 +96,8 @@ class SearchService
 
        return  $packageHotelQuery->orderByDesc('id');
     }
+
+
 
 //    public static function calculatecost($packageHotels, $adult_number, $child_number, $childrenages){
 //        foreach ($packageHotels as $packageHotel){
