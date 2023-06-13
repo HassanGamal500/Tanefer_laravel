@@ -4,9 +4,11 @@ namespace App\Http\Controllers\ApiV2\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ActivitiesBookingRequest;
+use App\Http\Resources\Admin\CityAvalibleResource;
 use App\Http\Resources\Admin\DurationResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Models\PackageActivity;
+use App\Models\TourCity;
 use App\Services\Packages\ActivityBookingService;
 use App\Services\Packages\SearchService;
 use Carbon\Carbon;
@@ -145,8 +147,13 @@ class PackageActivityController extends Controller
     public static function durationvalue() {
         $durationActivityQuery = PackageActivity::select('duration_digits')->distinct('duration_digits')
         ->get();
-
         return response()->json([ 'message' =>'success','status' => 200, 'DurationList'=> DurationResource::collection( $durationActivityQuery )
         ]);
     }
+    public static function TourCityvalue() {
+        $TourCityQuery = TourCity::select('id','name')->get();
+        return response()->json([ 'message' =>'success','status' => 200, 'CityList'=> CityAvalibleResource::collection( $TourCityQuery )
+        ]);
+    }
+
 }
