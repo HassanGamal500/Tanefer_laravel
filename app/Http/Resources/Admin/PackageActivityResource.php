@@ -29,7 +29,7 @@ class PackageActivityResource extends JsonResource
             'activityCity'              => new TourCityResource($this->tourCity ) ,
             'activityImage'             => $this->image ,
             // 'activityPricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person ,
-            // 'activityDuration_digits'    => $this->duration_digits ,
+            'activityDuration_digits'    => $this->duration_digits ,
             // 'activityDuration_type'     => $this-> duration_type,
             // 'activityType'              => $this->activity_type ,
             // 'activityPaxMinimum'        => $this->pax_min_number ,

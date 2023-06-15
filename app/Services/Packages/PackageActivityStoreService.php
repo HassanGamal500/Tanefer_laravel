@@ -148,7 +148,7 @@ class PackageActivityStoreService
             'excludes' => json_encode($validatedData['activity_excludes']),
             // 'price_per_person' => $validatedData['activity_price_per_person'],
             'duration_digits' => $validatedData['activity_duration_digits'],
-            'duration_type' => $validatedData['activity_duration_type'],
+            // 'duration_type' => $validatedData['activity_duration_type'],
             'activity_type' => $validatedData['activity_type'],
             'tour_city_id' => $validatedData['activity_city_id'],
             // 'pax_min_number' => $validatedData['activity_pax_min_number'] ?? 1,
