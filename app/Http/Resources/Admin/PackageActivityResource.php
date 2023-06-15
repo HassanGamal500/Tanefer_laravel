@@ -33,7 +33,7 @@ class PackageActivityResource extends JsonResource
             // 'activityDuration_type'     => $this-> duration_type,
             // 'activityType'              => $this->activity_type ,
             // 'activityPaxMinimum'        => $this->pax_min_number ,
-            // 'activityStartTime'         => $this->start_time ,
+            'activityStartTime'         => $this->start_time ,
             // 'activityEndTime'           => $this->end_time ,
             'published'                 => $this->is_published,
             'activityImages'            => PackageActivityImageResource::collection($this->packageActivityImages),

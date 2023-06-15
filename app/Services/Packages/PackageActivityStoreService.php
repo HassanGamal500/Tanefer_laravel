@@ -153,7 +153,7 @@ class PackageActivityStoreService
             'tour_city_id' => $validatedData['activity_city_id'],
             // 'pax_min_number' => $validatedData['activity_pax_min_number'] ?? 1,
             'start_time' => $validatedData['activity_start_time'] ?? null,
-            'end_time' => $validatedData['activity_end_time'] ?? null,
+            // 'end_time' => $validatedData['activity_end_time'] ?? null,
             'is_published' => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
             // 'has_supplement' => array_key_exists('has_supplement',$validatedData) ? $validatedData['has_supplement'] : 0,
             // 'solo_price'     => array_key_exists('solo_price',$validatedData) ? $validatedData['solo_price'] : 0,
