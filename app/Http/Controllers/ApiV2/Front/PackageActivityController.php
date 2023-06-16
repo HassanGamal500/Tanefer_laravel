@@ -8,6 +8,7 @@ use App\Http\Resources\Admin\CityAvalibleResource;
 use App\Http\Resources\Admin\DurationResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Models\PackageActivity;
+use App\Models\PricingTiersTour;
 use App\Models\TourCity;
 use App\Services\Packages\ActivityBookingService;
 use App\Services\Packages\SearchService;
@@ -102,6 +103,72 @@ class PackageActivityController extends Controller
 
         return responseJson($request,['totalPrice' => $totalPrice, 'activities' => $activities,'sessionId' => $sessionId],'success');
     }
+
+    public function calculateTourActivitiesPrice(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'activities' => 'required|array'
+        ]);
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        $results = [];
+        $totalPrice = 0;
+        foreach($request->activities as $activity) {
+            $activityModel = PackageActivity::find($activity['activity_id']);
+            $activityResults = [];
+            foreach ($activity['activityInfo'] as $act) {
+                $totalOccupancy = $act['adults'] + $act['children'];
+                $availabilities = PricingTiersTour::where('availabilities_tour_id', $act['availability_id'])
+                ->where('package_activity_id', $activity['activity_id'])->orderBy('min', 'asc')->get();
+                foreach($availabilities as $availability) {
+                    if($availability->max >= $totalOccupancy && $availability->min <= $totalOccupancy) {
+                        $totalAdultPrice = $availability->adult_price * $act['adults'];
+                        $totalChildrenPrice = $act['children'] * $availability->child_percentage * $availability->adult_price;
+                        $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
+
+                        $activityTitle = $activityModel->title;
+                        $availabilityId = $availability->id;
+                        $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
+                        $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
+                        $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
+
+                        $activityResults[] = [
+                            'availabilityId' => $availabilityId,
+                            'activityTitle' => $activityTitle,
+                            'totalAdultPrice' => $totalAdultPrice,
+                            'totalChildrenPrice' => $totalChildrenPrice,
+                            'subTotalPrice' => $totalPriceActivity,
+                        ];
+
+                        $totalPrice += $totalPriceActivity;
+                    }
+                }
+            }
+            if (count($activityResults) > 0) {
+                // Add the activity results to the overall results array
+                $results[] = [
+                    'activity_id' => $activity['activity_id'],
+                    'activityInfo' => $activityResults,
+                ];
+            } else {
+                // Add an error message to the overall results array if no availability record is found for any of the activityInfo records
+                $results[] = [
+                    'activity_id' => $activity['activity_id'],
+                    'error' => 'No Data Found',
+                ];
+            }
+        }
+
+        return response()->json([
+            'message' => 'Activity Prices',
+            'status' => 200,
+            'allPriceActivity' => $totalPrice, // Add the total price to the response
+            'activities' => $results,
+        ]);
+    }
+
+
 
     public function book(ActivitiesBookingRequest $request)
     {

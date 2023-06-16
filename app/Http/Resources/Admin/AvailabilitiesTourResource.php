@@ -15,6 +15,7 @@ class AvailabilitiesTourResource extends JsonResource
     public function toArray($request)
     {
         $data = [
+            'id'=>$this->id,
             'from_date' => $this->from_date,
             'to_date' => $this->to_date,
             'pricingtiers' => PricingTiersTourResource::collection($this->packageActivityPricingTiers)
