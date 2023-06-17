@@ -54,6 +54,7 @@ class PackageActivityRequest extends ParentRequest
             'availabilities.*.pricingtiers.*.adult_price'      =>'required|numeric',
             'availabilities.*.pricingtiers.*.child_percentage' =>'required|numeric',
             'start_days'                    => 'array',
+            'activity_start_time'           => 'required|date_format:H:i'
             // 'seasons'                             => 'array',
             // 'seasons.from'                        => 'nullable|date',
             // 'seasons.to'                          => 'nullable|date',

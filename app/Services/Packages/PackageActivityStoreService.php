@@ -88,7 +88,7 @@ class PackageActivityStoreService
         foreach ($availabilities as $aval) {
             $carbonDate = Carbon::createFromFormat('Y-m-d', $aval['from_date']); // create a Carbon instance from the date
             $dayName = $carbonDate->format('l');
-            if (!in_array($dayName, $validatedData['start_days'])) {
+            if (!in_array(strtolower($dayName), $validatedData['start_days'])) {
                 $message = 'No Availabilities Tours found';
                 $data = ['message' => $message, 'status' => 400];
                 return $data;
