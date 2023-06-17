@@ -65,6 +65,10 @@ class PackageActivityController extends Controller
     public function store(PackageActivityRequest $request)
     {
         $validated = $request->validated();
+        $datevalidated =  PackageActivityStoreService::valudatedateaval($request->availabilities);
+        if(isset($datevalidated['status']) && $datevalidated['status'] == 400) {
+            return response()->json($datevalidated);
+        }
         $PricingTiersTour =  PackageActivityStoreService::storePricingTiersTourValid($request->availabilities);
         if(isset($PricingTiersTour['status']) && $PricingTiersTour['status'] == 400) {
             return response()->json($PricingTiersTour);

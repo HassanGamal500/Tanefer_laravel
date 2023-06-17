@@ -9,6 +9,7 @@ use App\Models\AvailabilitiesTour;
 use App\Models\PricingTiersTour;
 use App\Services\StoreFileService;
 use Carbon\Carbon;
+use DateTime;
 
 class PackageActivityStoreService
 {
@@ -115,6 +116,30 @@ class PackageActivityStoreService
                 ]);
             }
             $availabilityIndex++;
+        }
+    }
+
+    public static function validateFromAfterTo($availabilities) {
+        usort($availabilities, function($a, $b) {
+            return strcmp($a["from_date"], $b["from_date"]);
+        });
+        for ($i = 0; $i < count($availabilities) - 1; $i++) {
+            $current_to_date = new DateTime($availabilities[$i]["to_date"]);
+            $next_from_date = new DateTime($availabilities[$i + 1]["from_date"]);
+
+            if ($current_to_date >= $next_from_date) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static function valudatedateaval($availabilities) {
+        if (!self::validateFromAfterTo($availabilities)) {
+            $message = 'Please choose the start date after the end date';
+            $data = ['message' => $message, 'status' => 400];
+            return $data;
         }
     }
 
