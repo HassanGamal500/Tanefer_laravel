@@ -37,7 +37,7 @@ Route::get('/confirm-booking','Front\BookingController@confirmBooking');
 Route::get('/booking-details/{id}' , 'Front\BookingController@bookingDetails');
 
 Route::get('/activities/search', 'Front\PackageActivityController@index');
-Route::get('/activities/search/filter', 'Front\PackageActivityController@filterSearch');
+Route::post('/activities/search/filter', 'Front\PackageActivityController@filterSearch');
 Route::get('/activities/duration/filter', 'Front\PackageActivityController@durationvalue');
 Route::get('/activities/city/filter', 'Front\PackageActivityController@TourCityvalue');
 
