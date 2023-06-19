@@ -186,7 +186,7 @@ class PackageActivityController extends Controller
                     $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
                     $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
 
-                    $activityResults[] = [
+                    $activityResults = [
                         'activity_id' => $activity['activity_id'],
                         'activityTitle' => $activityTitle,
                         'totalAdultPrice' => $totalAdultPrice,
@@ -211,12 +211,19 @@ class PackageActivityController extends Controller
             }
         }
 
+        $sessionId = Str::uuid()->toString();
+
+        $cacheTotalPrice = ['totalPrice' => $totalPrice];
+
+        Cache::put($sessionId, $cacheTotalPrice, 12000);
+
         return response()->json([
             'message' => 'Activity Prices',
             'status' => 200,
-            'total_price' => $totalPrice, // Add the total price to the response
+            'totalPrice' => $totalPrice, // Add the total price to the response
             'fullTitleNames' => $fullTitleNames,
             'activities' => $results,
+            'sessionId' => $sessionId
         ]);
     }
 
