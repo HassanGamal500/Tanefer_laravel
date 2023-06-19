@@ -35,7 +35,7 @@ class PackageActivityRequest extends ParentRequest
             'activity_includes'             => 'required|array',
             'activity_excludes'             => 'required|array',
             'activity_city_id'              => 'required|exists:tour_cities,id',
-            'activity_image'                => 'nullable|image|max:2000',
+            'activity_image'                => 'nullable',
             // 'activity_price_per_person'     => 'required',
             'activity_duration_digits'      => 'required|integer|min:1',
             // 'activity_duration_type'        => ['required',Rule::in(PackageActivity::activityDurationType)],
