@@ -91,7 +91,7 @@ class PackageActivityStoreService
             $dayName = $carbonDate->format('l');
             if (!in_array(strtolower($dayName), $validatedData['start_days'])) {
                 $message = 'No Availabilities Tours found';
-                $data = ['message' => $message, 'status' => 400];
+                $data = ['error' => $message, 'status' => 400];
                 return $data;
             }
         }
@@ -138,7 +138,7 @@ class PackageActivityStoreService
     public static function valudatedateaval($availabilities) {
         if (!self::validateFromAfterTo($availabilities)) {
             $message = 'Please choose the start date after the end date';
-            $data = ['message' => $message, 'status' => 400];
+            $data = ['error' => $message, 'status' => 400];
             return $data;
         }
     }
@@ -151,7 +151,7 @@ class PackageActivityStoreService
             foreach ($availability['pricingtiers'] as $pricingtier) {
                 if ($pricingtier['min'] <= $previousTiersMax) {
                     $message = 'Each pricing tier must be separate from the others';
-                    $data = ['message' => $message, 'status' => 400];
+                    $data = ['error' => $message, 'status' => 400];
                     return $data;
                 } else {
                     $previousTiersMax = max($previousTiersMax, $pricingtier['max']);
