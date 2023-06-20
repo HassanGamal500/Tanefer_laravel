@@ -204,11 +204,10 @@ class PackageActivityController extends Controller
                 // Add the activity results to the overall results array
                 $results[] = $activityResults;
             } else {
-                // Add an error message to the overall results array if no availability record is found for any of the activityInfo records
-                $results[] = [
-                    // 'activity_id' => $activity['activity_id'],
-                    'error' => 'The number you have chosen is greater than the allowed number',
-                ];
+                return response()->json([
+                    'status' => 400,
+                    'errors' => 'The number you have chosen is greater than the allowed number',
+                ]);
             }
         }
 
