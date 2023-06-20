@@ -40,6 +40,7 @@ Route::get('/activities/search', 'Front\PackageActivityController@index');
 Route::post('/activities/search/filter', 'Front\PackageActivityController@filterSearch');
 Route::get('/activities/duration/filter', 'Front\PackageActivityController@durationvalue');
 Route::get('/activities/city/filter', 'Front\PackageActivityController@TourCityvalue');
+Route::get('/activities/price/filter', 'Front\PackageActivityController@pricefiltervalue');
 
 Route::post('activities/book','Front\PackageActivityController@book');
 Route::post('activities/calculate-total-price','Front\PackageActivityController@calculateActivitiesPrice');

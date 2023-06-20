@@ -7,6 +7,7 @@ use App\Http\Requests\ActivitiesBookingRequest;
 use App\Http\Resources\Admin\CityAvalibleResource;
 use App\Http\Resources\Admin\DurationResource;
 use App\Http\Resources\Admin\PackageActivityResource;
+use App\Http\Resources\Admin\PriceResource;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
 use App\Models\TourCity;
@@ -115,56 +116,6 @@ class PackageActivityController extends Controller
         $results = [];
         $totalPrice = 0;
         $fullTitleNames = '';
-
-        // foreach($request->activities as $activity) {
-        //     $activityModel = PackageActivity::find($activity['activity_id']);
-        //     $activityResults = [];
-        //     foreach ($activity['activityInfo'] as $act) {
-        //         $totalOccupancy = $act['adults'] + $act['children'];
-        //         $availabilities = PricingTiersTour::where('availabilities_tour_id', $act['availability_id'])
-        //         ->where('package_activity_id', $activity['activity_id'])->orderBy('min', 'asc')->get();
-        //         foreach($availabilities as $availability) {
-        //             if($availability->max >= $totalOccupancy && $availability->min <= $totalOccupancy) {
-        //                 $totalAdultPrice = $availability->adult_price * $act['adults'];
-        //                 $totalChildrenPrice = $act['children'] * $availability->child_percentage * $availability->adult_price;
-        //                 $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
-
-        //                 $activityTitle = $activityModel->title;
-        //                 $availabilityId = $availability->id;
-        //                 $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
-        //                 $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
-        //                 $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
-
-        //                 $activityResults = [
-        //                     'activity_id' => $activity['activity_id'],
-        //                     // 'availabilityId' => $availabilityId,
-        //                     'activityTitle' => $activityTitle,
-        //                     'totalAdultPrice' => $totalAdultPrice,
-        //                     'totalChildrenPrice' => $totalChildrenPrice,
-        //                     'subTotalPrice' => $totalPriceActivity,
-        //                 ];
-
-        //                 $totalPrice += $totalPriceActivity;
-        //                 $fullTitleNames .= empty($fullTitleNames) ? $activityModel->title : ' & ' . $activityModel->title;
-        //             }
-        //         }
-        //     }
-        //     if (count($activityResults) > 0) {
-        //         // Add the activity results to the overall results array
-        //         $results[] = $activityResults;
-        //     } else {
-        //         // Add an error message to the overall results array if no availability record is found for any of the activityInfo records
-        //         $results[] = [
-        //             // 'activity_id' => $activity['activity_id'],
-        //             'error' => 'The number you have chosen is greater than the allowed number',
-        //         ];
-        //         // return response()->json([
-        //         //     'message' => 'The number you have chosen is greater than the allowed number',
-        //         //     'status' => 400,
-        //         // ]);
-        //     }
-        // }
-
         $adults = $request->adults ?? 0;
         $children = $request->children ?? 0;
 
@@ -273,6 +224,20 @@ class PackageActivityController extends Controller
         ->get();
         return response()->json([ 'message' =>'success','status' => 200, 'DurationList'=> DurationResource::collection( $durationActivityQuery )
         ]);
+    }
+
+    public static function pricefiltervalue() {
+        $PackageActivityQuery = PackageActivity::select('id')->get();
+        $priceList = [];
+        foreach ($PackageActivityQuery as $Package) {
+            $minPrice = PricingTiersTour::where('package_activity_id', $Package->id)->min('adult_price');
+            $priceActivityQuery = PricingTiersTour::where('package_activity_id', $Package->id)->where('adult_price', $minPrice)->get();
+            foreach ($priceActivityQuery as $price) {
+                $priceList[] = new PriceResource($price);
+            }
+        }
+        return response()->json(['message' => 'success', 'status' => 200, 'priceList' => PriceResource::collection($priceList)]);
+
     }
     public static function TourCityvalue() {
         $TourCityQuery = TourCity::select('id','name')->get();
