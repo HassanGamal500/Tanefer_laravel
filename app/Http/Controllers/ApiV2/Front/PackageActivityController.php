@@ -115,7 +115,7 @@ class PackageActivityController extends Controller
         $results = [];
         $totalPrice = 0;
         $fullTitleNames = '';
-        
+
         // foreach($request->activities as $activity) {
         //     $activityModel = PackageActivity::find($activity['activity_id']);
         //     $activityResults = [];
@@ -167,7 +167,7 @@ class PackageActivityController extends Controller
 
         $adults = $request->adults ?? 0;
         $children = $request->children ?? 0;
-        
+
         foreach($request->activities as $activity) {
             $activityModel = PackageActivity::find($activity['activity_id']);
             $availabilityId = $activity['availability_id'];
@@ -252,9 +252,9 @@ class PackageActivityController extends Controller
             ActivityBookingService::storeBookingActivityData($booking,$bookingActivity);
         }
 
-        foreach ($request->passengerDetails as $traveller) {
-            ActivityBookingService::storeBookingTravellerData($booking,$traveller);
-        }
+        // foreach ($request->passengerDetails as $traveller) {
+            ActivityBookingService::storeBookingTravellerData($booking,$request->passengerDetails);
+        // }
 
         return responseJson($request,['booking_id' => $booking->id],'operation done successfully',);
     }
