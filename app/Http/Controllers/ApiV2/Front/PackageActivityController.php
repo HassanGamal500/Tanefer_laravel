@@ -176,9 +176,10 @@ class PackageActivityController extends Controller
             $availabilities = PricingTiersTour::where('availabilities_tour_id', $availabilityId)
                 ->where('package_activity_id', $activity['activity_id'])->orderBy('min', 'asc')->get();
             foreach($availabilities as $availability) {
+                $doubleValuechild = $availability->child_percentage / 100.0;
                 if($availability->max >= $totalOccupancy && $availability->min <= $totalOccupancy) {
                     $totalAdultPrice = $availability->adult_price * $adults;
-                    $totalChildrenPrice = $children * $availability->child_percentage * $availability->adult_price;
+                    $totalChildrenPrice = $children * $doubleValuechild * $availability->adult_price;
                     $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
 
                     $activityTitle = $activityModel->title;
