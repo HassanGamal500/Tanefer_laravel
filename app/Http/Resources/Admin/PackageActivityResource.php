@@ -5,6 +5,7 @@ namespace App\Http\Resources\Admin;
 use App\Http\Resources\Admin\AvailabilitiesTourResource;
 use App\Http\Resources\PackageActivityImageResource;
 use App\Http\Resources\TourCityResource;
+use App\Models\PricingTiersTour;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Request;
 
@@ -29,6 +30,7 @@ class PackageActivityResource extends JsonResource
             'activityCity'              => new TourCityResource($this->tourCity ) ,
             'activityImage'             => $this->image ,
             // 'activityPricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person ,
+            // 'activityPricePerPerson'    => $priceActivityQuery ,
             'activityDuration_digits'    => $this->duration_digits ,
             // 'activityDuration_type'     => $this-> duration_type,
             'activityType'              => $this->activity_type ,

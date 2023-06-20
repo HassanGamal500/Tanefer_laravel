@@ -36,6 +36,12 @@ class ActivityBookingService
 
     private static function collectBookingMainData($request)
     {
+        $activityIds = array();
+        foreach($request->activities as $activity) {
+            $activityIds[] = $activity->activity_id;
+        }
+        $impodeActivities = count($activityIds) > 0 ? implode(',' ,$activityIds ) : null;
+
         return [
             'trip_price_per_person'         => PackageActivity::find($request->activities[0]['activity_id'])->price_per_person,
             'total_price'                   => $request->total_price,
@@ -43,7 +49,8 @@ class ActivityBookingService
             'children'                      => $request->children,
             'status'                        => 'pending payment',
             'model_id'                      => $request->activities[0]['activity_id'],
-            'model_type'                    => get_class(new PackageActivity())
+            'model_type'                    => get_class(new PackageActivity()),
+            'model_ids'                     => $impodeActivities
         ];
     }
 
