@@ -265,13 +265,18 @@ class PackageActivityController extends Controller
                 $current_to_date = new DateTime($durationResults[$i]['availabilitiesTour'][$j]["to_date"]);
                 $next_from_date = new DateTime($durationResults[$i + 1]['availabilitiesTour'][$j]["from_date"]);
                 $current_duration = $durationResults[$i]['duration_digits'];
-                $next_from_date->modify("+ $current_duration hours");
+                $current_to_date->modify("+ $current_duration hours");
                 if ($current_to_date >= $next_from_date) {
                     return response()->json([
                         'message' => 'please select another adventure',
                         'status' => 400
                     ]);
 
+                } else {
+                    return response()->json([
+                        'message' => 'fine',
+                        'status' => 200
+                    ]);
                 }
             }
         }
