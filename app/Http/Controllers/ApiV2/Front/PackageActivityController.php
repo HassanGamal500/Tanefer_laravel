@@ -214,7 +214,8 @@ class PackageActivityController extends Controller
 
 
     public function filterSearch(Request $request) {
-        $packageActivityQuery = SearchService::activityFilterSearch($request->title,$request->city_id,$request->duration,$request->type) ;
+        $packageActivityQuery = SearchService::activityFilterSearch($request->title,            $request->price
+        ,$request->duration,$request->type) ;
         return responseJson($request, [
             'ActivityTotal'=> $packageActivityQuery->count(),
             'ActivityList'=> PackageActivityResource::collection( $packageActivityQuery->get() )
