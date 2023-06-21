@@ -38,7 +38,7 @@ class ActivityBookingService
     {
         $activityIds = array();
         foreach($request->activities as $activity) {
-            $activityIds[] = $activity->activity_id;
+            $activityIds[] = $activity['activity_id'];
         }
         $impodeActivities = count($activityIds) > 0 ? implode(',' ,$activityIds ) : null;
 
@@ -56,11 +56,12 @@ class ActivityBookingService
 
     private static function collectBookingActivityData($bookingActivity)
     {
+        $getPricePerPerson = PackageActivity::find($bookingActivity['activity_id'])->price_per_person;
         return [
-            'package_activity_id'     => $bookingActivity['activity_id'],
-            'date'              => $bookingActivity['date'],
-            'day_number'        => 0,
-            'price_per_person'       => PackageActivity::find($bookingActivity['activity_id'])->price_per_person,
+            'package_activity_id'       => $bookingActivity['activity_id'],
+            'date'                      => $bookingActivity['date'],
+            'day_number'                => 0,
+            'price_per_person'          => $getPricePerPerson != null ? $getPricePerPerson : 0,
         ];
     }
 
