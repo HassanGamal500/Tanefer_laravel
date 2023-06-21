@@ -33,12 +33,12 @@ class SearchService
 
         return $packageActivityQuery;
     }
-    public static function activityFilterSearch( $Title = null, $price = null, $duration = null, $type = null){
+    public static function activityFilterSearch( $Title = null, $price = null, $cityID = null, $duration = null, $type = null){
         $packageActivityQuery = PackageActivity::query();
         $packageActivityQuery->where('is_published',1);
 
-        // if($cityID )
-        //     $packageActivityQuery->where('tour_city_id',$cityID);
+        if($cityID )
+            $packageActivityQuery->where('tour_city_id',$cityID);
 
         if($Title)
             $packageActivityQuery->where('title', 'like', '%' . $Title . '%');
