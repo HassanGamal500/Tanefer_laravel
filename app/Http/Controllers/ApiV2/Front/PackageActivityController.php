@@ -8,12 +8,14 @@ use App\Http\Resources\Admin\CityAvalibleResource;
 use App\Http\Resources\Admin\DurationResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Http\Resources\Admin\PriceResource;
+use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
 use App\Models\TourCity;
 use App\Services\Packages\ActivityBookingService;
 use App\Services\Packages\SearchService;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -244,5 +246,35 @@ class PackageActivityController extends Controller
         return response()->json([ 'message' =>'success','status' => 200, 'CityList'=> CityAvalibleResource::collection( $TourCityQuery )
         ]);
     }
+    public static function validateTimeTour(Request $request) {
+        $activities = $request->activities;
+        $durationResults = [];
+        foreach($activities as $activity) {
+            $activityModel = PackageActivity::find($activity['activity_id']);
+            $availabilitiesTour = AvailabilitiesTour::where('package_activity_id', $activityModel->id)
+                ->where('from_date', $activity['from_date'])->get();
+            $activityResults = [
+                "availabilitiesTour" => $availabilitiesTour,
+                "duration_digits" => $activityModel->duration_digits,
+            ];
+            $durationResults[] = $activityResults;
+        }
 
+        for ($i = 0; $i < count($durationResults) - 1; $i++) {
+            for ($j = 0; $j < count($durationResults[$i]['availabilitiesTour']); $j++) {
+                $current_to_date = new DateTime($durationResults[$i]['availabilitiesTour'][$j]["to_date"]);
+                $next_from_date = new DateTime($durationResults[$i + 1]['availabilitiesTour'][$j]["from_date"]);
+                $current_duration = $durationResults[$i]['duration_digits'];
+                $next_from_date->modify("+ $current_duration hours");
+                if ($current_to_date >= $next_from_date) {
+                    return response()->json([
+                        'message' => 'please select another adventure',
+                        'status' => 400
+                    ]);
+
+                }
+            }
+        }
+
+    }
 }

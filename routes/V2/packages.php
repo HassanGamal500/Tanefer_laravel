@@ -45,6 +45,7 @@ Route::get('/activities/price/filter', 'Front\PackageActivityController@pricefil
 Route::post('activities/book','Front\PackageActivityController@book');
 Route::post('activities/calculate-total-price','Front\PackageActivityController@calculateActivitiesPrice');
 Route::post('activities/calculate-tour-total-price','Front\PackageActivityController@calculateTourActivitiesPrice');
+Route::post('activities/validate-time-tour','Front\PackageActivityController@validateTimeTour');
 
 Route::post('calculate-total-price' , 'Front\PackageController@calculateTotalPrice');
 

@@ -19,6 +19,10 @@ class PackageActivityResource extends JsonResource
      */
     public function toArray($request)
     {
+        $minPrice = PricingTiersTour::where('package_activity_id', $this->id)->min('adult_price');
+        $priceActivityQuery = PricingTiersTour::select('adult_price')->where('package_activity_id', $this->id)->where('adult_price', $minPrice)->get();
+        $activityPricePerPerson = $priceActivityQuery->count() > 0 ? intval($priceActivityQuery[0]->adult_price) : '';
+
         $data = [
             'activityID'                => $this->id ,
             'activityTitle'             => $this->title ,
@@ -30,7 +34,7 @@ class PackageActivityResource extends JsonResource
             'activityCity'              => new TourCityResource($this->tourCity ) ,
             'activityImage'             => $this->image ,
             // 'activityPricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person ,
-            // 'activityPricePerPerson'    => $priceActivityQuery ,
+            'activityPricePerPerson'    => $activityPricePerPerson ,
             'activityDuration_digits'    => $this->duration_digits ,
             // 'activityDuration_type'     => $this-> duration_type,
             'activityType'              => $this->activity_type ,
