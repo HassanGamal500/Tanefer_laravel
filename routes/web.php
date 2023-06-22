@@ -20,6 +20,12 @@ use Illuminate\Support\Facades\Date;
 //});
 
 Auth::routes();
+Route::get('/linkstorage', function () {
+    Artisan::call('storage:link');
+});
+Route::get('/clear/route', function () {
+    Artisan::call('route:clear');
+});
 
 Route::get('/home', 'HomeController@index')->name('home');
 
