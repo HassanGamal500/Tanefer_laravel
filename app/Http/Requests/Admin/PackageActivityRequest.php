@@ -39,7 +39,7 @@ class PackageActivityRequest extends ParentRequest
             'activity_image'                => 'nullable',
             // 'activity_price_per_person'     => 'required',
             'activity_duration_digits'      => 'required|integer|min:1',
-            // 'activity_duration_type'        => ['required',Rule::in(PackageActivity::activityDurationType)],
+            'activity_duration_type'        => ['required',Rule::in(PackageActivity::activityDurationType)],
             'activity_type'                 => ['required',Rule::in(PackageActivity::activityType)],
             // 'activity_pax_min_number'       => 'required|integer|min:1',
             'side_activity'                 => ['requiredIf:activity_type,camping','array'],

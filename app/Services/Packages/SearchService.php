@@ -33,7 +33,7 @@ class SearchService
 
         return $packageActivityQuery;
     }
-    public static function activityFilterSearch( $Title = null, $price = null, $cityID = null, $duration = null, $type = null){
+    public static function activityFilterSearch( $Title = null, $price = null, $cityID = null, $duration = null,$duration_type = null, $type = null){
         $packageActivityQuery = PackageActivity::query();
         $packageActivityQuery->where('is_published',1);
 
@@ -45,6 +45,9 @@ class SearchService
 
         if($duration )
             $packageActivityQuery->where('duration_digits',$duration);
+
+        if($duration_type )
+            $packageActivityQuery->where('duration_type',$duration_type);
 
         if($type)
             $packageActivityQuery->where('activity_type',$type);

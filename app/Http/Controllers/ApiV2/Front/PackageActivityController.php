@@ -214,16 +214,24 @@ class PackageActivityController extends Controller
 
 
     public function filterSearch(Request $request) {
-        $packageActivityQuery = SearchService::activityFilterSearch($request->title,$request->price,$request->city_id,$request->duration,$request->type) ;
+        $packageActivityQuery = SearchService::activityFilterSearch(
+            $request->title,
+            $request->price,
+            $request->city_id,
+            $request->duration,
+            $request->duration_type,
+            $request->type
+        ) ;
         return responseJson($request, [
             'ActivityTotal'=> $packageActivityQuery->count(),
             'ActivityList'=> PackageActivityResource::collection( $packageActivityQuery->get() )
         ],'success');
     }
 
-    public static function durationvalue() {
-        $durationActivityQuery = PackageActivity::select('duration_digits')->distinct('duration_digits')
-        ->get();
+    public static function durationvalue(Request $request) {
+        $duration_type = $request->duration_type;
+        $durationActivityQuery = PackageActivity::where('duration_type',$duration_type)
+        ->select('duration_digits')->distinct('duration_digits')->get();
         return response()->json([ 'message' =>'success','status' => 200, 'DurationList'=> DurationResource::collection( $durationActivityQuery )
         ]);
     }
