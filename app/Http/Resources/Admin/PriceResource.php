@@ -15,7 +15,7 @@ class PriceResource extends JsonResource
     public function toArray($request)
     {
         $data = [
-            'price' => $this->adult_price,
+            'price' => '$ ' . $this->adult_price,
         ];
         return $data;
     }
