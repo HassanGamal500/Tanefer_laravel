@@ -256,6 +256,36 @@ class PackageActivityController extends Controller
     }
     public static function validateTimeTour(Request $request) {
         $activities = $request->activities;
+        $activityIds = [];
+        foreach ($activities as $activity) {
+            $activityIds[] = $activity['activity_id'];
+        }
+        $listActivitiesByTime = PackageActivity::whereIn('id', $activityIds)->orderBy('start_time', 'asc')->get();
+
+        for ($i = 0; $i < count($activities) - 1; $i++) {
+            $current_to_date = new DateTime($activities[$i]['from_date']);
+            $next_from_date = new DateTime($activities[$i + 1]['from_date']);
+            $end_time = $listActivitiesByTime[$i]['end_time'];
+            if ($current_to_date == $next_from_date) {
+                $next_activity_model = $listActivitiesByTime[$i+1];
+                $next_start_time = $next_activity_model['start_time'];
+
+                if ($end_time >= $next_start_time) {
+                    return response()->json([
+                        'errors' => 'two adventures have the same time please select another one',
+                        'status' => 400
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'data correct',
+            'status' => 200
+        ]);
+    }
+    public static function validateTimeTourcamping(Request $request) {
+        $activities = $request->activities;
         $durationResults = [];
         foreach($activities as $activity) {
             $activityModel = PackageActivity::find($activity['activity_id']);
@@ -277,7 +307,9 @@ class PackageActivityController extends Controller
                     $next_from_date = new DateTime($durationResults[$i + 1]['availabilitiesTour'][$j]["from_date"]);
                     $end_time = $durationResults[$i]['end_time'];
                     $start_time = $durationResults[$i+ 1]['start_time'];
-                    // Check if the dates and times are valid
+
+
+
                     if ($current_to_date > $next_from_date) {
                         return response()->json([
                             'errors' => 'please select another adventure There is a similarity with the start date of the new adventure and the end date of the previous adventure',
