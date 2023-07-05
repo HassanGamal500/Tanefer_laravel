@@ -71,12 +71,19 @@ class ActivityBookingService
             'passengerTitle'            => $traveller['passengerTitle'] ?? null,
             'passengerFirstName'        => $traveller['passengerFirstName'] ?? null,
             'passengerLastName'         => $traveller['passengerLastName'] ?? null,
+            'passengerGender'           => $traveller['passengerGender'] ?? null,
+            'passengerType'             => $traveller['passengerType'] ?? null,
+            'date_of_birth'             => $traveller['date_of_birth'] ?? null,
+            'passport_number'           => $traveller['passport_number'] ?? null,
+            'passport_expire_date'      => $traveller['passport_expire_date'] ?? null,
+            'passport_issue_country'    => $traveller['passport_issue_country'] ?? null,
         ];
     }
 
     private static function collectBookingData($request)
     {
         return [
+            'contact_name'              => $request->contact_name ?? null,
             'contact_phone'             => $request->contact_phone ?? null,
             'contact_email'             => $request->contact_email ?? null,
         ];

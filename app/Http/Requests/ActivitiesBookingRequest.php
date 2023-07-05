@@ -25,6 +25,7 @@ class ActivitiesBookingRequest extends ParentRequest
     public function rules()
     {
         return [
+            'contact_name'                => 'required',
             'contact_phone'               => 'required',
             'contact_email'               => 'required|email',
             'total_price'                 => ['required','numeric'],
@@ -32,6 +33,12 @@ class ActivitiesBookingRequest extends ParentRequest
             'passengerDetails.passengerTitle'         => 'required|string',
             'passengerDetails.passengerFirstName'     => 'required|min:2',
             'passengerDetails.passengerLastName'      => 'required|min:2',
+            'passengerDetails.passengerType'          => 'required|string',
+            'passengerDetails.passengerGender'        => 'required|string',
+            'passengerDetails.date_of_birth'          => 'required|date|date_format:Y-m-d',
+            'passengerDetails.passport_number'        => 'required|numeric',
+            'passengerDetails.passport_expire_date'   => 'required|date|date_format:Y-m-d',
+            'passengerDetails.passport_issue_country' => 'required|string',
             'activities'                   => 'required|array',
             'activities.*.activity_id'     => 'required|exists:App\Models\PackageActivity,id',
             'activities.*.date'                   => 'required|date|date_format:Y-m-d',
