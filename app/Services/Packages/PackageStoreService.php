@@ -67,35 +67,20 @@ class PackageStoreService
             'duration'                      => $validatedData['package_duration'],
             'price_per_person'              => $validatedData['package_price_per_person'] ?? 0,
             'start_date'                    => $validatedData['package_start_date'] ??null,
-            'additional_cost'               => array_key_exists('additional_cost',$validatedData) ? $validatedData['additional_cost'] : null,
-            'expected_price'                => array_key_exists('expected_price',$validatedData) ? $validatedData['expected_price'] : null,
-            'solo_packageprice'                => array_key_exists('solo_packageprice',$validatedData) ? $validatedData['solo_packageprice'] : null,
-            'Limo_packageprice'                => array_key_exists('Limo_packageprice' ,$validatedData) ? $validatedData['Limo_packageprice'] : null,
-            'Caster_packageprice'                => array_key_exists('Caster_packageprice',$validatedData) ? $validatedData['Caster_packageprice'] : null,
-            'HiAC_packageprice'                => array_key_exists('HiAC_packageprice',$validatedData) ? $validatedData['HiAC_packageprice'] : null,
-            'bus_packageprice'                => array_key_exists('bus_packageprice',$validatedData) ? $validatedData['bus_packageprice'] : null,
-            'children_percentage'                => array_key_exists('children_percentage',$validatedData) ? $validatedData['children_percentage'] : null,
             'international_flight'              => 0,
-            'single_supplement_percentage'      => array_key_exists('single_supplement_percentage',$validatedData) ?
-                $validatedData['single_supplement_percentage'] ?? 0.0 : 0.0,
             'is_top'                            => array_key_exists('is_top',$validatedData) ? $validatedData['is_top'] : 0,
             'rank'                            => array_key_exists('rank',$validatedData) ? $validatedData['rank'] : 0,
             'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',
-           // 'includes'                      => $validatedData['trip_includes'] ? json_encode( $validatedData['trip_includes'] ) : null,
-           // 'excludes'                      => $validatedData['trip_excludes'] ? json_encode( $validatedData['trip_excludes'] ) : null,
             'slug'                            => $validatedData['slug'],
             'image_alt'                       => array_key_exists('image_alt',$validatedData) ? $validatedData['image_alt'] : null,
             'image_caption'                   => array_key_exists('image_caption',$validatedData) ? $validatedData['image_caption'] : null,
             'seo_title'                       => array_key_exists('meta_title',$validatedData) ? $validatedData['meta_title'] : $validatedData['package_title'],
             'meta_description'                => array_key_exists('meta_desc',$validatedData) ? $validatedData['meta_desc'] : null,
-            'limo_children_percentage'        => array_key_exists('limo_children_percentage',$validatedData) ? $validatedData['limo_children_percentage']: 0,
-            'hiac_children_percentage'        => array_key_exists('hiac_children_percentage',$validatedData) ? $validatedData['hiac_children_percentage']: 0,
-            'caster_children_percentage'        => array_key_exists('caster_children_percentage',$validatedData) ? $validatedData['caster_children_percentage']: 0,
-            'bus_children_percentage'        => $validatedData['bus_children_percentage'] ??  0,
             'cruise_id'                      => array_key_exists('cruise_id',$validatedData)?
                 $validatedData['cruise_id'] : null
             ];
         if( array_key_exists('package_image',$validatedData) ){
+            // $data['image']   =  'sssss';
             $data['image']   =  StoreFileService::SaveFile('package/banner', $validatedData['package_image']);
         }
 
@@ -107,7 +92,7 @@ class PackageStoreService
         $data = [
             'tour_city_id'     => $validatedData['city_id'],
             'days_number'       => array_key_exists('city_day_number',$validatedData) ? $validatedData['city_day_number'] : 0,
-            'duration'          => array_key_exists('city_duration',$validatedData) ? $validatedData['city_duration'] : 0,
+            'min_days'          => array_key_exists('min_days',$validatedData) ? $validatedData['min_days'] : 0,
             'start'             => array_key_exists('start',$validatedData) ? $validatedData['start'] : 0,
         ];
 
@@ -143,7 +128,8 @@ class PackageStoreService
         if(is_array($images)){
             foreach ($images as $image){
                 $package->packageImages()->create([
-                    'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
+                    'image' => 'hjk',
+                    // 'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
 //                    'image_alt' => array_key_exists('image_alt',$image) ? $image['image_alt'] : null,
 //                    'image_caption' => array_key_exists('image_caption',$image) ? $image['image_caption'] : null
                 ]);

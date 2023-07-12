@@ -26,6 +26,9 @@ Route::get('/linkstorage', function () {
 Route::get('/clear/route', function () {
     Artisan::call('route:clear');
 });
+Route::get('/clear/cache', function () {
+    Artisan::call('config:cache');
+});
 
 Route::get('/home', 'HomeController@index')->name('home');
 

@@ -76,6 +76,7 @@ class PackageController extends Controller
                 PackageStoreService::storeSeasons($package,$request->seasons);
             }
              foreach ( $validated['package_cities'] as $key => $packageCity ){
+
                  $packageCity = $this->mergeExtraPackageCityData($validated,$key,$packageCity);
 
                  PackageStoreService::storePackageCityData($package,$packageCity);
@@ -184,6 +185,8 @@ class PackageController extends Controller
      * @return array
      */
     private function mergeExtraPackageCityData($validated, $key, $packageCity){
+
+        // return response()->json(['test' => '']);
 
         $packageCity = array_merge([
             'start' => false,
