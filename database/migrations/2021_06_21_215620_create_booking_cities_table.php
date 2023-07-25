@@ -17,7 +17,7 @@ class CreateBookingCitiesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('city_id')->nullable();
-            $table->integer('nights_number');
+            $table->integer('nights_number')->default(0);
             $table->enum('transportation_type',['limousine','train','flight']);
             $table->unsignedBigInteger('package_hotel_id')->nullable();
             $table->unsignedBigInteger('package_hotel_rooms_id')->nullable();

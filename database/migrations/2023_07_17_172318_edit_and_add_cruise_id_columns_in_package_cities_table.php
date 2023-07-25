@@ -16,7 +16,7 @@ class EditAndAddCruiseIdColumnsInPackageCitiesTable extends Migration
         Schema::table('package_cities', function (Blueprint $table) {
             $table->unsignedBigInteger('cruise_id')->index()->nullable();
             $table->foreign('cruise_id')->on('cruises')->references('id')->onDelete('cascade');
-            $table->dropColumn('city_or_cruise_id');
+            $table->dropColumn('adventure_or_cruise_id');
 
         });
     }

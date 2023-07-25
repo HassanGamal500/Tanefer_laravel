@@ -16,7 +16,7 @@ class AddExtrraDescTable extends Migration
         Schema::table('package_activities', function (Blueprint $table) {
             $table->text('intro')->after('overview');
             $table->text('itinerary')->after('intro');
-            $table->string('start_time')->nullable();
+            // $table->string('start_time')->nullable();
 
         });
     }
