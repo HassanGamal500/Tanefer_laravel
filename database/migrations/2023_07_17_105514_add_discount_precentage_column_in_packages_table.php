@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddMinDaysColumnInPackagesTable extends Migration
+class AddDiscountPrecentageColumnInPackagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,8 @@ class AddMinDaysColumnInPackagesTable extends Migration
     public function up()
     {
         Schema::table('packages', function (Blueprint $table) {
-            $table->integer('min_days')->default(0)->nullable();
+            $table->double('discount_precentage');
+            $table->integer('additional_price');
         });
     }
 

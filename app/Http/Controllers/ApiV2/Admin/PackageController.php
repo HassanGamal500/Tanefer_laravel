@@ -72,15 +72,24 @@ class PackageController extends Controller
         DB::transaction(function () use ( $validated,$request ) {
              $package =  PackageStoreService::storePackageMainData($validated);
 
-            if(! empty($request->seasons)){
-                PackageStoreService::storeSeasons($package,$request->seasons);
+            if(! empty($request->availabilties)){
+                PackageStoreService::availAbilities($package['id'],$request->availabilties);
             }
-             foreach ( $validated['package_cities'] as $key => $packageCity ){
+            if(! empty($request->activities)){
+                $packageType = PackageStoreService::storeAdventureOrCruise($package['id'],$request->activities);
+                $daysId = PackageStoreService::storeAdventuredays($request->activities,$packageType['adventure'], $package['id']);
+                PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
+                PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
+            }
 
-                 $packageCity = $this->mergeExtraPackageCityData($validated,$key,$packageCity);
+            // if(! empty($request->seasons)){
+            //     PackageStoreService::storeSeasons($package,$request->seasons);
+            // }
+            // foreach ( $validated['package_cities'] as $key => $packageCity ){
 
-                 PackageStoreService::storePackageCityData($package,$packageCity);
-             }
+            //     $packageCity = $this->mergeExtraPackageCityData($validated,$key,$packageCity);
+            //     PackageStoreService::storePackageCityData($package,$packageCity);
+            // }
         });
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
@@ -140,20 +149,35 @@ class PackageController extends Controller
             }
             $package->update( PackageStoreService::collectPackageMainData($validated) );
 
-            $package->packageCity()->delete();
-            $package->seasons()->delete();
-
-            if(! empty($request->seasons)){
-                PackageStoreService::storeSeasons($package,$request->seasons);
+            if(! empty($request->availabilties)){
+                $package->packageAbilities()->delete();
+                PackageStoreService::availAbilities($package['id'],$request->availabilties);
+            }
+            if(! empty($request->activities)){
+                $package->packageCity()->delete();
+                $packageType = PackageStoreService::storeAdventureOrCruise($package['id'],$request->activities);
+                $package->packageAdventuredays()->delete();
+                $daysId = PackageStoreService::storeAdventuredays($request->activities,$packageType['adventure'], $package['id']);
+                $package->packageAdventure()->delete();
+                PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
+                $package->packageTransportations()->delete();
+                PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
 
-            if (isset($validated['package_cities'])) {
-                foreach ($validated['package_cities'] as $key => $packageCity) {
-                    $packageCity = $this->mergeExtraPackageCityData($validated, $key, $packageCity);
 
-                    PackageStoreService::storePackageCityData($package, $packageCity);
-                }
-            }
+            // $package->seasons()->delete();
+
+            // if(! empty($request->seasons)){
+            //     PackageStoreService::storeSeasons($package,$request->seasons);
+            // }
+
+            // if (isset($validated['package_cities'])) {
+            //     foreach ($validated['package_cities'] as $key => $packageCity) {
+            //         $packageCity = $this->mergeExtraPackageCityData($validated, $key, $packageCity);
+
+            //         PackageStoreService::storePackageCityData($package, $packageCity);
+            //     }
+            // }
         });
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
@@ -167,10 +191,16 @@ class PackageController extends Controller
      */
     public function destroy(Package $package)
     {
+
+        $package->packageTransportations()->delete();
+        $package->packageAdventure()->delete();
+        $package->packageAdventuredays()->delete();
         $package->packageHotel()->delete();
-        $package->packageActivity()->delete();
-        $package->packageTrasportation()->delete();
+        // $package->packageActivity()->delete();
+        // $package->packageTrasportation()->delete();
         $package->packageCity()->delete();
+        $package->packageAbilities()->delete();
+
         if( $package->delete() )
             return response()->json(['message' =>'operation done successfully', 'status' => 200]);
 

@@ -4,6 +4,11 @@
 namespace App\Services\Packages;
 
 
+use App\Models\PackageAvailability;
+use App\Models\PackageBookingadventrue;
+use App\Models\PackageBookingDays;
+use App\Models\PackageCity;
+use App\Models\PackageCityTransportation;
 use App\Models\PackageHotelRoom;
 use App\Models\Package;
 use App\Services\StoreFileService;
@@ -56,6 +61,124 @@ class PackageStoreService
             ]);
         }
     }
+    public static function availAbilities($package_id,$availabilties)
+    {
+        $availabilityIds = [];
+        foreach ($availabilties as $avail){
+            if (is_array($avail)) {
+                $availability = PackageAvailability::create([
+                    'from_date' => $avail['from_date'],
+                    'to_date'   => $avail['to_date'],
+                    'days'   => json_encode($avail['days']),
+                    'package_id'   => $package_id,
+                ]);
+
+                $availabilityIds[] = $availability->id;
+            }
+        }
+        return $availabilityIds;
+
+    }
+    public static function storeAdventureOrCruise($package_id,$activities)
+    {
+        $i = 1;
+        $bookingIds = [];
+        $cruiseIds = [];
+        foreach ($activities as $activity){
+            if (is_array($activity)) {
+                $booking = PackageCity::create([
+                    'package_id'   => $package_id,
+                    'tour_city_id'=> $activity['city_id'],
+                    'start'=> $i,
+                    'days_number'=> $activity['days_number'],
+                    'type'=> $activity['type'],
+                    'cruise_id'=> $activity['cruise_id'],
+                ]);
+                if ($activity['type'] === "adventure") {
+                    $bookingIds[] = $booking->id;
+                } elseif ($activity['type'] === "cruise") {
+                    $cruiseIds[] = $booking->id;
+                }
+            }
+            $i++;
+        }
+        return ['adventure' => $bookingIds, 'cruise' => $cruiseIds];
+    }
+    public static function storeAdventuredays($activities, $availabilityIds, $package_id)
+    {
+        $i = 1;
+        $availabilityIndex = 0;
+        $bookingdays = [];
+
+        foreach ($activities as $availability) {
+            if(! empty($availability['days'] != null)){
+                foreach ((array)$availability['days'] as $adv) {
+                    $package_activity_id = $availabilityIds[$availabilityIndex];
+                    $daydata = PackageBookingDays::create([
+                        'package_id'        => $package_id,
+                        'day_number'        => $adv['day_number'],
+                        'start'             => $i,
+                        'package_city_id'   => $package_activity_id,
+                    ]);
+                    $i++;
+                    $bookingdays[] = $daydata->id;
+                }
+            }
+            $availabilityIndex++;
+        }
+        return $bookingdays;
+
+    }
+
+    public static function storeAdventure($activities, $availabilityIds,$daysId, $package_id)
+    {
+        $availabilityIndex = 0;
+        $daysIndex = 0;
+        foreach ($activities as $availability) {
+            if(! empty($availability['days'] != null)){
+                foreach ((array)$availability['days'] as $adv) {
+                    foreach ((array)$adv['adventrues'] as $adventrue) {
+                        $package_activity_id = $availabilityIds[$availabilityIndex];
+                        $package_day_id = $daysId[$daysIndex];
+                        PackageBookingadventrue::create([
+                            'package_id'   => $package_id,
+                            'package_city_id' => $package_activity_id,
+                            'package_day_id' => $package_day_id,
+                            'adventrue_id'   => $adventrue['adventrue_id'],
+                        ]);
+                    }
+                }
+                $daysIndex++;
+            }
+            $availabilityIndex++;
+        }
+    }
+    public static function storeTransportations($activities, $availabilityIds, $package_id, $bookingIds)
+    {
+        $availabilityIndex = 0;
+        $bookingIndex = 0;
+        foreach ($activities as $availability) {
+            if (! empty($availability['transportation'] != null)) {
+                foreach ($availability['transportation'] as $adv) {
+                    if ($availability['type'] === 'cruise') {
+                        $package_activity_id = $bookingIds[$bookingIndex];
+                        $bookingIndex++;
+                    } else {
+                        $package_activity_id = $availabilityIds[$availabilityIndex];
+                        $availabilityIndex++;
+                    }
+                    if ($package_activity_id !== null) {
+                        PackageCityTransportation::create([
+                            'package_id'        => $package_id,
+                            'package_city_id'   => $package_activity_id,
+                            'type'              => $adv['type'],
+                            'price_per_person'  => $adv['price_per_person'],
+                        ]);
+                    }
+                }
+            }
+        }
+    }
 
     public static function collectPackageMainData($validatedData){
         $data = [
@@ -65,9 +188,13 @@ class PackageStoreService
             'overview'                      => $validatedData['package_overview'],
             'nights_number'                 => $validatedData['package_nights_number'],
             'duration'                      => $validatedData['package_duration'],
+            'additional_price'              => $validatedData['additional_price'],
+            'discount_precentage'           => $validatedData['discount_precentage'],
             'price_per_person'              => $validatedData['package_price_per_person'] ?? 0,
             'start_date'                    => $validatedData['package_start_date'] ??null,
             'international_flight'              => 0,
+            'includes'                      => $validatedData['package_includes'] ? json_encode( $validatedData['package_includes'] ) : null,
+            'excludes'                      => $validatedData['package_excludes'] ? json_encode( $validatedData['package_excludes'] ) : null,
             'is_top'                            => array_key_exists('is_top',$validatedData) ? $validatedData['is_top'] : 0,
             'rank'                            => array_key_exists('rank',$validatedData) ? $validatedData['rank'] : 0,
             'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',
@@ -76,9 +203,8 @@ class PackageStoreService
             'image_caption'                   => array_key_exists('image_caption',$validatedData) ? $validatedData['image_caption'] : null,
             'seo_title'                       => array_key_exists('meta_title',$validatedData) ? $validatedData['meta_title'] : $validatedData['package_title'],
             'meta_description'                => array_key_exists('meta_desc',$validatedData) ? $validatedData['meta_desc'] : null,
-            'cruise_id'                      => array_key_exists('cruise_id',$validatedData)?
-                $validatedData['cruise_id'] : null
-            ];
+            'cruise_id'                      => array_key_exists('cruise_id',$validatedData)? $validatedData['cruise_id'] : null
+        ];
         if( array_key_exists('package_image',$validatedData) ){
             // $data['image']   =  'sssss';
             $data['image']   =  StoreFileService::SaveFile('package/banner', $validatedData['package_image']);
@@ -117,7 +243,6 @@ class PackageStoreService
     public static function collectPackageCityTransportationData($validatedData){
         return [
             'type'                 => $validatedData['type'],
-            'date'                 => carbon::createFromDate(  $validatedData['date'] )->format('Y-m-d'),
             'price_per_person'     => $validatedData['price_per_person'],
             'destination_city_id'  => $validatedData['destination_city_id']
         ];

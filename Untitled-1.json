@@ -1,0 +1,91 @@
+{
+    "package_title": "Jewel of the Nile",
+    "package_overview": "A romance writer sets off to...",
+    "slug": "jewel-of-the-nile",
+    "cover_image": "https://domain.com/cover-jewel-of-the-nile.jpg",
+    "package_duration": "9",
+    "package_nights_number": "8",
+    "additional_price": 10,
+    "discount_precentage": 10,
+    "availabilties": [
+        {
+            "from_date": "2017-01-01",
+            "to_date": "2017-12-31",
+            "days":  ["Sunday", "Monday", "Tuesday"]
+        },
+        {
+            "from_date": "2018-01-01",
+            "to_date": "2018-12-31",
+            "days":  ["Sunday", "Monday", "Tuesday"]
+        }
+    ],
+    "package_includes": [
+        "Accommodation",
+        "Meals",
+        "Transportation",
+        "Guide"
+    ],
+    "package_excludes": [
+        "Airfare",
+        "Visa",
+        "Insurance"
+    ],
+    "activities": [
+        {
+            "city_id": 1,
+            "cruise_id": null,
+            "type": "adventure",
+            "days_number": 2,
+            "days": [
+                {
+                    "day_number": 1,
+                    "adventrues": [
+                        {
+                            "adventrue_id": 127
+                        },
+                        {
+                            "adventrue_id": 126
+                        }
+                    ]
+                },
+                {
+                    "day_order": 2,
+                    "adventrues": [
+                        {
+                            "adventrue_id": 125
+                        }
+                    ]
+                }
+            ],
+            "transportation": [
+                {
+                    "type": "car",
+                    "price_per_person": 100
+                }
+            ]
+        },
+        {
+            "city_id": 1,
+            "cruise_id": 1,
+            "type": "cruise",
+            "days_number": 5,
+            "days": null,
+            "Transportation": [
+                {
+                    "type": "Steamship",
+                    "price_per_person": 100
+                }
+            ]
+        }
+    ],
+    "accommodation": [
+        {
+            "city_id": "cairo",
+            "hotel_id": "hamdy_hotel"
+        },
+        {
+            "city_id": "Alexandria",
+            "hotel_id": "le-meridien-pyramids"
+        }
+    ]
+}

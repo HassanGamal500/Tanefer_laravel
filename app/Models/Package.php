@@ -13,6 +13,19 @@ class Package extends Model
         return $this->hasMany(PackageCity::class,'package_id');
     }
 
+    public function packageAbilities(){
+        return $this->hasMany(PackageAvailability::class,'package_id');
+    }
+    public function packageAdventuredays(){
+        return $this->hasMany(PackageBookingDays::class,'package_id');
+    }
+    public function packageAdventure(){
+        return $this->hasMany(PackageBookingadventrue::class,'package_id');
+    }
+    public function packageTransportations(){
+        return $this->hasMany(PackageCityTransportation::class,'package_id');
+    }
+
     public function packageCities()
     {
         return $this->belongsToMany(TourCity::class,'package_cities'
