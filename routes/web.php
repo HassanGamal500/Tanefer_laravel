@@ -30,6 +30,10 @@ Route::get('/clear/cache', function () {
     Artisan::call('config:cache');
 });
 
+Route::get('/migrate', function(){
+    \Artisan::call('migrate');
+});
+
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::post('payment', 'HomeController@payment');
