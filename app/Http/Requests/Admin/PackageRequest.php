@@ -34,7 +34,7 @@ class PackageRequest extends ParentRequest
             'package_image'                                => 'nullable|image|max:2000',
             'package_overview'                             => 'required',
             'package_nights_number'                        => 'required|integer',
-            'package_duration'                             => 'required|string',
+            'package_duration'                             => 'required|integer',
             'package_price_per_person'                      => 'nullable',
             'additional_price'                              => 'nullable',
             'discount_precentage'                          => 'nullable',

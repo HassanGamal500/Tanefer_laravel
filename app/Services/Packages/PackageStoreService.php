@@ -92,16 +92,30 @@ class PackageStoreService
                     'start'=> $i,
                     'days_number'=> $activity['days_number'],
                     'type'=> $activity['type'],
-                    'cruise_id'=> $activity['cruise_id'],
+                    'cruise_id'=> isset($activity['cruise_id']) ? $activity['cruise_id'] : null,
                 ]);
                 if ($activity['type'] === "adventure") {
                     $bookingIds[] = $booking->id;
                 } elseif ($activity['type'] === "cruise") {
                     $cruiseIds[] = $booking->id;
                 }
+
+                if (! empty($activity['transportation'] != null)) {
+                    foreach ($activity['transportation'] as $adv) {
+
+                        PackageCityTransportation::create([
+                            'package_id'        => $package_id,
+                            'package_city_id'   => $booking->id,
+                            'type'              => $adv['type'],
+                            'price_per_person'  => $adv['price_per_person'],
+                        ]);
+                    }
+                }
+
             }
             $i++;
         }
+
         return ['adventure' => $bookingIds, 'cruise' => $cruiseIds];
     }
     public static function storeAdventuredays($activities, $availabilityIds, $package_id)
@@ -109,8 +123,8 @@ class PackageStoreService
         $i = 1;
         $availabilityIndex = 0;
         $bookingdays = [];
-
         foreach ($activities as $availability) {
+
             if(! empty($availability['days'] != null)){
                 foreach ((array)$availability['days'] as $adv) {
                     $package_activity_id = $availabilityIds[$availabilityIndex];
@@ -147,38 +161,42 @@ class PackageStoreService
                             'adventrue_id'   => $adventrue['adventrue_id'],
                         ]);
                     }
-                }
                 $daysIndex++;
+
+                }
             }
             $availabilityIndex++;
         }
     }
-    public static function storeTransportations($activities, $availabilityIds, $package_id, $bookingIds)
-    {
-        $availabilityIndex = 0;
-        $bookingIndex = 0;
-        foreach ($activities as $availability) {
-            if (! empty($availability['transportation'] != null)) {
-                foreach ($availability['transportation'] as $adv) {
-                    if ($availability['type'] === 'cruise') {
-                        $package_activity_id = $bookingIds[$bookingIndex];
-                        $bookingIndex++;
-                    } else {
-                        $package_activity_id = $availabilityIds[$availabilityIndex];
-                        $availabilityIndex++;
-                    }
-                    if ($package_activity_id !== null) {
-                        PackageCityTransportation::create([
-                            'package_id'        => $package_id,
-                            'package_city_id'   => $package_activity_id,
-                            'type'              => $adv['type'],
-                            'price_per_person'  => $adv['price_per_person'],
-                        ]);
-                    }
-                }
-            }
-        }
-    }
+    // public static function storeTransportations($activities, $availabilityIds, $package_id, $bookingIds)
+    // {
+    //     $availabilityIndex = 0;
+    //     $bookingIndex = 0;
+
+    //     foreach ($activities as $availability) {
+    //         if (! empty($availability['transportation'] != null)) {
+    //             foreach ($availability['transportation'] as $adv) {
+
+    //                 if ($availability['type'] === 'cruise') {
+    //                     $package_activity_id = $bookingIds[$bookingIndex];
+    //                     $bookingIndex++;
+    //                 } else {
+
+    //                     $package_activity_id = $availabilityIds[$availabilityIndex];
+    //                     $availabilityIndex++;
+    //                 }
+    //                 if ($package_activity_id !== null) {
+    //                     PackageCityTransportation::create([
+    //                         'package_id'        => $package_id,
+    //                         'package_city_id'   => $package_activity_id,
+    //                         'type'              => $adv['type'],
+    //                         'price_per_person'  => $adv['price_per_person'],
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     public static function collectPackageMainData($validatedData){
         $data = [
@@ -206,7 +224,6 @@ class PackageStoreService
             'cruise_id'                      => array_key_exists('cruise_id',$validatedData)? $validatedData['cruise_id'] : null
         ];
         if( array_key_exists('package_image',$validatedData) ){
-            // $data['image']   =  'sssss';
             $data['image']   =  StoreFileService::SaveFile('package/banner', $validatedData['package_image']);
         }
 
