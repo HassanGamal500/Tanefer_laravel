@@ -15,7 +15,6 @@ class PackagetourzBooing extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id ,
             'adventrue_id ' => $this->adventrue_id  ,
          ];
     }

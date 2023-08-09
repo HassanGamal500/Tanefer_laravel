@@ -37,3 +37,4 @@ class SendCustomPackage extends Mailable
         ]);
     }
 }
+

@@ -4,7 +4,7 @@ namespace App\Http\Resources\Admin;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PackageCityTransportationResource extends JsonResource
+class PackageActivityTourz extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,8 @@ class PackageCityTransportationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'transportationID'              => $this->id ,
-            'transportationType'            => $this->type ,
-            'transportationPricePerPerson'  => $this->price_per_person ,
+            'activityID'               => $this->id ,
+            'activityName'             =>$this->title ,
         ];
     }
 }

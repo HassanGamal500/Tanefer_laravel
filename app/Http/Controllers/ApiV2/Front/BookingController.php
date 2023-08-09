@@ -192,7 +192,7 @@ class BookingController extends Controller
     public function testmail()
     {
         $url = 'data';
-        Mail::to(request()->email)->send(new SendCustomPackage(request()->email,$url));
+        Mail::to('mohamedhamdytotti@gmail.com')->send(new SendCustomPackage('mohamedhamdytotti@gmail.com',$url));
         $message = 'Your booking under processing, We will email you soon with booking status';
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
