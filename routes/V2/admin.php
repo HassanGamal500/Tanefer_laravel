@@ -56,7 +56,7 @@ Route::namespace('Admin')->group(function (){
         Route::get('/city/{id}' , 'CruiseController@listOfCruises');
         Route::get('/' , 'CruiseController@index');
         Route::get('/{id}' , 'CruiseController@show');
-        Route::post('store', 'CruiseController@store');
+        Route::post('/store', 'CruiseController@store');
         Route::put('/{id}/update' , 'CruiseController@update');
         Route::post('/children-policy', 'CruiseController@childrenPolicy');
 
@@ -67,6 +67,7 @@ Route::namespace('Admin')->group(function (){
     Route::apiResource('activities','PackageActivityController');
     Route::get('activities/form/lists', 'PackageActivityController@formLists');
     Route::get('activities/activity/list', 'PackageActivityController@ActivityFilteredByCity');
+    Route::get('activitiescruise/activity/list', 'PackageActivityController@ActivityCruiseFilteredByCity');
     Route::get('activities-bookings' , 'BookingController@activityBookings');
 
     Route::get('bookingDetails/{id}' , 'BookingController@bookingDetails');

@@ -11,6 +11,7 @@ use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
 use App\Models\TourCity;
+use App\Models\Cruise;
 use App\Services\Packages\PackageActivityStoreService;
 use App\Services\Packages\PackageHotelStoreService;
 use App\Services\Packages\PackageStoreService;
@@ -219,4 +220,27 @@ class PackageActivityController extends Controller
             'data'=> PackageActivityListResource::collection( $packageActivityQuery->get() )
         ]);
     }
+
+    public function ActivityCruiseFilteredByCity(Request $request){
+
+        $cityId = $request->city_id;
+        $activity_type = $request->activity_type;
+
+        if($activity_type === 'cruise') {
+            $cruises = Cruise::select('id','name')->whereHas('cities', function ($q) use ($cityId) {
+                $q->where('tour_cities.id', $cityId)->where('cruise_tour_city.is_start',1);
+            })->get();
+            return response()->json(['data' => $cruises]);
+        } else {
+            $packageActivityQuery = PackageActivity::query();
+            if($request->city_id )
+                $packageActivityQuery->where('tour_city_id',$request->city_id);
+
+            return response()->json([ 'message' =>'success','status' => 200,
+                'data'=> PackageActivityListResource::collection( $packageActivityQuery->get() )
+            ]);
+
+        }
+    }
+
 }

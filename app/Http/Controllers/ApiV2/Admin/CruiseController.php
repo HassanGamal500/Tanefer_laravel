@@ -25,6 +25,7 @@ class CruiseController extends Controller
         return response()->json(['data' => $cruises]);
     }
 
+
     public function index(Request $request)
     {
         $rowPerPage = $request->row_per_page ?? 10;
@@ -42,16 +43,15 @@ class CruiseController extends Controller
 
     public function show($id)
     {
-        $cruise = Cruise::with(['images','rooms','cities','packageHotelChildren'])->where('id',$id)->first();
-
+        $cruise = Cruise::with(['images','rooms','cities'])->where('id',$id)->first();
+        // $cruise = Cruise::with(['images','rooms','cities','packageHotelChildren'])->where('id',$id)->first();
         return [
             'cruise' => $cruise,
-            'cruiseChildrenPolicies' => PackageHotelchildrenResource::collection($cruise->packageHotelChildren)
+            // 'cruiseChildrenPolicies' => PackageHotelchildrenResource::collection($cruise->packageHotelChildren)
         ];
     }
 
-    public function store(CruiseRequest $request)
-    {
+    public function store(CruiseRequest $request) {
         $validated = $request->validated();
         DB::transaction(function () use ($validated) {
             $cruise = CruiseStoreService::storeCruiseData($validated);
