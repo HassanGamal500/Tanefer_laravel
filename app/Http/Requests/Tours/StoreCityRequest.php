@@ -26,7 +26,7 @@ class StoreCityRequest extends ParentRequest
         return [
             'name' => 'required|string|min:3|max:32|unique:tour_cities,name',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif',
-            'airportCode' => 'nullable|exists:airports,code'
+            // 'airportCode' => 'nullable|exists:airports,code'
         ];
     }
 }

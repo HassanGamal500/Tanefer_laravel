@@ -3,6 +3,7 @@ namespace App\Http\Controllers\ApiV2\Front;
 
 use App\Http\Controllers\Controller;
 use App\Mail\BookingConfirmation;
+use App\Mail\NewBooking;
 use App\Mail\SendCustomPackage;
 use App\Models\CustomPackage;
 use App\Models\Package;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\BookingCompleteRequest;
 use App\Http\Requests\BookingSaveRequest;
 use App\Models\Booking;
+use App\Models\PackageActivity;
 use App\Services\Packages\BookingService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -133,6 +135,7 @@ class BookingController extends Controller
     public function confirmBooking()
     {
         if(request()->merchant_extra){
+            $adventures = '';
             $booking = Booking::find(request()->merchant_extra);
             if(request()->url){
                 $url = request()->url . '/'.$booking->id;
@@ -146,8 +149,14 @@ class BookingController extends Controller
                     'authorization_code' => request()->authorization_code
                 ]);
             }
+
+            if($booking->model_ids != null && $booking->model_type != null) {
+                $bookingdata = explode(",", $booking->model_ids);
+                $adventures = PackageActivity::whereIn('id',$bookingdata)->get();
+            }
+
             Mail::to($booking->bookingData->contact_email)
-                ->send(new BookingConfirmation($url,$booking->total_price,$booking->bookingData->contact_name));
+                ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures));
             $booking->update(['send_confirm_email' => 1]);
 
             $message = 'Your booking confirmed';

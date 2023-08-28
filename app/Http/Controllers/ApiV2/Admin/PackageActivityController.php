@@ -4,14 +4,15 @@ namespace App\Http\Controllers\ApiV2\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageActivityRequest;
+use App\Http\Resources\Admin\PackageActivityCruise;
 use App\Http\Resources\Admin\PackageActivityListResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Http\Resources\TourCityResource;
 use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
-use App\Models\TourCity;
 use App\Models\Cruise;
+use App\Models\TourCity;
 use App\Services\Packages\PackageActivityStoreService;
 use App\Services\Packages\PackageHotelStoreService;
 use App\Services\Packages\PackageStoreService;
@@ -230,7 +231,10 @@ class PackageActivityController extends Controller
             $cruises = Cruise::select('id','name')->whereHas('cities', function ($q) use ($cityId) {
                 $q->where('tour_cities.id', $cityId)->where('cruise_tour_city.is_start',1);
             })->get();
-            return response()->json(['data' => $cruises]);
+            return response()->json([ 'message' =>'success','status' => 200,
+                'data'=> PackageActivityCruise::collection( $cruises )
+            ]);
+
         } else {
             $packageActivityQuery = PackageActivity::query();
             if($request->city_id )
@@ -242,5 +246,4 @@ class PackageActivityController extends Controller
 
         }
     }
-
 }
