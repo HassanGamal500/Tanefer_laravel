@@ -26,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class PackageActivityController extends Controller
 {
     public function index(Request $request) {
-        $packageActivityQuery = SearchService::activitySearch($request->city_id,$request->duration,$request->start_time,$request->for_package,$request->type) ;
+        $packageActivityQuery = SearchService::activitySearch($request->city_id,$request->duration,$request->start_time,$request->for_package,$request->type, $request->date) ;
         return responseJson($request, [
             'ActivityTotal'=> $packageActivityQuery->count(),
             'ActivityList'=> PackageActivityResource::collection( $packageActivityQuery->get() )

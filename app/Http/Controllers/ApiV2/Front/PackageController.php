@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ApiV2\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PackageCalculateTotalPriceRequest;
+use App\Http\Resources\Admin\PackageActivityDetails;
 use App\Http\Resources\Admin\PackageResource;
 use App\Http\Resources\Admin\PackageResource as PackageDetailsResource;
 use App\Models\Package;
@@ -59,7 +60,7 @@ class PackageController extends Controller
                     $trip = $tripPackage->package;
                     $prices = ['solo'=>$trip->solo_packageprice,'limo'=>$trip->Limo_packageprice,'hiac'=>$trip->HiAC_packageprice,'caster'=>$trip->Caster_packageprice
                         ,'bus'=>$trip->bus_packageprice,'children_percentage'=>$trip->children_percentage];
-                    return responseJson(\request(),new PackageDetailsResource ( $trip ),'redirect to the correct package',
+                    return responseJson(\request(),new PackageActivityDetails ( $trip ),'redirect to the correct package',
                         301,['prices' => $prices,'slug' => $trip->slug]);
                 }else{
                     return responseJson(\request(), new \stdClass(),'Package Not found',404);
@@ -70,7 +71,7 @@ class PackageController extends Controller
         $prices = ['solo'=>$trip->solo_packageprice,'limo'=>$trip->Limo_packageprice,'hiac'=>$trip->HiAC_packageprice,'caster'=>$trip->Caster_packageprice
         ,'bus'=>$trip->bus_packageprice,'children_percentage'=>$trip->children_percentage];
 
-        return responseJson(\request(),new PackageDetailsResource ( $trip ),'success',200,['prices' => $prices]);
+        return responseJson(\request(),new PackageActivityDetails ( $trip ),'success',200,['prices' => $prices]);
     }
 
     public function childrenpolicy($packageid)

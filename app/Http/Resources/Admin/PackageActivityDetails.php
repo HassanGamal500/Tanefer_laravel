@@ -3,10 +3,9 @@
 namespace App\Http\Resources\Admin;
 
 use App\Http\Resources\PackageImageResource;
-use App\Services\Packages\PackageTerPrice;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PackageResource extends JsonResource
+class PackageActivityDetails extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,23 +19,20 @@ class PackageResource extends JsonResource
         $startCity = isset($firstStartCity) ?
             $this->startCity()->first()->tourCity()
                 ->select('name As cityName','code As cityCode')->first() : null ;
-        $packageTerPrice = new PackageTerPrice();
-        $tierprice = $packageTerPrice->calculatetierPrice($this->id);
         return [
             'packageID'                => $this->id,
             'packageTitle'             => $this->title,
             'packageSlug'              => $this->slug,
-            'intialprice'               => $tierprice,
             'packageImageAlt'          => $this->image_alt,
             'packageImageCaption'      => $this->image_caption,
             'packageImage'             => $this->image,
             'packageOverview'          => $this->overview,
+            'packageDuration'          => $this->duration,
             'packageNightsNumber'      => $this->nights_number,
             'additionalprice'           => $this->additional_price,
             'discountprecentage'           => $this->discount_precentage,
             'availabilities'            => PackageAbilities::collection( $this->packageAbilities ),
             'activities'            => PackageActivityBooing::collection( $this->packageCity ),
-            'packageDuration'          => $this->duration,
             'packagePricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person,
             'starting_airport'         => $this->starting_airport,
             'package_occupancy'         => intval($this->occupancy),

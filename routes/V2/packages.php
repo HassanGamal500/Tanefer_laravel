@@ -52,5 +52,13 @@ Route::post('calculate-total-price' , 'Front\PackageController@calculateTotalPri
 
 
 
+Route::get('get-hotel' , 'Admin\PackageHotelGtaController@sendSoapRequest');
+Route::get('get-room-list' , 'Admin\PackageHotelGtaController@roomList');
+Route::get('get-content' , 'Admin\PackageHotelGtaController@content');
+Route::get('get-availability' , 'Admin\PackageHotelGtaController@availability');
+Route::get('get-check-availability' , 'Admin\PackageHotelGtaController@checkAvailability');
+Route::get('get-booking-rules' , 'Admin\PackageHotelGtaController@BookingRules');
+Route::get('get-booking' , 'Admin\PackageHotelGtaController@Booking');
+Route::get('get-cancel-booking' , 'Admin\PackageHotelGtaController@cancelBooking');
 
 

@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources\Admin;
 
+use App\Models\Cruise;
 use App\Models\Package;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\CruiseResource;
 
 class PackageActivityBooing extends JsonResource
 {
@@ -23,6 +25,9 @@ class PackageActivityBooing extends JsonResource
         $cruises = DB::table('cruises')->select('name')->where('id', $this->cruise_id)->first();
         $crui = DB::table('package_booking_days')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
         $transportations = DB::table('package_city_transportations')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
+        if($this->type === 'cruise') {
+            $cru = Cruise::where('id', $this->cruise_id)->get();
+        }
         $data = [
             'id'=>$this->id,
             'package_day_id'=>$this->id,
@@ -31,8 +36,10 @@ class PackageActivityBooing extends JsonResource
             'start' => $this->start,
             'days_number' => $this->days_number,
             'type' => $this->type,
-            'cruisename ' => $cruises->name ?? null ,
-            'list_adventures'   => $tourActivities,
+            'cruisename' => $cruises->name ?? null ,
+            'cruise_id' => $this->cruise_id ?? null ,
+            'cruise'   => $this->type === 'cruise' ?  CruiseResource::collection($cru) : null,
+            'list_adventures'   => $this->type === 'adventure' ? $tourActivities : null,
             'days' =>  PackageDaysActivityBooing::collection($crui),
             'transportations'   => PackageCityTransportationResource::collection( $transportations ),
 

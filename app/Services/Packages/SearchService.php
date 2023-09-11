@@ -4,13 +4,15 @@
 namespace App\Services\Packages;
 
 
+use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PackageHotel;
 
 class SearchService
 {
-    public static function activitySearch( $cityID = null, $duration = null, $startTime = null,$for_package = 0,$type = null){
+    public static function activitySearch( $cityID = null, $duration = null, $startTime = null,$for_package = 0,$type = null, $date = null){
         $packageActivityQuery = PackageActivity::query();
+        $packageAvaliQuery = AvailabilitiesTour::query();
 
         if($cityID )
             $packageActivityQuery->where('tour_city_id',$cityID);
@@ -23,6 +25,12 @@ class SearchService
 
         if(! $for_package){
             $packageActivityQuery->where('is_published',1);
+        }
+
+        if(isset($date) && !empty($date) && $date != null && $date != 'null'){
+            $packageActivityQuery->whereHas('availabilityTour', function($q) use ($date) {
+                $q->where('from_date', '<=', $date)->where('to_date', '>=', $date);
+            });
         }
 
         if($type){
