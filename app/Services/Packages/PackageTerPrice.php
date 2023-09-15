@@ -44,6 +44,7 @@ class PackageTerPrice {
 
         return $cost;
     }
+
 }
 
 ?>

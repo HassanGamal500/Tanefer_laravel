@@ -49,6 +49,7 @@ Route::post('activities/validate-time-tour','Front\PackageActivityController@val
 Route::post('test','Front\BookingController@testmail');
 
 Route::post('calculate-total-price' , 'Front\PackageController@calculateTotalPrice');
+Route::post('calculate-all-price' , 'Front\PackageController@calculateAllPrice');
 
 
 
@@ -60,5 +61,9 @@ Route::get('get-check-availability' , 'Admin\PackageHotelGtaController@checkAvai
 Route::get('get-booking-rules' , 'Admin\PackageHotelGtaController@BookingRules');
 Route::get('get-booking' , 'Admin\PackageHotelGtaController@Booking');
 Route::get('get-cancel-booking' , 'Admin\PackageHotelGtaController@cancelBooking');
+Route::get('get-generic_data_catalogue' , 'Admin\PackageHotelGtaController@genericDataCatalogue');
+Route::get('get-zone-list' , 'Admin\PackageHotelGtaController@zoneList');
+Route::get('get-hotel-list' , 'Admin\PackageHotelGtaController@hotelList');
+Route::get('get-hotel-catalogue-data' , 'Admin\PackageHotelGtaController@hotelCatalogueData');
 
 

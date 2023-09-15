@@ -7,8 +7,15 @@ use App\Http\Requests\PackageCalculateTotalPriceRequest;
 use App\Http\Resources\Admin\PackageActivityDetails;
 use App\Http\Resources\Admin\PackageResource;
 use App\Http\Resources\Admin\PackageResource as PackageDetailsResource;
+use App\Models\AvailabilitiesTour;
 use App\Models\Package;
+use App\Models\PackageBookingadventrue;
+use App\Models\PackageCity;
+use App\Models\PackageCityTransportation;
+use App\Models\PackageHotelRoom;
+use App\Models\PackageHotelRoomSeason;
 use App\Models\PackageSlugHistory;
+use App\Models\PricingTiersTour;
 use Illuminate\Http\Request;
 
 class PackageController extends Controller
@@ -84,6 +91,126 @@ class PackageController extends Controller
         $packageService = new \App\Services\Packages\Package();
 
         return responseJson($request,$packageService->calculateTotalPrice($request),'success');
+    }
+
+    public function calculateAllPrice(Request $request)
+    {
+        $adults = $request->adults ?? 0;
+        $children = $request->children ?? 0;
+        $package_id = $request->package_id;
+        $adventures_added = $request->adventures_added ?? null;
+        $adventures_remove = $request->adventures_remove ?? null;
+        $date = $request->date;
+        $totalOccupancy = $adults + $children;
+        $availabilities = [];
+        $totalPrice = 0;
+        $adventures  = PackageBookingadventrue::where('package_id', $package_id)->pluck('adventrue_id')->toArray();
+        if (!$adventures) {
+            return response()->json([
+                'status' => 400,
+                'errors' => 'No Data Available',
+            ]);
+        } else {
+            if($adventures_added != null && $adventures_added != 'null' && isset($adventures_added) && !empty($adventures_added) ) {
+                $adventures = array_merge($adventures, $adventures_added);
+            }
+            if($adventures_remove != null && $adventures_remove != 'null' && isset($adventures_remove) && !empty($adventures_remove) ) {
+                foreach ($adventures_remove as $value) {
+                    $key = array_search($value, $adventures);
+                    if ($key !== false) {
+                        unset($adventures[$key]);
+                        $adventures = array_values($adventures); // Reset array keys
+                    }
+                }
+            }
+        }
+
+        foreach($adventures as $adventure) {
+
+            $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $date)->where('to_date', '>=', $date)->where('package_activity_id',$adventure)->pluck('id');
+            if (!$packageActivityQuery) {
+                return response()->json([
+                    'status' => 400,
+                    'errors' => 'No Data Available For This Date',
+                ]);
+            }
+            foreach($packageActivityQuery as $packageActivity) {
+
+                $availability  = PricingTiersTour::where('package_activity_id', $adventure)->where('availabilities_tour_id', $packageActivity)->get();
+
+                if ($availability->isNotEmpty()) {
+                    $availabilities[] = $availability;
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'errors' => 'No Tours Package Available',
+                    ]);
+                }
+
+            }
+
+        }
+        $allIds = collect($availabilities)->flatten()->toArray();
+        foreach ($allIds as $idd) {
+            $doubleValuechild = $idd['child_percentage'] / 100.0;
+            if($idd['max'] >= $totalOccupancy && $idd['min'] <= $totalOccupancy) {
+                $totalAdultPrice = $idd['adult_price'] * $adults;
+
+                $totalChildrenPrice = $children * $doubleValuechild * $idd['adult_price'];
+
+                $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
+
+
+                $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
+                $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
+                $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
+
+
+                $totalPrice += $totalPriceActivity;
+            }
+        }
+
+        // get transportations
+        $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->sum();
+
+
+        // get cruise id
+        $cruise_id = PackageCity::where('package_id', $package_id)->where('type', 'cruise')->whereNotNull('cruise_id')->pluck('cruise_id');
+
+
+        if($cruise_id != null) {
+            // get price_per_day from cruise
+            $cruisePrice = PackageHotelRoomSeason::whereIn('package_hotel_room_id', function ($query) use ($cruise_id) {
+                $query->select('id')
+                    ->from(with(new PackageHotelRoom())->getTable())
+                    ->whereIn('model_id', $cruise_id)
+                    ->where('model_type', 'App\Models\Cruise');
+            })
+            ->pluck('price_per_day')
+            ->sum();
+
+            $cost = $totalPrice + $transportations +  $cruisePrice;
+        } else {
+            $cost = $totalPrice + $transportations ;
+        }
+
+
+
+        if ($cost != 0 && $cost != null) {
+            return response()->json([
+                'message' => 'Activity Prices',
+                'status' => 200,
+                'totalPrice' => $cost, // Add the total price to the response
+            ]);
+
+        } else {
+            return response()->json([
+                'status' => 400,
+                'errors' => 'The number you have chosen is greater than the allowed number',
+            ]);
+        }
+
+
     }
 
 
