@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Admin;
 
 use App\Http\Resources\PackageImageResource;
+use App\Services\Packages\PackageTerPrice;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PackageActivityDetails extends JsonResource
@@ -19,10 +20,13 @@ class PackageActivityDetails extends JsonResource
         $startCity = isset($firstStartCity) ?
             $this->startCity()->first()->tourCity()
                 ->select('name As cityName','code As cityCode')->first() : null ;
+        $packageTerPrice = new PackageTerPrice();
+        $tierprice = $packageTerPrice->calculatetierPrice($this->id);
         return [
             'packageID'                => $this->id,
             'packageTitle'             => $this->title,
             'packageSlug'              => $this->slug,
+            'intialprice'               => $tierprice,
             'packageImageAlt'          => $this->image_alt,
             'packageImageCaption'      => $this->image_caption,
             'packageImage'             => $this->image,

@@ -17,6 +17,8 @@ use App\Models\PackageHotelRoomSeason;
 use App\Models\PackageSlugHistory;
 use App\Models\PricingTiersTour;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class PackageController extends Controller
 {
@@ -97,35 +99,44 @@ class PackageController extends Controller
     {
         $adults = $request->adults ?? 0;
         $children = $request->children ?? 0;
+        $adventure_id = $request->adventures;
         $package_id = $request->package_id;
-        $adventures_added = $request->adventures_added ?? null;
-        $adventures_remove = $request->adventures_remove ?? null;
         $date = $request->date;
         $totalOccupancy = $adults + $children;
         $availabilities = [];
         $totalPrice = 0;
-        $adventures  = PackageBookingadventrue::where('package_id', $package_id)->pluck('adventrue_id')->toArray();
-        if (!$adventures) {
+        // $adventures_added = $request->adventures_added ?? null;
+        // $adventures_remove = $request->adventures_remove ?? null;
+        // $adventures  = PackageBookingadventrue::where('package_id', $adventure_id)->pluck('adventrue_id')->toArray();
+        if ($adventure_id == null && $adventure_id == 'null') {
             return response()->json([
                 'status' => 400,
                 'errors' => 'No Data Available',
             ]);
-        } else {
-            if($adventures_added != null && $adventures_added != 'null' && isset($adventures_added) && !empty($adventures_added) ) {
-                $adventures = array_merge($adventures, $adventures_added);
-            }
-            if($adventures_remove != null && $adventures_remove != 'null' && isset($adventures_remove) && !empty($adventures_remove) ) {
-                foreach ($adventures_remove as $value) {
-                    $key = array_search($value, $adventures);
-                    if ($key !== false) {
-                        unset($adventures[$key]);
-                        $adventures = array_values($adventures); // Reset array keys
-                    }
-                }
-            }
+        }
+        if($date == null && $date == 'null') {
+            return response()->json([
+                'status' => 400,
+                'errors' => 'Please Select Date',
+            ]);
         }
 
-        foreach($adventures as $adventure) {
+        // else {
+        //     if($adventures_added != null && $adventures_added != 'null' && isset($adventures_added) && !empty($adventures_added) ) {
+        //         $adventures = array_merge($adventures, $adventures_added);
+        //     }
+        //     if($adventures_remove != null && $adventures_remove != 'null' && isset($adventures_remove) && !empty($adventures_remove) ) {
+        //         foreach ($adventures_remove as $value) {
+        //             $key = array_search($value, $adventures);
+        //             if ($key !== false) {
+        //                 unset($adventures[$key]);
+        //                 $adventures = array_values($adventures); // Reset array keys
+        //             }
+        //         }
+        //     }
+        // }
+
+        foreach($adventure_id as $adventure) {
 
             $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $date)->where('to_date', '>=', $date)->where('package_activity_id',$adventure)->pluck('id');
             if (!$packageActivityQuery) {
@@ -196,11 +207,19 @@ class PackageController extends Controller
 
 
 
+
         if ($cost != 0 && $cost != null) {
+            $sessionId = Str::uuid()->toString();
+
+            $cacheTotalPrice = ['totalPrice' => $cost];
+
+            Cache::put($sessionId, $cacheTotalPrice, 12000);
+
             return response()->json([
                 'message' => 'Activity Prices',
                 'status' => 200,
-                'totalPrice' => $cost, // Add the total price to the response
+                'totalPrice' => $cost,
+                'sessionId' => $sessionId
             ]);
 
         } else {
