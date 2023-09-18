@@ -19,30 +19,36 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
 
 
 class BookingController extends Controller
 {
+
+
     public function  save(BookingSaveRequest $request )
     {
         if(! is_null($request->start_date)){
             $startDay = strtolower(Carbon::parse($request->start_date)->format('l'));
             $package = Package::find($request->package_id);
-            if(! str_contains($package->start_days,$startDay) && ! empty($package->start_days)){
+            $days = $package->packageAbilities->pluck('days');
+            if(! str_contains($days,$startDay) && ! empty($days)){
                 abort(422,'this tour not start in '.$startDay);
             }
         }
-        if(count($package->seasons) > 0 && !is_null($request->start_date)){
-            $season = $package->seasons()->where('from','<=',$request->start_date)
-                ->where('to','>',$request->start_date)->first();
-            if(is_null($season)){
-                abort(422,'You cannot book package in this day');
-            }
-        }
+        // if(count($package->seasons) > 0 && !is_null($request->start_date)){
+        //     $season = $package->seasons()->where('from','<=',$request->start_date)
+        //         ->where('to','>',$request->start_date)->first();
+        //     if(is_null($season)){
+        //         abort(422,'You cannot book package in this day');
+        //     }
+        // }
 
         if(Cache::has($request->sessionId)){
             $cachedTotalPrice = Cache::get($request->sessionId);
-            if($cachedTotalPrice['totalPrice'] != $request->total_price['total']){
+            // dd($cachedTotalPrice);
+            if($cachedTotalPrice['totalPrice'] != $request->total_price){
+                $cachedTotalPrice = json_encode($cachedTotalPrice);
                 return responseJson($request,new \stdClass(),
                     'Package Total Price not valid, Valid price is '.$cachedTotalPrice,422);
             }
@@ -50,33 +56,42 @@ class BookingController extends Controller
             return responseJson($request,new \stdClass(),'Something wrong in total price',422);
         }
 
-        foreach ($request->booking_cities as $booking_city){
+        // foreach ($request->booking_cities as $booking_city){
 
-            for ($i = 0; $i < count($booking_city['hotelRooms']); $i++){
-                if(count($booking_city['hotelRooms']) != count($request->roomGuests)){
-                    return responseJson($request,new \stdClass(),'Select rooms not equal number of rooms entered',422);
-                }
+        //     for ($i = 0; $i < count($booking_city['hotelRooms']); $i++){
+        //         if(count($booking_city['hotelRooms']) != count($request->roomGuests)){
+        //             return responseJson($request,new \stdClass(),'Select rooms not equal number of rooms entered',422);
+        //         }
 
-                $hotelRoom = $booking_city['hotelRooms'][$i];
-                $maxRoomAdult = $hotelRoom['roomMaxNumberOfAdult'];
-                $maxRoomChildren = $hotelRoom['roomMaxNumberOfChildren'];
+        //         $hotelRoom = $booking_city['hotelRooms'][$i];
+        //         $maxRoomAdult = $hotelRoom['roomMaxNumberOfAdult'];
+        //         $maxRoomChildren = $hotelRoom['roomMaxNumberOfChildren'];
 
-                if($request->roomGuests[$i]['adults'] > $maxRoomAdult || $request->roomGuests[$i]['children'] > $maxRoomChildren){
-                    return responseJson($request,new \stdClass(),
-                        'Your occupancy exceeds the hotel rooms occupancy selected',422);
-                }
-            }
-        }
+        //         if($request->roomGuests[$i]['adults'] > $maxRoomAdult || $request->roomGuests[$i]['children'] > $maxRoomChildren){
+        //             return responseJson($request,new \stdClass(),
+        //                 'Your occupancy exceeds the hotel rooms occupancy selected',422);
+        //         }
+        //     }
+        // }
 
         $validated = $request->validated();
         DB::transaction(function () use ( $validated ) {
             $booking = BookingService::storeBookingMainData($validated);
 
-            foreach ( $validated['booking_cities'] as $key => $booking_city ){
-                BookingService::storeBookingCityData($booking,$booking_city);
-            }
+            // foreach ( $validated['booking_cities'] as $key => $booking_city ){
+            //     BookingService::storeBookingCityData($booking,$booking_city);
+            // }
         });
         $booking = Booking::orderBy('id', 'DESC')->first();
+        BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
+        $booking = Booking::find($booking->id);
+        DB::transaction(function () use ($booking, $validated ) {
+
+            // foreach ($validated['passengerDetails'] as $traveller){
+                BookingService::storeBookingTravelerData( $booking , $validated['passengerDetails']);
+            // }
+            BookingService::storeBookingTData( $booking , $validated['bookingDetails']);
+        });
 
        return  responseJson($request,['booking_id'=>$booking->id],'operation done successfully');
     }

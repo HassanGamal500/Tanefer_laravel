@@ -8,8 +8,8 @@ use App\Models\Booking;
 use App\Models\BookingTraveller;
 use App\Models\Package;
 use App\Models\PackageActivity;
+use App\Models\PackageBookingData;
 use App\Models\PackageHotelRoom;
-use App\Models\Trip;
 
 class BookingService
 {
@@ -50,34 +50,70 @@ class BookingService
 
     private static function collectBookingMainData($validatedData)
     {
-        $cityStart  = $validatedData['city_start'] ;
-        $cityEnd    = $validatedData['city_end'] ;
-        $totalPrice = $validatedData['total_price'];
+        $cityStart  = $validatedData['city_start'] ?? null ;
+        $cityEnd    = $validatedData['city_end']?? null ;
+        $totalPrice = $validatedData['total_price']?? null;
 
-        $adults = 0;
-        $children = 0;
-        foreach ($validatedData['roomGuests'] as $roomGuest){
-            $adults += $roomGuest['adults'];
-            $children += array_key_exists('children',$roomGuest) ? $roomGuest['children'] : 0;
-        }
+        // $adults = 0;
+        // $children = 0;
+        // foreach ($validatedData['roomGuests'] as $roomGuest){
+        //     $adults += $roomGuest['adults'];
+        //     $children += array_key_exists('children',$roomGuest) ? $roomGuest['children'] : 0;
+        // }
 
         return [
             'package_id'                    => $validatedData['package_id'],
             'trip_price_per_person'         => Package::find( $validatedData['package_id'])->price_per_person,
-            'city_start_id'                 => $cityStart['id'],
-            'start_with_flight'             => $cityStart['with_flight'],
-            'city_end_id'                   => $cityEnd['id'],
-            'end_with_flight'               => $cityEnd['with_flight'],
+            'city_start_id'                 => $cityStart['id'] ?? null,
+            'start_with_flight'             => $cityStart['with_flight'] ?? null,
+            'city_end_id'                   => $cityEnd['id'] ?? null,
+            'end_with_flight'               => $cityEnd['with_flight'] ?? null,
             'accommodation_price'           => $totalPrice['accommodation'] ?? null,
             'transport_price'               => $totalPrice['transport'] ?? null,
             'itineraries_price'             => $totalPrice['itineraries'] ?? null,
-            'total_price'                   => $totalPrice['total'],
-            'adults'                        => $adults,
-            'children'                      => $children,
+            'total_price'                   => $validatedData['total_price'] ?? null,
+            'adults'                        => $validatedData['adults'],
+            'children'                      => $validatedData['children'],
             'status'                        => 'pending payment',
             'model_id'                      => $validatedData['package_id'],
-            'model_type'                    => get_class(new Package())
+            'model_type'                    => get_class(new Package()),
+            'model_ids'                    => null,
         ];
+    }
+
+    public static function storeAdventure($activities, $booking_id, $package_id)
+    {
+        $availabilityIndex = 0;
+        $daysIndex = 0;
+        foreach ($activities as $availability) {
+            if($availability['type'] === "adventure") {
+                if(! empty($availability['days'] != null)){
+                    foreach ((array)$availability['days'] as $adv) {
+                        foreach ((array)$adv['adventrues'] as $adventrue) {
+                            PackageBookingData::create([
+                                'booking_id'   => $booking_id,
+                                'package_id'   => $package_id,
+                                'package_city_id'   => $availability['city_id'],
+                                'type'   => $availability['type'],
+                                'day_number'   => $adv['day_number'],
+                                'adventrue_id'   => $adventrue['adventrue_id'],
+                            ]);
+                        }
+                    $daysIndex++;
+                    }
+                    $availabilityIndex++;
+                }
+            } else if ($availability['type'] == 'cruise') {
+                PackageBookingData::create([
+                    'booking_id'   => $booking_id,
+                    'package_id'   => $package_id,
+                    'package_city_id'   => $availability['city_id'],
+                    'type'   => $availability['type'],
+                    'day_number'   => $availability['days_number'],
+                    'adventrue_id'   => $availability['cruise_id'],
+                ]);
+            }
+        }
     }
 
     private static function collectBookingCityData($booking_city)
@@ -115,21 +151,23 @@ class BookingService
 
     private static function collectBookingTravellerData($validatedData){
         $passengerDetails  = $validatedData;
+        // dd($passengerDetails['passengerTitle']);
         $gender = [
             'M' => 'male',
             'F' => 'female',
         ];
 
         return [
-            'passengerTitle'            => $passengerDetails['passengerTitle'] ?? null,
-            'passengerGender'           => array_key_exists('passengerGender',$passengerDetails) ? $gender[$passengerDetails['passengerGender']] : null,
-            'passengerFirstName'        => $passengerDetails['passengerFirstName'] ?? null,
-            'passengerLastName'         => $passengerDetails['passengerLastName'] ?? null,
-            'date_of_birth'             => $passengerDetails['date_of_birth'] ?? null,
-            'passport_number'           => $passengerDetails['passport_number'] ?? null,
-            'passport_expire_date'      => $passengerDetails['passport_expire_date'] ?? null,
-            'passengerType'             => $passengerDetails['passengerType'] ?? null,
-            'passport_issue_country'    => $passengerDetails['passport_issue_country'] ?? null,
+            'passengerTitle'            => $passengerDetails['passengerTitle'] ?? null, ,
+            // 'passengerGender'           => array_key_exists('passengerGender',$passengerDetails) ? $gender[$passengerDetails['passengerGender']] : null,
+            'passengerGender'        => $passengerDetails['passengerGender']  ?? null ,
+            'passengerFirstName'        => $passengerDetails['passengerFirstName']  ?? null ,
+            'passengerLastName'         => $passengerDetails['passengerLastName']  ?? null ,
+            'date_of_birth'             => $passengerDetails['date_of_birth']  ?? null ,
+            'passport_number'           => $passengerDetails['passport_number']  ?? null ,
+            'passport_expire_date'      => $passengerDetails['passport_expire_date']  ?? null ,
+            'passengerType'             => $passengerDetails['passengerType']  ?? null ,
+            'passport_issue_country'    => $passengerDetails['passport_issue_country']  ?? null ,
 
         ];
     }
@@ -138,7 +176,7 @@ class BookingService
         $bookingDetails  = $validatedData;
 
         return [
-            'flight_id'                 =>$bookingDetails['flight_id'] ?? 0,
+            // 'flight_id'                 =>$bookingDetails['flight_id'] ?? 0,
             'zipCode'                   => $bookingDetails['zipCode'] ?? null,
             'contact_phone'             => $bookingDetails['contact_phone'] ?? null,
             'contact_email'             => $bookingDetails['contact_email'] ?? null,

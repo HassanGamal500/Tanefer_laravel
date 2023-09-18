@@ -29,24 +29,26 @@ class BookingSaveRequest extends FormRequest
     public function rules()
     {
         return  [
-            'numberOfRooms' => 'required|integer',
-            'roomGuests'    => 'required|array',
-            'roomGuests.*.adults' => 'required|integer',
-            'roomGuests.*.children' => 'required|integer',
+            'adults' => 'nullable|integer',
+            'children' => 'nullable|integer',
+            'numberOfRooms' => 'nullable|integer',
+            'roomGuests'    => 'nullable|array',
+            'roomGuests.*.adults' => 'nullable|integer',
+            'roomGuests.*.children' => 'nullable|integer',
             "package_id"                                => "required|exists:packages,id",
-            "city_start"                                => "required ",
-            "city_end"                                  => "required ",
+            "city_start"                                => "nullable ",
+            "city_end"                                  => "nullable ",
             "total_price"                               => "required ",
-            "booking_cities"                            => "required|array|min:1",
-            "booking_cities.*.city_id"                  => "required|exists:tour_cities,id",
-            "booking_cities.*.nights_number"            => "required|numeric ",
+            "booking_cities"                            => "nullable|array|min:1",
+            "booking_cities.*.city_id"                  => "nullable|exists:tour_cities,id",
+            "booking_cities.*.nights_number"            => "nullable|numeric ",
             "booking_cities.*.transportation_type"      => ['nullable',Rule::in(PackageCityTransportation::transportationType)],
             "booking_cities.*.transportation_amount"     => 'nullable',
             "booking_cities.*.transportation_flight_id"  => 'nullable',
             "booking_cities.*.room_id"                  => " nullable|exists:package_hotel_rooms,id",
             "booking_cities.*.activity"                 => " array",
-            "booking_cities.*.activity.*.activityID"            => " required|exists:package_activities,id",
-            "booking_cities.*.activity.*.day_number"    => " required|numeric |min:1",
+            "booking_cities.*.activity.*.activityID"            => " nullable|exists:package_activities,id",
+            "booking_cities.*.activity.*.day_number"    => " nullable|numeric |min:1",
             "singleSupplement"                          => 'nullable|boolean',
             'booking_cities.*.hotelRooms'               => 'array',
             'booking_cities.*.hotelRooms.*.roomID'                   => 'nullable|exists:package_hotel_rooms,id',
@@ -55,7 +57,11 @@ class BookingSaveRequest extends FormRequest
             'booking_cities.*.hotelRooms.*.roomMaxNumberOfAdult'     => 'nullable|numeric',
             'booking_cities.*.hotelRooms.*.roomMaxNumberOfChildren'  => 'nullable|numeric',
             'booking_cities.*.hotelRooms.*.selectionNumber'          => 'nullable|numeric',
-            "sessionId"                                 => 'required',
+            "bookingDetails"              => "required|array|min:1",
+            "passengerDetails"            => "required|array|min:1",
+            "bookingDetails.contact_email" => 'required|email'
+
+            // "sessionId"                                 => 'required',
        ];
     }
 }
