@@ -87,7 +87,7 @@ class BookingService
         $daysIndex = 0;
         foreach ($activities as $availability) {
             if($availability['type'] === "adventure") {
-                if(! empty($availability['days'] != null)){
+                if(count($availability['days']) > 0) {
                     foreach ((array)$availability['days'] as $adv) {
                         foreach ((array)$adv['adventrues'] as $adventrue) {
                             PackageBookingData::create([
@@ -110,7 +110,7 @@ class BookingService
                     'package_city_id'   => $availability['city_id'],
                     'type'   => $availability['type'],
                     'day_number'   => $availability['days_number'],
-                    'adventrue_id'   => $availability['cruise_id'],
+                    'cruise_id'   => $availability['cruise_id'],
                 ]);
             }
         }
@@ -158,7 +158,7 @@ class BookingService
         ];
 
         return [
-            'passengerTitle'            => $passengerDetails['passengerTitle'] ?? null, ,
+            'passengerTitle'            => $passengerDetails['passengerTitle'] ?? null ,
             // 'passengerGender'           => array_key_exists('passengerGender',$passengerDetails) ? $gender[$passengerDetails['passengerGender']] : null,
             'passengerGender'        => $passengerDetails['passengerGender']  ?? null ,
             'passengerFirstName'        => $passengerDetails['passengerFirstName']  ?? null ,
@@ -170,6 +170,7 @@ class BookingService
             'passport_issue_country'    => $passengerDetails['passport_issue_country']  ?? null ,
 
         ];
+
     }
     private static function collectBookingData($validatedData)
     {

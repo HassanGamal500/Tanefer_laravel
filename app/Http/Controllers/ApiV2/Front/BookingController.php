@@ -14,6 +14,7 @@ use App\Http\Requests\BookingCompleteRequest;
 use App\Http\Requests\BookingSaveRequest;
 use App\Models\Booking;
 use App\Models\PackageActivity;
+use App\Models\PackageBookingData;
 use App\Services\Packages\BookingService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +30,7 @@ class BookingController extends Controller
     public function  save(BookingSaveRequest $request )
     {
         if(! is_null($request->start_date)){
-            $startDay = strtolower(Carbon::parse($request->start_date)->format('l'));
+            $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
             $package = Package::find($request->package_id);
             $days = $package->packageAbilities->pluck('days');
             if(! str_contains($days,$startDay) && ! empty($days)){
@@ -84,13 +85,13 @@ class BookingController extends Controller
         });
         $booking = Booking::orderBy('id', 'DESC')->first();
         BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
-        $booking = Booking::find($booking->id);
-        DB::transaction(function () use ($booking, $validated ) {
+        $bookingdata = Booking::find($booking->id);
+        DB::transaction(function () use ($bookingdata, $validated ) {
 
             // foreach ($validated['passengerDetails'] as $traveller){
-                BookingService::storeBookingTravelerData( $booking , $validated['passengerDetails']);
+                BookingService::storeBookingTravelerData( $bookingdata , $validated['passengerDetails']);
             // }
-            BookingService::storeBookingTData( $booking , $validated['bookingDetails']);
+            BookingService::storeBookingTData( $bookingdata , $validated['bookingDetails']);
         });
 
        return  responseJson($request,['booking_id'=>$booking->id],'operation done successfully');
@@ -165,13 +166,15 @@ class BookingController extends Controller
                 ]);
             }
 
-            if($booking->model_ids != null && $booking->model_type != null) {
+            if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity') {
                 $bookingdata = explode(",", $booking->model_ids);
                 $adventures = PackageActivity::whereIn('id',$bookingdata)->get();
             }
-
-            Mail::to($booking->bookingData->contact_email)
-                ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures));
+            // if($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
+            //     $adventures = PackageBookingData::where('booking_id',$booking->id)->pluck('adventrue_id');
+            // }
+            // Mail::to($booking->bookingData->contact_email)
+            //     ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures));
             $booking->update(['send_confirm_email' => 1]);
 
             $message = 'Your booking confirmed';

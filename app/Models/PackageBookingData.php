@@ -10,6 +10,7 @@ class PackageBookingData extends Model
     protected $fillable = [
         'booking_id',
         'package_id',
+        'cruise_id',
         'package_city_id',
         'adventrue_id',
         'day_number',
