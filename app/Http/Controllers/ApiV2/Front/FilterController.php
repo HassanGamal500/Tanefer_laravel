@@ -26,10 +26,10 @@ class FilterController extends Controller
         }
 
         $tripDurations = $tripQuery->select(['duration'])->get();
-        $prices = [
-            'min' => $tripQuery->min('expected_price'),
-            'max' => $tripQuery->max('expected_price')
-        ];
+        // $prices = [
+        //     'min' => $tripQuery->min('expected_price'),
+        //     'max' => $tripQuery->max('expected_price')
+        // ];
         $tripLength = [];
         $durationsArray = Package::pluck('duration')->toArray();
         rsort($durationsArray);
@@ -39,7 +39,7 @@ class FilterController extends Controller
 
         return responseJson(request(),[
             'cities'        => TourCityResource::collection( $packageCities ) ,
-            'prices'        => $prices,
+            // 'prices'        => $prices,
             'tripLength'    => $tripLength
         ],'success');
     }

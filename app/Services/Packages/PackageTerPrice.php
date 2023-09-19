@@ -22,7 +22,7 @@ class PackageTerPrice {
 
 
         // get transportations
-        $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->min();
+        $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->sum();
 
         // get cruise id
         $cruise_id = PackageCity::where('package_id', $package_id)->where('type', 'cruise')->whereNotNull('cruise_id')->pluck('cruise_id');

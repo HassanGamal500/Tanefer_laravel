@@ -275,10 +275,10 @@ class PackageStoreService
         if(is_array($images)){
             foreach ($images as $image){
                 $package->packageImages()->create([
-                    'image' => 'hjk',
-                    // 'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
-//                    'image_alt' => array_key_exists('image_alt',$image) ? $image['image_alt'] : null,
-//                    'image_caption' => array_key_exists('image_caption',$image) ? $image['image_caption'] : null
+                    // 'image' => 'hjk',
+                    'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
+                //    'image_alt' => array_key_exists('image_alt',$image) ? $image['image_alt'] : null,
+                //    'image_caption' => array_key_exists('image_caption',$image) ? $image['image_caption'] : null
                 ]);
             }
         }

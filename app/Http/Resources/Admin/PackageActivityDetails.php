@@ -51,7 +51,7 @@ class PackageActivityDetails extends JsonResource
             // 'seasons'                  => $this->seasons,
             'packageMetaTitle'             => $this->seo_title,
             'packageMetaDesc'              => $this->meta_description,
-            'packageImages'                => array_column(PackageImageResource::collection($this->packageImages)->toArray($request),'image'),
+            'packageImages'                => PackageImageResource::collection($this->packageImages),
             'cruise'                     => $this->cruise()->with('images')->first()
         ];
     }

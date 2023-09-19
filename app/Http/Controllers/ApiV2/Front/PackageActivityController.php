@@ -263,6 +263,7 @@ class PackageActivityController extends Controller
         $listActivitiesByTime = PackageActivity::whereIn('id', $activityIds)->orderBy('start_time', 'asc')->get();
 
         for ($i = 0; $i < count($activities) - 1; $i++) {
+            dd($activities);
             $current_to_date = new DateTime($activities[$i]['from_date']);
             $next_from_date = new DateTime($activities[$i + 1]['from_date']);
             $end_time = $listActivitiesByTime[$i]['end_time'];

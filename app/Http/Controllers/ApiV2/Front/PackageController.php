@@ -9,6 +9,7 @@ use App\Http\Resources\Admin\PackageResource;
 use App\Http\Resources\Admin\PackageResource as PackageDetailsResource;
 use App\Models\AvailabilitiesTour;
 use App\Models\Package;
+use App\Models\PackageActivity;
 use App\Models\PackageBookingadventrue;
 use App\Models\PackageCity;
 use App\Models\PackageCityTransportation;
@@ -19,6 +20,7 @@ use App\Models\PricingTiersTour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use DateTime;
 
 class PackageController extends Controller
 {
@@ -105,9 +107,6 @@ class PackageController extends Controller
         $totalOccupancy = $adults + $children;
         $availabilities = [];
         $totalPrice = 0;
-        // $adventures_added = $request->adventures_added ?? null;
-        // $adventures_remove = $request->adventures_remove ?? null;
-        // $adventures  = PackageBookingadventrue::where('package_id', $adventure_id)->pluck('adventrue_id')->toArray();
         if ($adventure_id == null && $adventure_id == 'null') {
             return response()->json([
                 'status' => 400,
@@ -121,21 +120,22 @@ class PackageController extends Controller
             ]);
         }
 
-        // else {
-        //     if($adventures_added != null && $adventures_added != 'null' && isset($adventures_added) && !empty($adventures_added) ) {
-        //         $adventures = array_merge($adventures, $adventures_added);
-        //     }
-        //     if($adventures_remove != null && $adventures_remove != 'null' && isset($adventures_remove) && !empty($adventures_remove) ) {
-        //         foreach ($adventures_remove as $value) {
-        //             $key = array_search($value, $adventures);
-        //             if ($key !== false) {
-        //                 unset($adventures[$key]);
-        //                 $adventures = array_values($adventures); // Reset array keys
-        //             }
-        //         }
-        //     }
-        // }
+        $listActivitiesByTime = PackageActivity::whereIn('id', $adventure_id)->orderBy('start_time', 'asc')->get();
 
+        for ($i = 0; $i < count($listActivitiesByTime) - 1; $i++) {
+            $current_activity = $listActivitiesByTime[$i];
+            $next_activity = $listActivitiesByTime[$i + 1];
+
+            $current_end_time = $current_activity->end_time;
+            $next_start_time = $next_activity->start_time;
+
+            if ($current_end_time >= $next_start_time) {
+                return response()->json([
+                    'errors' => 'Two adventures have the same time. Please select another one.',
+                    'status' => 400
+                ]);
+            }
+        }
         foreach($adventure_id as $adventure) {
 
             $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $date)->where('to_date', '>=', $date)->where('package_activity_id',$adventure)->pluck('id');
@@ -184,7 +184,7 @@ class PackageController extends Controller
         // get transportations
         $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->sum();
 
-
+        $transportations = $transportations * $totalOccupancy;
         // get cruise id
         $cruise_id = PackageCity::where('package_id', $package_id)->where('type', 'cruise')->whereNotNull('cruise_id')->pluck('cruise_id');
 
