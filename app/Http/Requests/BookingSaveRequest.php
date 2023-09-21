@@ -59,7 +59,8 @@ class BookingSaveRequest extends FormRequest
             'booking_cities.*.hotelRooms.*.selectionNumber'          => 'nullable|numeric',
             "bookingDetails"              => "required|array|min:1",
             "passengerDetails"            => "required|array|min:1",
-            "bookingDetails.contact_email" => 'required|email'
+            "bookingDetails.contact_email" => 'required|email',
+            "start_date" => 'required|date',
 
             // "sessionId"                                 => 'required',
        ];

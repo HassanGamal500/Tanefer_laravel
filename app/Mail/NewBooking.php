@@ -15,6 +15,8 @@ class NewBooking extends Mailable
     protected $username;
     protected $totalPrice;
     protected $adventures;
+    protected $booking;
+    protected $cruises;
 
 
     /**
@@ -22,12 +24,14 @@ class NewBooking extends Mailable
      *
      * @return void
      */
-    public function __construct($url,$totalPrice,$contactName,$adventures)
+    public function __construct($url,$totalPrice,$contactName,$adventures, $booking, $cruises)
     {
         $this->url = $url;
         $this->username = $contactName;
         $this->totalPrice = $totalPrice;
         $this->adventures = $adventures;
+        $this->booking = $booking;
+        $this->cruises = $cruises;
     }
 
     /**
@@ -42,6 +46,8 @@ class NewBooking extends Mailable
             'username' => $this->username,
             'totalPrice' => $this->totalPrice,
             'adventures' => $this->adventures,
+            'booking' => $this->booking,
+            'cruises' => $this->cruises,
         ]);
     }
 }

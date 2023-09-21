@@ -13,8 +13,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\BookingCompleteRequest;
 use App\Http\Requests\BookingSaveRequest;
 use App\Models\Booking;
+use App\Models\Cruise;
 use App\Models\PackageActivity;
 use App\Models\PackageBookingData;
+use App\Models\TourCity;
 use App\Services\Packages\BookingService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -29,14 +31,14 @@ class BookingController extends Controller
 
     public function  save(BookingSaveRequest $request )
     {
-        if(! is_null($request->start_date)){
-            $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
-            $package = Package::find($request->package_id);
-            $days = $package->packageAbilities->pluck('days');
-            if(! str_contains($days,$startDay) && ! empty($days)){
-                abort(422,'this tour not start in '.$startDay);
-            }
-        }
+        // if(! is_null($request->start_date)){
+        //     $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
+        //     $package = Package::find($request->package_id);
+        //     $days = $package->packageAbilities->pluck('days');
+        //     if(! str_contains($days,$startDay) && ! empty($days)){
+        //         abort(422,'this tour not start in '.$startDay);
+        //     }
+        // }
         // if(count($package->seasons) > 0 && !is_null($request->start_date)){
         //     $season = $package->seasons()->where('from','<=',$request->start_date)
         //         ->where('to','>',$request->start_date)->first();
@@ -152,6 +154,7 @@ class BookingController extends Controller
     {
         if(request()->merchant_extra){
             $adventures = '';
+            $cruises = '';
             $booking = Booking::find(request()->merchant_extra);
             if(request()->url){
                 $url = request()->url . '/'.$booking->id;
@@ -170,11 +173,46 @@ class BookingController extends Controller
                 $bookingdata = explode(",", $booking->model_ids);
                 $adventures = PackageActivity::whereIn('id',$bookingdata)->get();
             }
-            // if($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
-            //     $adventures = PackageBookingData::where('booking_id',$booking->id)->pluck('adventrue_id');
-            // }
-            // Mail::to($booking->bookingData->contact_email)
-            //     ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures));
+            if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
+
+                $package_data = PackageBookingData::select('adventrue_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('adventrue_id')->get();
+                $package_data_cruise = PackageBookingData::select('cruise_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('cruise_id')->get();
+                $adventures = [];
+                $cruises = [];
+
+                foreach ($package_data as $advent) {
+
+                    $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
+                    $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
+                    if ($adventures_id) {
+                        $adventure_id = $adventures_id;
+                        $day_number = $advent['day_number'];
+
+                        $adventures[] = [
+                            'adventure_id' => $adventure_id,
+                            'day_number' => $day_number,
+                            'package_city_id' => $package_city_id,
+                        ];
+                    }
+                }
+               foreach ($package_data_cruise as $cruise) {
+                    $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
+                    $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
+
+                    if ($cruise_id) {
+                        $cruisee = $cruise_id;
+                        $day_number = $cruise['day_number'];
+
+                        $cruises[] = [
+                            'cruise_id' => $cruisee,
+                            'day_number' => $day_number,
+                            'package_city_id' => $package_city_id,
+                        ];
+                    }
+                }
+            }
+            Mail::to($booking->bookingData->contact_email)
+                ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures, $booking, $cruises));
             $booking->update(['send_confirm_email' => 1]);
 
             $message = 'Your booking confirmed';

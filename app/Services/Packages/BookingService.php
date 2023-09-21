@@ -78,6 +78,7 @@ class BookingService
             'model_id'                      => $validatedData['package_id'],
             'model_type'                    => get_class(new Package()),
             'model_ids'                    => null,
+            'start_date'                    => $validatedData['start_date'],
         ];
     }
 

@@ -128,7 +128,6 @@ class PackageController extends Controller
 
             $current_end_time = $current_activity->end_time;
             $next_start_time = $next_activity->start_time;
-
             if ($current_end_time >= $next_start_time) {
                 return response()->json([
                     'errors' => 'Two adventures have the same time. Please select another one.',
