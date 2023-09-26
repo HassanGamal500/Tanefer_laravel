@@ -9,6 +9,7 @@ use App\Models\PackageBookingadventrue;
 use App\Models\PackageBookingDays;
 use App\Models\PackageCity;
 use App\Models\PackageCityTransportation;
+use App\Models\PackageGtaHotel;
 use App\Models\PackageHotelRoom;
 use App\Models\Package;
 use App\Services\StoreFileService;
@@ -173,35 +174,16 @@ class PackageStoreService
             }
         }
     }
-    // public static function storeTransportations($activities, $availabilityIds, $package_id, $bookingIds)
-    // {
-    //     $availabilityIndex = 0;
-    //     $bookingIndex = 0;
+     public static function storeHotels($accommodation, $package_id) {
+        foreach ($accommodation as $hotel) {
+            PackageGtaHotel::create([
+                'city_id'   => $hotel['city_id'],
+                'package_id'   => $package_id,
+                'hotel_id'   => $hotel['hotel_id'],
+            ]);
+        }
+    }
 
-    //     foreach ($activities as $availability) {
-    //         if (! empty($availability['transportation'] != null)) {
-    //             foreach ($availability['transportation'] as $adv) {
-
-    //                 if ($availability['type'] === 'cruise') {
-    //                     $package_activity_id = $bookingIds[$bookingIndex];
-    //                     $bookingIndex++;
-    //                 } else {
-
-    //                     $package_activity_id = $availabilityIds[$availabilityIndex];
-    //                     $availabilityIndex++;
-    //                 }
-    //                 if ($package_activity_id !== null) {
-    //                     PackageCityTransportation::create([
-    //                         'package_id'        => $package_id,
-    //                         'package_city_id'   => $package_activity_id,
-    //                         'type'              => $adv['type'],
-    //                         'price_per_person'  => $adv['price_per_person'],
-    //                     ]);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     public static function collectPackageMainData($validatedData){
         $data = [

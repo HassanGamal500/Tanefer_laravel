@@ -81,7 +81,9 @@ class PackageController extends Controller
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
-
+            if(! empty($request->accommodation)){
+                PackageStoreService::storeHotels($request->accommodation, $package['id']);
+            }
             // if(! empty($request->seasons)){
             //     PackageStoreService::storeSeasons($package,$request->seasons);
             // }
@@ -141,7 +143,6 @@ class PackageController extends Controller
     public function update(PackageRequest $request, $id)
     {
         $package = Package::find($id);
-
         $validated = $request->validated();
         DB::transaction(function () use ( $validated ,$request, $package) {
             if($request->slug != $package->slug){
@@ -163,6 +164,12 @@ class PackageController extends Controller
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
+
+            if(! empty($request->accommodation)){
+                $package->gtaHotel()->delete();
+                PackageStoreService::storeHotels($request->accommodation, $package['id']);
+            }
+
 
 
             // $package->seasons()->delete();

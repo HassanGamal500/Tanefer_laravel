@@ -13,6 +13,10 @@ class Package extends Model
         return $this->hasMany(PackageCity::class,'package_id');
     }
 
+    public function gtaHotel(){
+        return $this->hasMany(PackageGtaHotel::class,'package_id');
+    }
+
     public function packageAbilities(){
         return $this->hasMany(PackageAvailability::class,'package_id');
     }
