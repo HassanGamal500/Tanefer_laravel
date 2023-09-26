@@ -81,9 +81,6 @@ class PackageController extends Controller
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
-            if(! empty($request->accommodation)){
-                PackageStoreService::storeHotels($request->accommodation, $package['id']);
-            }
             // if(! empty($request->seasons)){
             //     PackageStoreService::storeSeasons($package,$request->seasons);
             // }
@@ -123,17 +120,6 @@ class PackageController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Trip  $trip
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Trip $trip)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -157,6 +143,7 @@ class PackageController extends Controller
             if(! empty($request->activities)){
                 $package->packageCity()->delete();
                 $package->packageTransportations()->delete();
+                $package->gtaHotel()->delete();
                 $packageType = PackageStoreService::storeAdventureOrCruise($package['id'],$request->activities);
                 $package->packageAdventuredays()->delete();
                 $daysId = PackageStoreService::storeAdventuredays($request->activities,$packageType['adventure'], $package['id']);
@@ -164,12 +151,6 @@ class PackageController extends Controller
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
-
-            if(! empty($request->accommodation)){
-                $package->gtaHotel()->delete();
-                PackageStoreService::storeHotels($request->accommodation, $package['id']);
-            }
-
 
 
             // $package->seasons()->delete();

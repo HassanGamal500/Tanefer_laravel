@@ -114,6 +114,17 @@ class PackageStoreService
                     }
 
                 }
+                if (! empty($activity['accommodation'] != null)) {
+                    foreach ($activity['accommodation'] as $hotel) {
+                        PackageGtaHotel::create([
+                            'city_id'   => $hotel['city_id'],
+                            'package_city_id'   => $booking->id,
+                            'package_id'   => $package_id,
+                            'type'            => $activity['type'],
+                            'hotel_id'   => $hotel['hotel_id'],
+                        ]);
+                    }
+                }
 
             }
             $i++;
@@ -174,15 +185,15 @@ class PackageStoreService
             }
         }
     }
-     public static function storeHotels($accommodation, $package_id) {
-        foreach ($accommodation as $hotel) {
-            PackageGtaHotel::create([
-                'city_id'   => $hotel['city_id'],
-                'package_id'   => $package_id,
-                'hotel_id'   => $hotel['hotel_id'],
-            ]);
-        }
-    }
+    //  public static function storeHotels($accommodation, $package_id) {
+    //     foreach ($accommodation as $hotel) {
+    //         PackageGtaHotel::create([
+    //             'city_id'   => $hotel['city_id'],
+    //             'package_id'   => $package_id,
+    //             'hotel_id'   => $hotel['hotel_id'],
+    //         ]);
+    //     }
+    // }
 
 
     public static function collectPackageMainData($validatedData){

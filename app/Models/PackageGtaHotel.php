@@ -11,6 +11,8 @@ class PackageGtaHotel extends Model
         'city_id',
         'hotel_id',
         'package_id',
+        'package_city_id',
+        'type',
     ];
 
     public function city()

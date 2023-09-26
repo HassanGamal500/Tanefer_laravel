@@ -44,7 +44,6 @@ class PackageActivityResource extends JsonResource
             'published'                 => $this->is_published,
             'activityImages'            => PackageActivityImageResource::collection($this->packageActivityImages),
             'availabilities'              => AvailabilitiesTourResource::collection($this->availabilityTour ) ,
-            'package_hotel' => $this->gtaHotel ? PackageHotelGtaResource::collection($this->gtaHotel) : [],
             // 'PricingTiers'            => PricingTiersTourResource::collection($this->packageActivityPricingTiers),
             // 'solo_price'                => $this->solo_price,
             // 'Limo_price'                => $this->Limo_price,
