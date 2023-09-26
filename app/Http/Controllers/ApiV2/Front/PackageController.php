@@ -101,7 +101,7 @@ class PackageController extends Controller
     {
         $adults = $request->adults ?? 0;
         $children = $request->children ?? 0;
-        $adventure_id = $request->adventures;
+        $adventure_id = $request->adventures ?? [];
         $package_id = $request->package_id;
         $date = $request->date;
         $totalOccupancy = $adults + $children;
@@ -136,8 +136,8 @@ class PackageController extends Controller
             }
         }
         foreach($adventure_id as $adventure) {
-
             $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $date)->where('to_date', '>=', $date)->where('package_activity_id',$adventure)->pluck('id');
+
             if (!$packageActivityQuery) {
                 return response()->json([
                     'status' => 400,
@@ -164,6 +164,7 @@ class PackageController extends Controller
         foreach ($allIds as $idd) {
             $doubleValuechild = $idd['child_percentage'] / 100.0;
             if($idd['max'] >= $totalOccupancy && $idd['min'] <= $totalOccupancy) {
+
                 $totalAdultPrice = $idd['adult_price'] * $adults;
 
                 $totalChildrenPrice = $children * $doubleValuechild * $idd['adult_price'];
@@ -180,53 +181,66 @@ class PackageController extends Controller
             }
         }
 
-        // get transportations
-        $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->sum();
+        if($totalPrice != 0) {
+            // get transportations
+            $transportations = PackageCityTransportation::where('package_id', $package_id)->pluck('price_per_person')->sum();
 
-        $transportations = $transportations * $totalOccupancy;
-        // get cruise id
-        $cruise_id = PackageCity::where('package_id', $package_id)->where('type', 'cruise')->whereNotNull('cruise_id')->pluck('cruise_id');
+            $transportations = $transportations * $totalOccupancy;
+            // get cruise id
+            $cruise_id = PackageCity::where('package_id', $package_id)->where('type', 'cruise')->whereNotNull('cruise_id')->pluck('cruise_id');
 
 
-        if($cruise_id != null) {
-            // get price_per_day from cruise
-            $cruisePrice = PackageHotelRoomSeason::whereIn('package_hotel_room_id', function ($query) use ($cruise_id) {
-                $query->select('id')
-                    ->from(with(new PackageHotelRoom())->getTable())
-                    ->whereIn('model_id', $cruise_id)
-                    ->where('model_type', 'App\Models\Cruise');
-            })
-            ->pluck('price_per_day')
-            ->sum();
+            if($cruise_id != null) {
+                // get price_per_day from cruise
+                $cruisePrice = PackageHotelRoomSeason::whereIn('package_hotel_room_id', function ($query) use ($cruise_id) {
+                    $query->select('id')
+                        ->from(with(new PackageHotelRoom())->getTable())
+                        ->whereIn('model_id', $cruise_id)
+                        ->where('model_type', 'App\Models\Cruise');
+                })
+                ->pluck('price_per_day')
+                ->sum();
 
-            $cost = $totalPrice + $transportations +  $cruisePrice;
+                $cost = $totalPrice + $transportations +  $cruisePrice;
+            } else {
+                $cost = $totalPrice + $transportations ;
+            }
+            if ($cost != 0 && $cost != null) {
+                $sessionId = Str::uuid()->toString();
+
+                $cacheTotalPrice = ['totalPrice' => $cost];
+
+                Cache::put($sessionId, $cacheTotalPrice, 12000);
+
+                if($adventure_id == []) {
+                    $cost = 0;
+                }
+
+                return response()->json([
+                    'message' => 'Activity Prices',
+                    'status' => 200,
+                    'totalPrice' => $cost,
+                    'sessionId' => $sessionId
+                ]);
+
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'errors' => 'The number you have chosen is greater than the allowed number',
+                ]);
+            }
+
         } else {
-            $cost = $totalPrice + $transportations ;
-        }
-
-
-
-
-        if ($cost != 0 && $cost != null) {
-            $sessionId = Str::uuid()->toString();
-
-            $cacheTotalPrice = ['totalPrice' => $cost];
-
-            Cache::put($sessionId, $cacheTotalPrice, 12000);
-
             return response()->json([
                 'message' => 'Activity Prices',
                 'status' => 200,
-                'totalPrice' => $cost,
-                'sessionId' => $sessionId
-            ]);
-
-        } else {
-            return response()->json([
-                'status' => 400,
-                'errors' => 'The number you have chosen is greater than the allowed number',
+                'totalPrice' => 0
             ]);
         }
+
+
+
+
 
 
     }

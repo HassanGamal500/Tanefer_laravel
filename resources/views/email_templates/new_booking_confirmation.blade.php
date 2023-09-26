@@ -29,6 +29,7 @@
             border-bottom-style: solid;
             border-bottom-color: rgb(192, 192, 192);
             vertical-align: top;
+			min-width: 40vw;
         }
     </style>
 

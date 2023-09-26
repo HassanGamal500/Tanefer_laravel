@@ -8,165 +8,482 @@ use GuzzleHttp\Client;
 class PackageHotelGtaController extends Controller
 {
 
-    public function sendSoapRequest()
+    public function sendSoapRequest(Request $request)
     {
+        // $client = new Client();
 
-        $client = new Client();
+        // $soapRequest = '
+        //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //         <soapenv:Header/>
+        //         <soapenv:Body>
+        //             <HotelPortfolio>
+        //                 <HotelPortfolioRQ Version="1.1" Language="en" Page="1" RecordsPerPage="10" >
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                 </HotelPortfolioRQ>
+        //             </HotelPortfolio>
+        //         </soapenv:Body>
+        //     </soapenv:Envelope>
+        // ';
 
-        $soapRequest = '
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
-                <soapenv:Header/>
-                <soapenv:Body>
-                    <HotelPortfolio>
-                        <HotelPortfolioRQ Version="1.1" Language="en" Page="1" RecordsPerPage="500">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
-                        </HotelPortfolioRQ>
-                    </HotelPortfolio>
-                </soapenv:Body>
-            </soapenv:Envelope>
-        ';
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelPortfolio', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
-            'headers' => [
-                'Content-Type' => 'text/xml;charset=UTF-8',
-                'Accept-Encoding' => 'gzip, deflate',
-                'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelPortfolio', // Specify the SOAP action if required by the service
-            ],
-            'body' => $soapRequest,
-        ]);
+        // $responseJson = $response->getBody()->getContents();
 
-        $responseJson = $response->getBody()->getContents();
+        // return $responseJson;
 
-        return $responseJson;
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->HotelPortfolio([
+        //     "HotelPortfolioRQ" =>[
+        //         "Version" => "1.1",
+        //         "Language" => "en",
+        //         "Page" => "1",
+        //         "RecordsPerPage" => "10",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ]
+        //     ],
+        // ]);
+
+        // return response()->json($response);
+
+
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'HotelPortfolioRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Page' => $request->get('page'),
+                'RecordsPerPage' => '500',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('HotelPortfolio', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
     }
+
     public function roomList()
     {
 
-        $client = new Client();
+        // $client = new Client();
 
-        $soapRequest = '
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
-                    <soapenv:Header/>
-                    <soapenv:Body>
-                        <RoomList>
-                            <!--Optional:-->
-                            <RoomListRQ Version="1" Language="en">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
-                            </RoomListRQ>
-                        </RoomList>
-                    </soapenv:Body>
-                </soapenv:Envelope>
-        ';
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
-            'headers' => [
-                'Content-Type' => 'text/xml;charset=UTF-8',
-                'Accept-Encoding' => 'gzip, deflate',
-                'SOAPAction' => 'http://www.juniper.es/webservice/2007/RoomList', // Specify the SOAP action if required by the service
-            ],
-            'body' => $soapRequest,
-        ]);
+        // $soapRequest = '
+        //         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //             <soapenv:Header/>
+        //             <soapenv:Body>
+        //                 <RoomList>
+        //                     <!--Optional:-->
+        //                     <RoomListRQ Version="1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                     </RoomListRQ>
+        //                 </RoomList>
+        //             </soapenv:Body>
+        //         </soapenv:Envelope>
+        // ';
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/RoomList', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
 
-        $responseJson = $response->getBody()->getContents();
+        // $responseJson = $response->getBody()->getContents();
 
-        return $responseJson;
+        // return $responseJson;
+
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->RoomList([
+        //     "RoomListRQ" =>[
+        //         "Version" => "1",
+        //         "Language" => "en",
+        //         "RecordsPerPage" => "10",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ]
+        //     ],
+        // ]);
+
+        // return response()->json($response);
+
+
+
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'RoomListRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'RecordsPerPage' => '10',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('RoomList', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
     }
 
     public function content(Request $request)
     {
         $hotelCode = $request->hotelCode;
-        $client = new Client();
+        // $client = new Client();
 
-        $soapRequest = '
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
-                    <soapenv:Header/>
-                    <soapenv:Body>
-                        <HotelContent>
-                            <HotelContentRQ Version="1" Language="en">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
-                                <HotelContentList>
-                                    <Hotel Code="'. $hotelCode.'"/>
-                                </HotelContentList>
-                            </HotelContentRQ>
-                        </HotelContent>
-                    </soapenv:Body>
-                </soapenv:Envelope>
-        ';
+        // $soapRequest = '
+        //         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //             <soapenv:Header/>
+        //             <soapenv:Body>
+        //                 <HotelContent>
+        //                     <HotelContentRQ Version="1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                         <HotelContentList>
+        //                             <Hotel Code="'. $hotelCode.'"/>
+        //                         </HotelContentList>
+        //                     </HotelContentRQ>
+        //                 </HotelContent>
+        //             </soapenv:Body>
+        //         </soapenv:Envelope>
+        // ';
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
-            'headers' => [
-                'Content-Type' => 'text/xml;charset=UTF-8',
-                'Accept-Encoding' => 'gzip, deflate',
-                'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelContent', // Specify the SOAP action if required by the service
-            ],
-            'body' => $soapRequest,
-        ]);
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelContent', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
 
-        $responseJson = $response->getBody()->getContents();
+        // $responseJson = $response->getBody()->getContents();
 
-        return $responseJson;
+        // return $responseJson;
+
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->HotelContentList([
+        //     "HotelContentRQ" => [
+        //         "Version" => "1",
+        //         "Language" => "en",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ],
+        //         "HotelContentList" => [
+        //             "Hotel" => [
+        //                 "Code" => $hotelCode
+        //             ]
+        //         ]
+        //     ],
+        // ]);
+
+        // return response()->json($response);
+
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        // $hotelCode = 'YOUR_HOTEL_CODE'; // Replace with the actual hotel code
+
+        $requestData = array(
+            'HotelContentRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                ),
+                'HotelContentList' => array(
+                    'Hotel' => array(
+                        'Code' => $hotelCode
+                    )
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('HotelContent', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
     }
 
     public function availability(Request $request)
     {
-        $client = new Client();
+        // $client = new Client();
 
-        $soapRequest = '
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header/>
-                <soapenv:Body>
-                    <HotelAvail xmlns="http://www.juniper.es/webservice/2007/">
-                        <HotelAvailRQ Version="1.1" Language="{{Language}}">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
-                            <Paxes>
-                                <Pax IdPax="1">
-                                    <Age>30</Age>
-                                </Pax>
-                                <Pax IdPax="2">
-                                    <Age>30</Age>
-                                </Pax>
-                            </Paxes>
-                            <HotelRequest>
-                                <SearchSegmentsHotels>
-                                    <SearchSegmentHotels Start="{{StartDate}}" End="{{EndDate}}"/>
-                                    <CountryOfResidence>ES</CountryOfResidence>
-                                    <HotelCodes>
-                                        <HotelCode>JP046300</HotelCode>
-                                        <HotelCode>JP046391</HotelCode>
-                                        <HotelCode>JP150074</HotelCode>
-                                    </HotelCodes>
-                                </SearchSegmentsHotels>
-                                <RelPaxesDist>
-                                    <RelPaxDist>
-                                        <RelPaxes>
-                                            <RelPax IdPax="1"/>
-                                            <RelPax IdPax="2"/>
-                                        </RelPaxes>
-                                    </RelPaxDist>
-                                </RelPaxesDist>
-                            </HotelRequest>
-                            <AdvancedOptions>
-                                <ShowHotelInfo>false</ShowHotelInfo>
-                                <ShowOnlyBestPriceCombination>true</ShowOnlyBestPriceCombination>
-                                <TimeOut>8000</TimeOut>
-                            </AdvancedOptions>
-                        </HotelAvailRQ>
-                    </HotelAvail>
-                </soapenv:Body>
-            </soapenv:Envelope>
-        ';
+        // $soapRequest = '
+        //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        //         <soapenv:Header/>
+        //         <soapenv:Body>
+        //             <HotelAvail xmlns="http://www.juniper.es/webservice/2007/">
+        //                 <HotelAvailRQ Version="1.1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                     <Paxes>
+        //                         <Pax IdPax="1"/>
+        //                     </Paxes>
+        //                     <HotelRequest>
+        //                         <SearchSegmentsHotels>
+        //                             <SearchSegmentHotels Start="2023-09-01" End="2023-09-30"/>
+        //                             <CountryOfResidence>ES</CountryOfResidence>
+        //                             <HotelCodes>
+        //                                 <HotelCode>JP060489</HotelCode>
+        //                                 <HotelCode>JP046105</HotelCode>
+        //                                 <HotelCode>JP046183</HotelCode>
+        //                             </HotelCodes>
+        //                         </SearchSegmentsHotels>
+        //                         <RelPaxesDist>
+        //                             <RelPaxDist>
+        //                                 <RelPaxes>
+        //                                     <RelPax IdPax="1"/>
+        //                                 </RelPaxes>
+        //                             </RelPaxDist>
+        //                         </RelPaxesDist>
+        //                     </HotelRequest>
+        //                     <AdvancedOptions>
+        //                         <ShowHotelInfo>true</ShowHotelInfo>
+        //                         <ShowOnlyBestPriceCombination>true</ShowOnlyBestPriceCombination>
+        //                         <TimeOut>8000</TimeOut>
+        //                     </AdvancedOptions>
+        //                 </HotelAvailRQ>
+        //             </HotelAvail>
+        //         </soapenv:Body>
+        //     </soapenv:Envelope>
+        // ';
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/availtransactions.asmx', [
-            'headers' => [
-                'Content-Type' => 'text/xml;charset=UTF-8',
-                'Accept-Encoding' => 'gzip, deflate',
-                'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelAvail',
-            ],
-            'body' => $soapRequest,
-        ]);
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/availtransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelAvail',
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
 
-        $responseJson = $response->getBody()->getContents();
+        // $responseJson = $response->getBody()->getContents();
 
-        return $responseJson;
+        // return $responseJson;
+
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        // $requestData = array(
+        //     'HotelAvailRQ' => array(
+        //         'Version' => '1.1',
+        //         'Language' => 'en',
+        //         'Login' => array(
+        //             'Password' => 'U3dIp8i*eyAC8N7',
+        //             'Email' => 'Xml_TestXMLTaNefer'
+        //         ),
+        //         'Paxes' => array(
+        //             'Pax' => array(
+        //                 'IdPax' => '1'
+        //             )
+        //         ),
+        //         'HotelRequest' => array(
+        //             'SearchSegmentsHotels' => array(
+        //                 'SearchSegmentHotels' => array(
+        //                     'Start' => '2023-09-01',
+        //                     'End' => '2023-09-30'
+        //                 ),
+        //                 'CountryOfResidence' => 'ES',
+        //                 'HotelCodes' => array(
+        //                     'HotelCode' => array(
+        //                         'JP060489',
+        //                         'JP046105',
+        //                         'JP046183'
+        //                     )
+        //                 )
+        //             ),
+        //             'RelPaxesDist' => array(
+        //                 'RelPaxDist' => array(
+        //                     'RelPaxes' => array(
+        //                         'RelPax' => array(
+        //                             'IdPax' => '1'
+        //                         )
+        //                     )
+        //                 )
+        //             )
+        //         ),
+        //         'AdvancedOptions' => array(
+        //             'ShowHotelInfo' => true,
+        //             'ShowOnlyBestPriceCombination' => true,
+        //             'TimeOut' => '8000'
+        //         )
+        //     )
+        // );
+
+        $requestData = array(
+            'HotelAvailRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Email' => 'Xml_TestXMLTaNefer',
+                    'Password' => 'U3dIp8i*eyAC8N7'
+                ),
+                'Paxes' => array(
+                    'Pax' => array(
+                        array('IdPax' => '1', 'Age' => '35'),
+                        array('IdPax' => '2', 'Age' => '30'),
+                        array('IdPax' => '3', 'Age' => '40')
+                    )
+                ),
+                'HotelRequest' => array(
+                    'SearchSegmentsHotels' => array(
+                        'SearchSegmentHotels' => array(
+                            'Start' => '2023-09-01',
+                            'End' => '2023-09-30',
+                            'DestinationZone' => '221'
+                        ),
+                        'CountryOfResidence' => 'EG'
+                    ),
+                    'RelPaxesDist' => array(
+                        'RelPaxDist' => array(
+                            'RelPaxes' => array(
+                                array('IdPax' => '1'),
+                                array('IdPax' => '2'),
+                                array('IdPax' => '3')
+                            )
+                        )
+                    )
+                ),
+                'AdvancedOptions' => array(
+                    'ShowHotelInfo' => false,
+                    'ShowOnlyBestPriceCombination' => true,
+                    'TimeOut' => '8000'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('HotelAvail', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
     }
 
     public function checkAvailability(Request $request)
@@ -215,7 +532,6 @@ class PackageHotelGtaController extends Controller
 
         return $responseJson;
     }
-
 
     public function BookingRules(Request $request)
     {
@@ -372,5 +688,452 @@ class PackageHotelGtaController extends Controller
         $responseJson = $response->getBody()->getContents();
 
         return $responseJson;
+    }
+
+    public function genericDataCatalogue()
+    {
+        // $client = new Client();
+
+        // $soapRequest = '
+        //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //         <soapenv:Header/>
+        //         <soapenv:Body>
+        //             <GenericDataCatalogue>
+        //                 <GenericDataCatalogueRQ Version="1.1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                     <GenericDataCatalogueRequest Type="COUNTRIES"/>
+        //                 </GenericDataCatalogueRQ>
+        //             </GenericDataCatalogue>
+        //         </soapenv:Body>
+        //     </soapenv:Envelope>
+        // ';
+
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/GenericDataCatalogue', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
+
+        // $responseJson = $response->getBody()->getContents();
+
+        // return $responseJson;
+
+
+
+
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->GenericDataCatalogue([
+        //     "GenericDataCatalogueRQ " => [
+        //         "Version" => "1.1",
+        //         "Language" => "en",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ],
+        //         "GenericDataCatalogueRequest" => [
+        //             "Type" => "COUNTRIES"
+        //         ]
+        //     ],
+        // ]);
+
+        // return response()->json($response);
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'GenericDataCatalogueRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                ),
+                'GenericDataCatalogueRequest' => array(
+                    'Type' => 'COUNTRIES'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('GenericDataCatalogue', array('parameters' => $requestData));
+            // var_dump($response);
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
+    }
+
+    public function zoneList()
+    {
+        // $client = new Client();
+
+        // $soapRequest = '
+        //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //         <soapenv:Header/>
+        //         <soapenv:Body>
+        //             <ZoneList>
+        //                 <ZoneListRQ Version="1.1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                     <ZoneListRequest ProductType="HOT"/>
+        //                 </ZoneListRQ>
+        //             </ZoneList>
+        //         </soapenv:Body>
+        //     </soapenv:Envelope>
+        // ';
+
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/ZoneList', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
+
+        // $responseJson = $response->getBody()->getContents();
+
+        // return $responseJson;
+
+
+
+
+        ini_set('memory_limit', '-1');
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'ZoneListRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                ),
+                'ZoneListRequest' => array(
+                    'ProductType' => 'HOT'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('ZoneList', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
+    }
+
+    public function cityList()
+    {
+        ini_set('memory_limit', '-1');
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'CityListRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('CityList', array('parameters' => $requestData));
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
+    }
+
+    public function hotelList()
+    {
+        // $options = array(
+        //     'location' => 'https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx',
+        //     'soap_version' => SOAP_1_2,  // Use SOAP 1.2
+        //     'cache_wsdl' => WSDL_CACHE_NONE,  // Don't cache the WSDL
+        //     'encoding' => 'UTF-8',
+        //     'uri' => 'http://www.juniper.es/webservice/2007/',
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate',
+        //                 // 'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelPortfolio'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'exceptions' => true,
+        //     'connection_timeout' => 180,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        //     'login' => 'Xml_TestXMLTaNefer',
+        //     'password' => 'U3dIp8i*eyAC8N7',
+        //     // 'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelPortfolio'
+        // );
+
+        // $client = new \SoapClient(null, $options);
+
+        // $params = array(
+        //     'Version' => '1.1',
+        //     'Language' => 'en',
+        //     'Page' => 1,
+        //     'RecordsPerPage' => 500
+        // );
+
+        // $login = new \stdClass();
+        // $login->Login = $params;
+
+        // $portfolioRequest = new \stdClass();
+        // $portfolioRequest->HotelPortfolioRQ = $login;
+
+        // // Create a SoapHeader with the SOAPAction
+        // $headers = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'Action', 'http://www.juniper.es/webservice/2007/HotelPortfolio', false);
+        // $client->__setSoapHeaders($headers);
+
+        // try {
+        //     $response = $client->__soapCall('HotelPortfolio', array($portfolioRequest));
+        //     return $response;
+        // } catch (SoapFault $fault) {
+        //     echo "Error: " . $fault->getMessage();
+        // }
+
+
+
+
+
+
+
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->HotelPortfolio([
+        //     "HotelPortfolioRQ" =>[
+        //         "Version" => "1.1",
+        //         "Language" => "en",
+        //         "Page" => "1",
+        //         "RecordsPerPage" => "10",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ]
+        //     ],
+        // ]);
+
+        // // dd($response);
+        // return response()->json($response);
+        // // $responseJson = $response->getBody()->getContents();
+        // // return $responseJson;
+
+
+
+
+
+        // $client = new Client();
+
+        // $soapRequest = '
+        //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
+        //         <soapenv:Header/>
+        //         <soapenv:Body>
+        //             <HotelList>
+        //                 <HotelListRQ Version="1.1" Language="en">
+        //                     <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+        //                     <HotelListRequest ZoneCode="2" ShowBasicInfo="true"/>
+        //                 </HotelListRQ>
+        //             </HotelList>
+        //         </soapenv:Body>
+        //     </soapenv:Envelope>
+        // ';
+
+        // $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx', [
+        //     'headers' => [
+        //         'Content-Type' => 'text/xml;charset=UTF-8',
+        //         'Accept-Encoding' => 'gzip, deflate',
+        //         'SOAPAction' => 'http://www.juniper.es/webservice/2007/HotelList', // Specify the SOAP action if required by the service
+        //     ],
+        //     'body' => $soapRequest,
+        // ]);
+
+        // $responseJson = $response->getBody()->getContents();
+
+        // return $responseJson;
+
+
+
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", array(
+        //     'soap_version' => 'SOAP_1_2',
+        //     'encoding' => 'UTF-8',
+        //     'exceptions' => true,
+        //     'stream_context' => stream_context_create(array(
+        //         'http' => array(
+        //             'header' => array(
+        //                 'Content-Type: text/xml; charset=UTF-8',
+        //                 'Accept-Encoding: gzip, deflate'
+        //             )
+        //         ),
+        //         'ssl' => array(
+        //             'verify_peer' => false,
+        //             'verify_peer_name' => false
+        //         )
+        //     )),
+        //     'trace' => true,
+        //     'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+        // ));
+
+        // $client->__setLocation("https://xml-uat.bookingengine.es/WebService/jp/operations/staticdatatransactions.asmx");
+
+        // $response = $client->HotelListRequest([
+        //     "ZoneCode" => "2",
+        //     "ShowBasicInfo" => "true",
+        //     "HotelListRQ" =>[
+        //         "Version" => "1.1",
+        //         "Language" => "en",
+        //         "Login" => [
+        //             "Email" => 'Xml_TestXMLTaNefer',
+        //             "Password" => 'U3dIp8i*eyAC8N7'
+        //         ]
+        //     ],
+        // ]);
+
+        // return response()->json($response);
+
+
+
+
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'HotelListRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                ),
+                'ZoneCode' => '41',
+                'ShowBasicInfo' => 'true',
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('HotelList', array('parameters' => $requestData));
+            // var_dump($response);
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
+    }
+
+    public function hotelCatalogueData() {
+        $options = array(
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'UTF-8',
+            'exceptions' => true,
+            'trace' => true,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+
+        $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+
+        $requestData = array(
+            'HotelCatalogueDataRQ' => array(
+                'Version' => '1.1',
+                'Language' => 'en',
+                'Login' => array(
+                    'Password' => 'U3dIp8i*eyAC8N7',
+                    'Email' => 'Xml_TestXMLTaNefer'
+                )
+            )
+        );
+
+        try {
+            $response = $client->__soapCall('HotelCatalogueData', array('parameters' => $requestData));
+            // var_dump($response);
+            return response()->json($response);
+        } catch (SoapFault $fault) {
+            echo "Error: " . $fault->getMessage();
+        }
     }
 }

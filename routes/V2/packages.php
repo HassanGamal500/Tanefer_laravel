@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Packages API Routes
@@ -51,6 +53,20 @@ Route::post('test','Front\BookingController@testmail');
 Route::post('calculate-total-price' , 'Front\PackageController@calculateTotalPrice');
 Route::post('calculate-all-price' , 'Front\PackageController@calculateAllPrice');
 
+Route::get('gta-store-country' , 'Front\PackageHotelGtaController@store_country_gta');
+Route::get('gta-store-region' , 'Front\PackageHotelGtaController@store_region_gta');
+Route::get('gta-store-city' , 'Front\PackageHotelGtaController@store_city_gta');
+Route::get('gta-store-zone' , 'Front\PackageHotelGtaController@store_zone_gta');
+Route::get('gta-store-hotel-catalogue' , 'Front\PackageHotelGtaController@store_hotel_catalogue_data');
+Route::get('gta-store-hotel-portfolio' , 'Front\PackageHotelGtaController@store_hotel_portfolio');
+
+Route::get('gta-get-country' , 'Front\PackageHotelGtaController@get_country');
+Route::get('gta-get-region' , 'Front\PackageHotelGtaController@get_region');
+Route::get('gta-get-city' , 'Front\PackageHotelGtaController@get_city');
+Route::get('gta-get-zone' , 'Front\PackageHotelGtaController@get_zone');
+Route::get('gta-get-hotel-catalogues' , 'Front\PackageHotelGtaController@get_hotel_catalogues');
+Route::get('gta-get-hotel' , 'Front\PackageHotelGtaController@get_hotel');
+
 
 
 Route::get('get-hotel' , 'Admin\PackageHotelGtaController@sendSoapRequest');
@@ -63,6 +79,7 @@ Route::get('get-booking' , 'Admin\PackageHotelGtaController@Booking');
 Route::get('get-cancel-booking' , 'Admin\PackageHotelGtaController@cancelBooking');
 Route::get('get-generic_data_catalogue' , 'Admin\PackageHotelGtaController@genericDataCatalogue');
 Route::get('get-zone-list' , 'Admin\PackageHotelGtaController@zoneList');
+Route::get('get-city-list' , 'Admin\PackageHotelGtaController@cityList');
 Route::get('get-hotel-list' , 'Admin\PackageHotelGtaController@hotelList');
 Route::get('get-hotel-catalogue-data' , 'Admin\PackageHotelGtaController@hotelCatalogueData');
 

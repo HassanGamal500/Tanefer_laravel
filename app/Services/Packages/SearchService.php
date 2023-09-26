@@ -27,7 +27,7 @@ class SearchService
             $packageActivityQuery->where('is_published',1);
         }
 
-        if(isset($date) && !empty($date) && $date != null && $date != 'null'){
+        if(isset($date) && !empty($date) && $date != null && $date != 'null' && $date != '' && $date != 'undefined' && $date){
             $packageActivityQuery->whereHas('availabilityTour', function($q) use ($date) {
                 $q->where('from_date', '<=', $date)->where('to_date', '>=', $date);
             });
