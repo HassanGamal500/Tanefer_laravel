@@ -114,23 +114,29 @@ class PackageStoreService
                     }
 
                 }
-                if (! empty($activity['accommodation'] != null)) {
-                    foreach ($activity['accommodation'] as $hotel) {
-                        PackageGtaHotel::create([
-                            'city_id'   => $hotel['city_id'],
-                            'package_city_id'   => $booking->id,
-                            'package_id'   => $package_id,
-                            'type'            => $activity['type'],
-                            'hotel_id'   => $hotel['hotel_id'],
-                        ]);
-                    }
-                }
 
             }
             $i++;
         }
 
         return ['adventure' => $bookingIds, 'cruise' => $cruiseIds];
+    }
+
+    public static function storeHotel($accommodation, $package_id) {
+        if (isset($accommodation) && !empty($accommodation != null)) {
+            foreach ($accommodation as $hotel) {
+                foreach ($hotel['hotels'] as $hotel_id) {
+                    PackageGtaHotel::create([
+                        'city_id'   => $hotel['city_id'],
+                        'package_city_id'   => null,
+                        'package_id'   => $package_id,
+                        'type'            => null,
+                        'hotel_id'   => $hotel_id['hotel_id'],
+                    ]);
+                }
+            }
+        }
+
     }
     public static function storeAdventuredays($activities, $availabilityIds, $package_id)
     {

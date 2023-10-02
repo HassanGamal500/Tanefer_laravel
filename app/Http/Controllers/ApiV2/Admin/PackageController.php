@@ -81,6 +81,11 @@ class PackageController extends Controller
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
             }
+            if( isset($request->accommodation) && !empty($request->accommodation)){
+
+                PackageStoreService::storeHotel($request->accommodation,$package['id']);
+            }
+
             // if(! empty($request->seasons)){
             //     PackageStoreService::storeSeasons($package,$request->seasons);
             // }

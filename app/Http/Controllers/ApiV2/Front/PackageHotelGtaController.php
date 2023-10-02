@@ -244,8 +244,12 @@ class PackageHotelGtaController extends Controller
     }
     public function get_city(Request $request){
 
-        $city_code = $request->city_code;
-        $city = GtaCity::where('parent_code', $city_code)->get();
+        // $city_code = $request->city_code;
+        $country_code = $request->country_code;
+        $city = GtaCity::select('gta_cities.*')
+        ->join('gta_regions', function($join) {
+            $join->on('gta_cities.parent_code', '=', 'gta_regions.code');
+        })->where('gta_regions.parent_code', $country_code)->get();
 
         return response()->json([ 'message' =>'success','status' => 200,
             'data'=> GtaRegionResource::collection( $city )

@@ -50,7 +50,7 @@
             </th>
         </tr>
         <tr style="break-inside: avoid">
-            <th class="passengerDetailsheads">@if($booking->model_ids == null) day number @else adventure number @endif</th>
+            @if($booking->model_ids == null) <th class="passengerDetailsheads"> day number </th> @endif
             <th class="passengerDetailsheads">adventure Name</th>
             @if($booking->model_ids == null) <th class="passengerDetailsheads">City</th> @endif
             <th class="passengerDetailsheads">time</th>
@@ -69,7 +69,6 @@
                     $formattedEndTime = $carbonEndTime->format('h:i A');
                 @endphp
                 <tr style="break-inside: avoid">
-                    <td class="passengerdetails">{{ $adventure->id }}</td>
                     <td class="passengerdetails">{{ $adventure->title }}</td>
                     <td class="passengerdetails">{{ $formattedStartTime }} - {{ $formattedEndTime }}</td>
                     <td class="passengerdetails">{{ str_replace(['[', ']'], '', $adventure->includes) }}</td>
@@ -114,14 +113,14 @@
                 </th>
             </tr>
             <tr style="break-inside: avoid">
-                <th class="passengerDetailsheads">cruise days</th>
-                <th class="passengerDetailsheads">cruise name</th>
-                <th class="passengerDetailsheads">cruise city</th>
-                <th class="passengerDetailsheads">cruise line</th>
-                <th class="passengerDetailsheads">ship name</th>
-                <th class="passengerDetailsheads">cruise excludes</th>
-                <th class="passengerDetailsheads">cruise includes</th>
-                <th class="passengerDetailsheads">number of nights</th>
+                <th class="passengerdetails">cruise days</th>
+                <th class="passengerdetails">cruise name</th>
+                <th class="passengerdetails">cruise city</th>
+                <th class="passengerdetails">cruise line</th>
+                <th class="passengerdetails">ship name</th>
+                <th class="passengerdetails">cruise excludes</th>
+                <th class="passengerdetails">cruise includes</th>
+                <th class="passengerdetails">number of nights</th>
             </tr>
             @foreach ($cruises as $cruisesCollection)
                 @php

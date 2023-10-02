@@ -28,7 +28,7 @@ class PackageActivityBooing extends JsonResource
         if($this->type === 'cruise') {
             $cru = Cruise::where('id', $this->cruise_id)->get();
         }
-        $hotel = DB::table('package_gta_hotels')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
+        // $hotel = DB::table('package_gta_hotels')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
 
         $data = [
             'id'=>$this->id,
@@ -44,7 +44,7 @@ class PackageActivityBooing extends JsonResource
             'list_adventures'   => $this->type === 'adventure' ? $tourActivities : null,
             'days' =>  PackageDaysActivityBooing::collection($crui),
             'transportations'   => PackageCityTransportationResource::collection( $transportations ),
-            'package_hotel' => $hotel ? PackageHotelGtaResource::collection($hotel) : [],
+            // 'package_hotel' => $hotel ? PackageHotelGtaResource::collection($hotel) : [],
 
 
         ];

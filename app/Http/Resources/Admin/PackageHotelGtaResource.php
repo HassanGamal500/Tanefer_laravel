@@ -22,8 +22,8 @@ class PackageHotelGtaResource extends JsonResource
             'id'                  => $this->id ,
             'city'                  => $city ,
             'hotel'                  => $hotel ,
-            'package_city_id'         => $this->package_city_id  ,
-            'type'                  => $this->type ,
+            // 'package_city_id'         => $this->package_city_id  ,
+            // 'type'                  => $this->type ,
         ];
     }
 }

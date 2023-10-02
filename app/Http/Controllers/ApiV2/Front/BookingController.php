@@ -31,14 +31,14 @@ class BookingController extends Controller
 
     public function  save(BookingSaveRequest $request )
     {
-        // if(! is_null($request->start_date)){
-        //     $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
-        //     $package = Package::find($request->package_id);
-        //     $days = $package->packageAbilities->pluck('days');
-        //     if(! str_contains($days,$startDay) && ! empty($days)){
-        //         abort(422,'this tour not start in '.$startDay);
-        //     }
-        // }
+        if(! is_null($request->start_date)){
+            $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
+            $package = Package::find($request->package_id);
+            $days = $package->packageAbilities->pluck('days');
+            if(!str_contains($days,$startDay) && ! empty($days)){
+                abort(422,'this tour not start in '.$startDay);
+            }
+        }
         // if(count($package->seasons) > 0 && !is_null($request->start_date)){
         //     $season = $package->seasons()->where('from','<=',$request->start_date)
         //         ->where('to','>',$request->start_date)->first();
@@ -49,7 +49,6 @@ class BookingController extends Controller
 
         if(Cache::has($request->sessionId)){
             $cachedTotalPrice = Cache::get($request->sessionId);
-            // dd($cachedTotalPrice);
             if($cachedTotalPrice['totalPrice'] != $request->total_price){
                 $cachedTotalPrice = json_encode($cachedTotalPrice);
                 return responseJson($request,new \stdClass(),
@@ -80,7 +79,6 @@ class BookingController extends Controller
         $validated = $request->validated();
         DB::transaction(function () use ( $validated ) {
             $booking = BookingService::storeBookingMainData($validated);
-
             // foreach ( $validated['booking_cities'] as $key => $booking_city ){
             //     BookingService::storeBookingCityData($booking,$booking_city);
             // }
