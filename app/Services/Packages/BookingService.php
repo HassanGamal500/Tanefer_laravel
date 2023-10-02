@@ -9,6 +9,7 @@ use App\Models\BookingTraveller;
 use App\Models\Package;
 use App\Models\PackageActivity;
 use App\Models\PackageBookingData;
+use App\Models\PackageHotelBooking;
 use App\Models\PackageHotelRoom;
 
 class BookingService
@@ -113,6 +114,20 @@ class BookingService
                     'day_number'   => $availability['days_number'],
                     'cruise_id'   => $availability['cruise_id'],
                 ]);
+            }
+        }
+    }
+
+    public static function storeHotel($accommodation, $booking_id) {
+        if (isset($accommodation) && !empty($accommodation != null)) {
+            foreach ($accommodation as $hotel) {
+                foreach ($hotel['hotels'] as $hotel_id) {
+                    PackageHotelBooking::create([
+                        'city_id'   => $hotel['city_id'],
+                        'booking_id'   => $booking_id,
+                        'hotel_id'   => $hotel_id['hotel_id'],
+                    ]);
+                }
             }
         }
     }

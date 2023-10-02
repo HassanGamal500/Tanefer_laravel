@@ -148,13 +148,17 @@ class PackageController extends Controller
             if(! empty($request->activities)){
                 $package->packageCity()->delete();
                 $package->packageTransportations()->delete();
-                $package->gtaHotel()->delete();
                 $packageType = PackageStoreService::storeAdventureOrCruise($package['id'],$request->activities);
                 $package->packageAdventuredays()->delete();
                 $daysId = PackageStoreService::storeAdventuredays($request->activities,$packageType['adventure'], $package['id']);
                 $package->packageAdventure()->delete();
                 PackageStoreService::storeAdventure($request->activities,$packageType['adventure'], $daysId,$package['id']);
                 // PackageStoreService::storeTransportations($request->activities,$packageType['adventure'], $package['id'],$packageType['cruise']);
+            }
+
+            if( isset($request->accommodation) && !empty($request->accommodation)){
+                $package->gtaHotel()->delete();
+                PackageStoreService::storeHotel($request->accommodation,$package['id']);
             }
 
 

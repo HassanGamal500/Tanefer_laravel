@@ -10,5 +10,6 @@ class PackageHotelBooking extends Model
     protected $fillable = [
         'hotel_id',
         'booking_id',
+        'city_id',
     ];
 }

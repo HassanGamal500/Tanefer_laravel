@@ -85,6 +85,7 @@ class BookingController extends Controller
         });
         $booking = Booking::orderBy('id', 'DESC')->first();
         BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
+        BookingService::storeHotel($request->accommodation,$booking->id);
         $bookingdata = Booking::find($booking->id);
         DB::transaction(function () use ($bookingdata, $validated ) {
 
