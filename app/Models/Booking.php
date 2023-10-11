@@ -18,6 +18,14 @@ class Booking extends Model
         return $this->belongsTo(Package::class);
     }
 
+    public function adventure()
+    {
+        $packageActivity = PackageBookingadventrue::where('package_id', $this->package_id)->pluck('adventrue_id');
+        $adventure = PackageActivity::whereIn('id', $packageActivity)->get();
+
+        return $adventure;
+    }
+
     public function bookingActivity(){
         return $this
             ->hasManyThrough(BookingCityActivity::class,

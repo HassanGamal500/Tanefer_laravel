@@ -17,12 +17,19 @@ class BookingController extends Controller
     public function bookingDetails($id)
     {
         $booking = Booking::with([
-            'bookingCity','bookingPayment','bookingTraveler','bookingData',
-            'startCity','endCity','package'
+            'bookingCity', 'bookingPayment', 'bookingTraveler', 'bookingData',
+            'startCity', 'endCity', 'package'
         ])
-            ->where('id',$id)->first();
-        if(is_null($booking)){
-            return response()->json(['message' => 'this booking not found'],404);
+            ->where('id', $id)
+            ->first();
+
+        if (is_null($booking)) {
+            return response()->json(['message' => 'This booking was not found'], 404);
+        }
+
+        $adventure = $booking->adventure();
+        if($adventure != null && $adventure != 'null' && !empty($adventure)) {
+            $booking->package->adventure = $adventure;
         }
         return response()->json(['bookingDetails' => $booking]);
     }
