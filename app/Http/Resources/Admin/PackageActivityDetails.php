@@ -5,6 +5,7 @@ namespace App\Http\Resources\Admin;
 use App\Http\Resources\PackageImageResource;
 use App\Services\Packages\PackageTerPrice;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\PackageGtaHotel;
 
 class PackageActivityDetails extends JsonResource
 {
@@ -22,6 +23,7 @@ class PackageActivityDetails extends JsonResource
                 ->select('name As cityName','code As cityCode')->first() : null ;
         $packageTerPrice = new PackageTerPrice();
         $tierprice = $packageTerPrice->calculatetierPrice($this->id);
+        $getGtaHotels = PackageGtaHotel::where('package_id', $this->id)->groupBy('city_id')->get();
         return [
             'packageID'                => $this->id,
             'packageTitle'             => $this->title,
@@ -37,7 +39,8 @@ class PackageActivityDetails extends JsonResource
             'discountprecentage'           => $this->discount_precentage,
             'availabilities'            => PackageAbilities::collection( $this->packageAbilities ),
             'activities'            => PackageActivityBooing::collection( $this->packageCity ),
-            'package_hotel'            => PackageHotelGtaResource::collection( $this->gtaHotel ),
+            // 'package_hotel'            => PackageHotelGtaResource::collection( $this->gtaHotel ),
+            'package_hotel'            => PackageHotelGtaResource::collection( $getGtaHotels ),
             'packagePricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person,
             'starting_airport'         => $this->starting_airport,
             'package_occupancy'         => intval($this->occupancy),

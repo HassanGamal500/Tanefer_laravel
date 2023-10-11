@@ -35,7 +35,7 @@ class PackageResource extends JsonResource
             'additionalprice'           => $this->additional_price,
             'discountprecentage'           => $this->discount_precentage,
             'availabilities'            => PackageAbilities::collection( $this->packageAbilities ),
-            'activities'            => PackageActivityBooing::collection( $this->packageCity ),
+            // 'activities'            => PackageActivityBooing::collection( $this->packageCity ),
             'package_hotel'            => PackageHotelGtaResource::collection( $this->gtaHotel ),
             'packageDuration'          => $this->duration,
             'packagePricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person,

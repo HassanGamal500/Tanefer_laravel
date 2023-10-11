@@ -31,6 +31,10 @@
             vertical-align: top;
 			min-width: 40vw;
         }
+
+        .passengerreg{
+            min-width: 12vw !important;
+        }
     </style>
 
 </head>
@@ -69,11 +73,11 @@
                     $formattedEndTime = $carbonEndTime->format('h:i A');
                 @endphp
                 <tr style="break-inside: avoid">
-                    <td class="passengerdetails">{{ $adventure->title }}</td>
-                    <td class="passengerdetails">{{ $formattedStartTime }} - {{ $formattedEndTime }}</td>
-                    <td class="passengerdetails">{{ str_replace(['[', ']'], '', $adventure->includes) }}</td>
-                    <td class="passengerdetails">{{ str_replace(['[', ']'], '', $adventure->excludes) }}</td>
-                    <td class="passengerdetails">{{ $adventure->duration_digits }}  {{ $adventure->duration_type }}</td>
+                    <td class="passengerreg">{{ $adventure->title }}</td>
+                    <td class="passengerreg">{{ $formattedStartTime }} - {{ $formattedEndTime }}</td>
+                    <td class="passengerreg">{{ str_replace(['[', ']'], '', $adventure->includes) }}</td>
+                    <td class="passengerreg">{{ str_replace(['[', ']'], '', $adventure->excludes) }}</td>
+                    <td class="passengerreg">{{ $adventure->duration_digits }}  {{ $adventure->duration_type }}</td>
                 </tr>
             @endforeach
         @endif

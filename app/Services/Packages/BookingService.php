@@ -121,13 +121,11 @@ class BookingService
     public static function storeHotel($accommodation, $booking_id) {
         if (isset($accommodation) && !empty($accommodation != null)) {
             foreach ($accommodation as $hotel) {
-                foreach ($hotel['hotels'] as $hotel_id) {
-                    PackageHotelBooking::create([
-                        'city_id'   => $hotel['city_id'],
-                        'booking_id'   => $booking_id,
-                        'hotel_id'   => $hotel_id['hotel_id'],
-                    ]);
-                }
+                PackageHotelBooking::create([
+                    'city_id'   => $hotel['city_id'],
+                    'booking_id'   => $booking_id,
+                    'hotel_id'   => $hotel['hotel_id'],
+                ]);
             }
         }
     }
