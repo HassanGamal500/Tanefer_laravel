@@ -277,7 +277,6 @@ class PackageController extends Controller
             }
 
             $listActivitiesByTime = PackageActivity::whereIn('id', $adventures)->orderBy('start_time', 'asc')->get();
-            // dd(count($listActivitiesByTime));
             for ($i = 0; $i < count($listActivitiesByTime) - 1; $i++) {
                 $current_activity = $listActivitiesByTime[$i];
                 $next_activity = $listActivitiesByTime[$i + 1];

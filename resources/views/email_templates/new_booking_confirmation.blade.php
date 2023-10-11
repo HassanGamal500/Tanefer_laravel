@@ -107,7 +107,8 @@
         @endif
         </tbody>
     </table>
-    @if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package')
+
+    @if (isset($cruises) && $cruises != null  &&$booking->model_ids == null && $booking->model_type == 'App\Models\Package')
         <br style="caret-color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration: none">
         <table style="width: 100%;box-shadow: rgba(0, 0, 0, 0.431373) 2px 3px 3px 1px;">
             <tbody>
