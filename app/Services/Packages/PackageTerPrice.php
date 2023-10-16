@@ -12,12 +12,11 @@ class PackageTerPrice {
     public function calculatetierPrice($package_id) {
         // get adventures ids from the package list
         $adventures  = PackageBookingadventrue::where('package_id', $package_id)->pluck('adventrue_id');
-
         $sum_prices = 0;
         foreach($adventures as $adventure) {
             $prices = PricingTiersTour::where('package_activity_id', $adventure)->groupBy('package_activity_id')->select(DB::raw('MIN(adult_price) as min_price') ,'package_activity_id')->first();
 
-            $sum_prices += $prices->min_price;
+            $sum_prices += $prices ? $prices->min_price : 0;
         }
 
 

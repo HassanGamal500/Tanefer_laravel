@@ -35,6 +35,12 @@
         .passengerreg{
             min-width: 12vw !important;
         }
+        td.first-details {
+            min-width: auto !important;
+        }
+        td.last-details {
+            min-width: 8vw !important;
+        }
     </style>
 
 </head>
@@ -95,13 +101,13 @@
 
                 @endphp
                 <tr style="break-inside: avoid">
-                    <td class="passengerdetails">{{ $day_number }}</td>
-                    <td class="passengerdetails">{{ $adventure->title }}</td>
-                    <td class="passengerdetails">{{ $package_city_id }}</td>
-                    <td class="passengerdetails">{{ $formattedStartTime }} - {{ $formattedEndTime }}</td>
-                    <td class="passengerdetails">{{ str_replace(['[', ']'], '', $adventure->includes) }}</td>
-                    <td class="passengerdetails">{{ str_replace(['[', ']'], '', $adventure->excludes) }}</td>
-                    <td class="passengerdetails">{{ $adventure->duration_digits }}  {{ $adventure->duration_type }}</td>
+                    <td class="passengerdetails first-details">{{ $day_number }}</td>
+                    <td class="passengerdetails first-details ">{{ $adventure->title }}</td>
+                    <td class="passengerdetails last-details ">{{ $package_city_id }}</td>
+                    <td class="passengerdetails last-details ">{{ $formattedStartTime }} - {{ $formattedEndTime }}</td>
+                    <td class="passengerdetails first-details ">{{ str_replace(['[', ']'], '', $adventure->includes) }}</td>
+                    <td class="passengerdetails first-details ">{{ str_replace(['[', ']'], '', $adventure->excludes) }}</td>
+                    <td class="passengerdetails last-details">{{ $adventure->duration_digits }}  {{ $adventure->duration_type }}</td>
                 </tr>
             @endforeach
         @endif

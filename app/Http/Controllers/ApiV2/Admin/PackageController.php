@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ApiV2\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
+use App\Http\Resources\Admin\PackageActivityDetails;
 use App\Http\Resources\Admin\PackageResource;
 use App\Http\Resources\TourCityResource;
 use App\Models\Package;
@@ -120,7 +121,7 @@ class PackageController extends Controller
     {
         $package = Package::findOrFail($id);
         return response()->json([ 'message' =>'success','status' => 200,
-            'data'=> new PackageResource( $package )
+            'data'=> new PackageActivityDetails( $package )
         ]);
     }
 

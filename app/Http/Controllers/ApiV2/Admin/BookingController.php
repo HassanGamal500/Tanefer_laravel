@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\ApiV2\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\PackageActivityDetails;
+use App\Http\Resources\Admin\PackageResource;
 use App\Models\Booking;
+use App\Models\Package;
 
 class BookingController extends Controller
 {
@@ -18,19 +21,26 @@ class BookingController extends Controller
     {
         $booking = Booking::with([
             'bookingCity', 'bookingPayment', 'bookingTraveler', 'bookingData',
-            'startCity', 'endCity', 'package'
+            'startCity', 'endCity'
+            // 'bookingCity', 'bookingPayment', 'bookingTraveler', 'bookingData',
+            // 'startCity', 'endCity', 'package'
         ])
             ->where('id', $id)
             ->first();
+
+            $trip = Package::where('id',$booking->package_id)->first();
 
         if (is_null($booking)) {
             return response()->json(['message' => 'This booking was not found'], 404);
         }
 
-        $adventure = $booking->adventure();
-        if($adventure != null && $adventure != 'null' && !empty($adventure)) {
-            $booking->package->adventure = $adventure;
-        }
+
+        $booking->package = new PackageActivityDetails( $trip );
+
+        // $adventure = $booking->adventure();
+        // if($adventure != null && $adventure != 'null' && !empty($adventure)) {
+        //     $booking->package->adventure = $adventure;
+        // }
         return response()->json(['bookingDetails' => $booking]);
     }
 
