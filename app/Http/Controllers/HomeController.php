@@ -33,12 +33,18 @@ class HomeController extends Controller
             return responseJson($request,new \stdClass(),'Something wrong in total price',422);
         }
 
+        if (isset($request->final_price) && $request->final_price > 0) {
+            $getPrice = $request->final_price;
+        } else {
+            $getPrice = $request->get('price');
+        }
+
         $requestParams = array(
             'command' => 'PURCHASE',
             'access_code' => config('services.payfort.access_code'),
             'merchant_identifier' => config('services.payfort.merchant_identifier'),
             'merchant_reference' => 'TANEFER-' . rand('1000000000', '9999999999'),
-            'amount' => $request->get('price') * 100,
+            'amount' => $getPrice * 100,
             'currency' => 'USD',
             'language' => 'en',
             'customer_email' => $request->email ?? 'admin@tanefer.com',

@@ -260,75 +260,76 @@ class PackageController extends Controller
 
         foreach($activities as $activity) {
             $startFormatDay = $activity['startFormatDay'];
-            $adventures = $activity['adventures'];
 
-            if ($adventures == null || $adventures == 'null' || count($adventures) == 0) {
-                return response()->json([
-                    'status' => 400,
-                    'errors' => 'No Data Available',
-                ]);
-            }
+            if (isset($activity['adventures'])) {
+                $adventures = $activity['adventures'];
 
-            if(!isset($startFormatDay) || empty($startFormatDay) || $startFormatDay == null || $startFormatDay == 'null') {
-                return response()->json([
-                    'status' => 400,
-                    'errors' => 'Please Select Date',
-                ]);
-            }
-
-            // Check Duplicates on Adventures in this Date
-            $temp_adventures = array_unique($adventures);
-            $duplicates = sizeof($temp_adventures) != sizeof($adventures);
-
-            if($duplicates) {
-                return response()->json([
-                    'status' => 400,
-                    'errors' => 'You have already chosen it',
-                ]);
-            }
-
-            $listActivitiesByTime = PackageActivity::whereIn('id', $adventures)->orderBy('start_time', 'asc')->get();
-
-            for ($i = 0; $i < count($listActivitiesByTime) - 1; $i++) {
-                $current_activity = $listActivitiesByTime[$i];
-                $next_activity = $listActivitiesByTime[$i + 1];
-
-                $current_end_time = $current_activity->end_time;
-                $next_start_time = $next_activity->start_time;
-                if ($current_end_time >= $next_start_time) {
-                    return response()->json([
-                        'errors' => 'Two adventures have the same time on date ['.$startFormatDay.']. Please select another one.',
-                        'status' => 400
-                    ]);
-                }
-            }
-
-            foreach($adventures as $adventure) {
-                $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $startFormatDay)->where('to_date', '>=', $startFormatDay)->where('package_activity_id',$adventure)->pluck('id');
-
-                if (!$packageActivityQuery) {
+                if ($adventures == null || $adventures == 'null' || count($adventures) == 0) {
                     return response()->json([
                         'status' => 400,
-                        'errors' => 'No Data Available For This Date',
+                        'errors' => 'No Data Available',
                     ]);
                 }
 
-                foreach($packageActivityQuery as $packageActivity) {
-                    $availability  = PricingTiersTour::where('package_activity_id', $adventure)->where('availabilities_tour_id', $packageActivity)->get();
-                    if ($availability->isNotEmpty()) {
-                        $availabilities[] = $availability;
-                    } else {
+                if(!isset($startFormatDay) || empty($startFormatDay) || $startFormatDay == null || $startFormatDay == 'null') {
+                    return response()->json([
+                        'status' => 400,
+                        'errors' => 'Please Select Date',
+                    ]);
+                }
+
+                // Check Duplicates on Adventures in this Date
+                $temp_adventures = array_unique($adventures);
+                $duplicates = sizeof($temp_adventures) != sizeof($adventures);
+
+                if($duplicates) {
+                    return response()->json([
+                        'status' => 400,
+                        'errors' => 'You have already chosen it',
+                    ]);
+                }
+
+                $listActivitiesByTime = PackageActivity::whereIn('id', $adventures)->orderBy('start_time', 'asc')->get();
+
+                for ($i = 0; $i < count($listActivitiesByTime) - 1; $i++) {
+                    $current_activity = $listActivitiesByTime[$i];
+                    $next_activity = $listActivitiesByTime[$i + 1];
+
+                    $current_end_time = $current_activity->end_time;
+                    $next_start_time = $next_activity->start_time;
+                    if ($current_end_time >= $next_start_time) {
                         return response()->json([
-                            'status' => 400,
-                            'errors' => 'No Tours Package Available',
+                            'errors' => 'Two adventures have the same time on date ['.$startFormatDay.']. Please select another one.',
+                            'status' => 400
                         ]);
                     }
                 }
+
+                foreach($adventures as $adventure) {
+                    $packageActivityQuery = AvailabilitiesTour::where('from_date', '<=', $startFormatDay)->where('to_date', '>=', $startFormatDay)->where('package_activity_id',$adventure)->pluck('id');
+
+                    if (!$packageActivityQuery) {
+                        return response()->json([
+                            'status' => 400,
+                            'errors' => 'No Data Available For This Date',
+                        ]);
+                    }
+
+                    foreach($packageActivityQuery as $packageActivity) {
+                        $availability  = PricingTiersTour::where('package_activity_id', $adventure)->where('availabilities_tour_id', $packageActivity)->get();
+                        if ($availability->isNotEmpty()) {
+                            $availabilities[] = $availability;
+                        } else {
+                            return response()->json([
+                                'status' => 400,
+                                'errors' => 'No Tours Package Available',
+                            ]);
+                        }
+                    }
+                }
+
+                $allIds = collect($availabilities)->flatten()->toArray();
             }
-
-            $allIds = collect($availabilities)->flatten()->toArray();
-
-
         }
 
         foreach ($allIds as $idd) {
