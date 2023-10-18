@@ -248,17 +248,38 @@ class PackageController extends Controller
         $availabilities = [];
         $totalPrice = 0;
 
+
         if($adults == 0 && $adults == '0') {
             $packageTerPrice = new PackageTerPrice();
-            $tierprice = $packageTerPrice->calculatetierPrice($package_id);
-            return response()->json([
-                'message' => 'tier price',
-                'status' => 200,
-                'totalPrice' => $tierprice
-            ]);
-        }
 
+            if($activities == null && $activities == 'null' && $activities == []) {
+                $tierprice = $packageTerPrice->calculatetierPrice($package_id);
+                return response()->json([
+                    'message' => 'static tier price',
+                    'status' => 200,
+                    'totalPrice' => $tierprice
+                ]);
+            } else {
+                $adventureIds = collect($activities)
+                    ->flatMap(function ($activity) {
+                        if(isset($activity['adventures'])) {
+                            return $activity['adventures'];
+                        } else {
+                            return null;
+                        }
+                    })
+                    ->toArray();
+                $allprice = $packageTerPrice->calculatetierAdvPrice($package_id,$adventureIds);
+                return response()->json([
+                    'message' => 'all tier price',
+                    'status' => 200,
+                    'totalPrice' => $allprice
+                ]);
+
+            }
+        }
         foreach($activities as $activity) {
+
             $startFormatDay = $activity['startFormatDay'];
 
             if (isset($activity['adventures'])) {
