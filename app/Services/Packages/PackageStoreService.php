@@ -143,63 +143,90 @@ class PackageStoreService
         $i = 1;
         $availabilityIndex = 0;
         $bookingdays = [];
+
         foreach ($activities as $availability) {
-            if($availability['type'] === "adventure") {
-                // if (!empty($availability['days']) && $availability['days'] != null) {
-                    foreach ((array)$availability['days'] as $adv) {
-                        $package_activity_id = $availabilityIds[$availabilityIndex];
-                        $daydata = PackageBookingDays::create([
+            if ($availability['type'] === "adventure") {
+                $days_number = $availability['days_number'];
+                $availability_days = count($availability['days']);
+
+                for ($j = 1; $j <= $days_number; $j++) {
+                    $package_activity_id = $availabilityIds[$availabilityIndex];
+                    $day_data = null;
+
+                    if ($j <= $availability_days) {
+                        $adv = $availability['days'][$j - 1];
+                        $day_number = $adv['day_number'] ?? null;
+                        $day_data = PackageBookingDays::create([
                             'package_id'        => $package_id,
-                            'day_number'        => $adv['day_number'] ?? null,
+                            'day_number'        => $day_number,
                             'start'             => $i,
                             'package_city_id'   => $package_activity_id,
                         ]);
                         $i++;
-                        $bookingdays[] = $daydata->id;
+                    } else {
+                        $day_number = $days_number;
+                        $day_data = PackageBookingDays::create([
+                            'package_id'        => $package_id,
+                            'day_number'        => $day_number,
+                            'start'             => $i,
+                            'package_city_id'   => $package_activity_id,
+                        ]);
                     }
-                // }
-            $availabilityIndex++;
+
+                    $bookingdays[] = $day_data->id;
+                }
+
+                $availabilityIndex++;
             }
         }
-        return $bookingdays;
 
+        return $bookingdays;
     }
 
-    public static function storeAdventure($activities, $availabilityIds,$daysId, $package_id)
-    {
-        $availabilityIndex = 0;
-        $daysIndex = 0;
-        foreach ($activities as $availability) {
-            if($availability['type'] === "adventure") {
-                // if (!empty($availability['days']) && $availability['days'] != null) {
-                    foreach ((array)$availability['days'] as $adv) {
-                        $package_activity_id = $availabilityIds[$availabilityIndex];
-                        $package_day_id = $daysId[$daysIndex];
-                        if(isset($adv['adventrues'])) {
-                            foreach ((array)$adv['adventrues'] as $adventrue) {
-                                PackageBookingadventrue::create([
-                                    'package_id'   => $package_id,
-                                    'package_city_id' => $package_activity_id,
-                                    'package_day_id' => $package_day_id,
-                                    'adventrue_id'   => $adventrue['adventrue_id'] ?? null,
-                                ]);
-                            }
-                        } else {
+    public static function storeAdventure($activities, $availabilityIds, $daysId, $package_id)
+{
+    $availabilityIndex = 0;
+    $daysIndex = 0;
+
+    foreach ($activities as $availability) {
+        if ($availability['type'] === "adventure") {
+            $days_number = $availability['days_number'];
+            $availability_days = count($availability['days']);
+
+            for ($j = 1; $j <= $days_number; $j++) {
+                $package_activity_id = $availabilityIds[$availabilityIndex];
+                $package_day_id = $daysId[$daysIndex];
+                $adventrue_id = null;
+
+                if ($j <= $availability_days) {
+                    $adv = $availability['days'][$j - 1];
+                    if (isset($adv['adventures'])) {
+                        foreach ((array)$adv['adventures'] as $adventure) {
+                            $adventrue_id = $adventure['adventrue_id'] ?? null;
                             PackageBookingadventrue::create([
-                                'package_id'   => $package_id,
-                                'package_city_id' => $package_activity_id,
-                                'package_day_id' => $package_day_id,
-                                'adventrue_id'   =>  null,
+                                'package_id'        => $package_id,
+                                'package_city_id'   => $package_activity_id,
+                                'package_day_id'    => $package_day_id,
+                                'adventrue_id'      => $adventrue_id,
                             ]);
                         }
-                    $daysIndex++;
-
                     }
-                // }
-            $availabilityIndex++;
+                } else {
+                    PackageBookingadventrue::create([
+                        'package_id'        => $package_id,
+                        'package_city_id'   => $package_activity_id,
+                        'package_day_id'    => $package_day_id,
+                        'adventrue_id'      => $adventrue_id,
+                    ]);
+                }
+
+                $daysIndex++;
             }
+
+            $availabilityIndex++;
         }
     }
+}
     public static function collectPackageMainData($validatedData){
         $data = [
             'occupancy'                     => $validatedData['package_occupancy'] ?? null,
