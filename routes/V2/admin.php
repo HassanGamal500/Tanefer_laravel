@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Admin API Routes
@@ -92,6 +92,12 @@ Route::namespace('Admin')->group(function (){
         Route::put('{id}/update', 'PackageController@update');
         Route::delete('{package}/delete', 'PackageController@destroy');
         Route::get('bookings' , 'BookingController@packageBookings');
+    });
+    Route::group(['prefix'=> 'seo'],function (){
+        Route::get('/', 'MainSeoPagesController@index');
+        Route::post('/add', 'MainSeoPagesController@store');
+        Route::get('/{id}', 'MainSeoPagesController@show');
+        Route::post('update/{id}', 'MainSeoPagesController@update');
     });
 
 });

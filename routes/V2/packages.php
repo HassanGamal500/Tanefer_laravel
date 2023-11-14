@@ -84,3 +84,4 @@ Route::get('get-hotel-list' , 'Admin\PackageHotelGtaController@hotelList');
 Route::get('get-hotel-catalogue-data' , 'Admin\PackageHotelGtaController@hotelCatalogueData');
 
 
+Route::get('seo/{id}', 'Front\MainSeoPagesController@show');
