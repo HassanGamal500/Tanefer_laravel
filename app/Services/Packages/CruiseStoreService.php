@@ -8,13 +8,14 @@ use App\Models\PackageHotelRoom;
 use App\Models\PackageHotelSeason;
 use App\Models\CruiseChildrenPackage;
 use App\Services\StoreFileService;
+use Illuminate\Support\Str;
 
 class CruiseStoreService
 {
-    public static function storeCruiseData($validateData)
+    public static function storeCruiseData($validateData, $cruise)
     {
         return Cruise::create(
-            self::collectCruiseData($validateData)
+            self::collectCruiseData($validateData,$cruise)
         );
     }
 
@@ -62,7 +63,7 @@ class CruiseStoreService
         return $cruiseRoom->id;
     }
 
-    public static function collectCruiseData($validatedData) : array
+    public static function collectCruiseData($validatedData, $cruise) : array
     {
         $data = [
             'name' => $validatedData['name'],
@@ -75,11 +76,23 @@ class CruiseStoreService
             'includes'   => array_key_exists('includes',$validatedData) ? implode(',',$validatedData['includes']) : null,
             'stars'      => array_key_exists('stars', $validatedData) ? $validatedData['stars'] : null,
             'number_of_nights' => $validatedData['number_of_nights'],
+            'seo_title' => $validatedData['seo_title'],
+            'seo_description' => $validatedData['seo_description'],
+
+            'slug' => (
+                isset($validatedData['slug']) && $validatedData['slug'] !== $cruise->slug
+                    ? $validatedData['slug']
+                    : (request()->method() == 'POST' ? Str::slug($validatedData['name']) : $cruise->slug)
+            ),
+
             'start_days'       => array_key_exists('start_days',$validatedData) ? implode(',',$validatedData['start_days']) : null
         ];
 
         if(array_key_exists('master_image',$validatedData)){
             $data['master_image'] = StoreFileService::SaveFile('cruises', $validatedData['master_image']);
+        }
+        if(array_key_exists('featured_image',$validatedData)){
+            $data['featured_image'] = StoreFileService::SaveFile('cruises', $validatedData['featured_image']);
         }
 
         return  $data;

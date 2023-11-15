@@ -26,6 +26,9 @@ class CruiseRequest extends FormRequest
     public function rules()
     {
         $rules =  [
+            'seo_title' => 'nullable|min:1|max:500',
+            'seo_description' => 'nullable|min:1|max:500',
+            'featured_image' => 'nullable|mimes:jpeg,png,jpg,gif',
             'name' => 'required',
             'cruise_line' => 'nullable',
             'ship_name'   => 'nullable',
@@ -57,8 +60,17 @@ class CruiseRequest extends FormRequest
             $rules['rooms.*.seasons'] = 'required|array';
             $rules['rooms.*.seasons.*.id'] = 'required|exists:package_hotel_seasons,id';
             $rules['rooms.*.seasons.*.price_per_person'] = 'required|numeric';
+            $rules['slug'] = 'nullable|string|max:500|unique:cruises,slug';
+
         }else{
             // $rules['master_image']  = 'nullable|image|max:2000';
+            $rules['slug'] = [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::unique('cruises')->ignore($this->route('id'))
+            ];
+
         }
 
         return $rules;

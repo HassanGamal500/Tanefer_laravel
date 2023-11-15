@@ -12,6 +12,7 @@ use App\Services\Packages\CruiseStoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CruiseController extends Controller
 {
@@ -54,7 +55,7 @@ class CruiseController extends Controller
     public function store(CruiseRequest $request) {
         $validated = $request->validated();
         DB::transaction(function () use ($validated) {
-            $cruise = CruiseStoreService::storeCruiseData($validated);
+            $cruise = CruiseStoreService::storeCruiseData($validated, null);
             $cruise->cities()->attach($validated['start_city_id'], ['is_start' => 1]);
             $cruise->cities()->attach($validated['cities_ids']);
 
@@ -88,7 +89,7 @@ class CruiseController extends Controller
         $validated = $request->validated();
         DB::transaction(function () use ( $cruise, $validated ,$request ) {
 
-            $cruise->update( CruiseStoreService::collectCruiseData($validated));
+            $cruise->update( CruiseStoreService::collectCruiseData($validated, $cruise));
 
             foreach ($validated['rooms'] as $room){
                 // $cruise_id = CruiseStoreService::UpdatePackageHotelRoomData($cruise,$room);

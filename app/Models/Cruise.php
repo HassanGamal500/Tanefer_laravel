@@ -9,7 +9,7 @@ class Cruise extends Model
 {
     protected $fillable = [
         'name', 'cruise_line', 'ship_name','facilities','description','policies','excludes',
-        'includes','stars','master_image','number_of_nights','start_days'
+        'includes','stars','master_image','number_of_nights','start_days','seo_title','seo_description','slug','featured_image'
     ];
 
     public function rooms()
