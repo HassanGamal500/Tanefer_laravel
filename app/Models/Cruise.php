@@ -22,6 +22,13 @@ class Cruise extends Model
         return $this->hasMany(CruiseImage::class);
     }
 
+    public function cruiseChildrenPackage(){
+        return $this->hasMany(CruiseChildrenPackage::class,'package_hotel_room_id');
+    }
+    public function packageHotelRoom(){
+        return $this->hasMany(PackageHotelRoom::class,'model_id');
+    }
+
     public function cities()
     {
         return $this->belongsToMany(

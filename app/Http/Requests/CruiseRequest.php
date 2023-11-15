@@ -42,7 +42,7 @@ class CruiseRequest extends FormRequest
             'images.*'     => 'image',
             'rooms'        => 'required|array',
             'rooms.*.type'                      =>'required|string|max:255',
-            'rooms.*.occupancy'                 =>['required',Rule::in(PackageHotelRoom::cruiseRoomOccupancy)],
+            // 'rooms.*.occupancy'                 =>['required',Rule::in(PackageHotelRoom::cruiseRoomOccupancy)],
             'rooms.*.inclusions'                =>'required|array',
             'rooms.*.amenities'                 =>'nullable|array',
             'rooms.*.categories'                 =>'required|array',
@@ -53,12 +53,12 @@ class CruiseRequest extends FormRequest
         ];
 
         if(request()->method() == 'POST'){
-            $rules['master_image']  = 'required|image|max:2000';
+            // $rules['master_image']  = 'required|image|max:2000';
             $rules['rooms.*.seasons'] = 'required|array';
             $rules['rooms.*.seasons.*.id'] = 'required|exists:package_hotel_seasons,id';
             $rules['rooms.*.seasons.*.price_per_person'] = 'required|numeric';
         }else{
-            $rules['master_image']  = 'nullable|image|max:2000';
+            // $rules['master_image']  = 'nullable|image|max:2000';
         }
 
         return $rules;

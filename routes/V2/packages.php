@@ -72,16 +72,17 @@ Route::get('gta-get-hotel' , 'Front\PackageHotelGtaController@get_hotel');
 Route::get('get-hotel' , 'Admin\PackageHotelGtaController@sendSoapRequest');
 Route::get('get-room-list' , 'Admin\PackageHotelGtaController@roomList');
 Route::get('get-content' , 'Admin\PackageHotelGtaController@content');
-Route::get('get-availability' , 'Admin\PackageHotelGtaController@availability');
+Route::post('get-availability' , 'Admin\PackageHotelGtaController@availability');
 Route::get('get-check-availability' , 'Admin\PackageHotelGtaController@checkAvailability');
-Route::get('get-booking-rules' , 'Admin\PackageHotelGtaController@BookingRules');
-Route::get('get-booking' , 'Admin\PackageHotelGtaController@Booking');
+Route::post('get-booking-rules' , 'Admin\PackageHotelGtaController@BookingRules');
+Route::post('get-booking' , 'Admin\PackageHotelGtaController@Booking');
 Route::get('get-cancel-booking' , 'Admin\PackageHotelGtaController@cancelBooking');
 Route::get('get-generic_data_catalogue' , 'Admin\PackageHotelGtaController@genericDataCatalogue');
 Route::get('get-zone-list' , 'Admin\PackageHotelGtaController@zoneList');
 Route::get('get-city-list' , 'Admin\PackageHotelGtaController@cityList');
 Route::get('get-hotel-list' , 'Admin\PackageHotelGtaController@hotelList');
 Route::get('get-hotel-catalogue-data' , 'Admin\PackageHotelGtaController@hotelCatalogueData');
+Route::post('get-booking-test' , 'Admin\PackageHotelGtaController@BookingTest');
 
 
 Route::get('seo/{id}', 'Front\MainSeoPagesController@show');

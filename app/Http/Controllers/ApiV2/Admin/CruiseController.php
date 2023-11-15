@@ -63,11 +63,13 @@ class CruiseController extends Controller
             }
 
             if (array_key_exists('rooms', $validated)) {
-                CruiseStoreService::StoreCruiseRooms($validated['rooms'], $cruise);
+                $cruiseService = new CruiseStoreService();
+                $cruise_id = CruiseStoreService::StoreCruiseRooms($validated['rooms'], $cruise);
+                $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             }
         });
 
-        return response()->json(['message' => 'operation done successfully']);
+        return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }
 
     public function childrenPolicy(CruiseChildrenPolicy $request)
@@ -83,14 +85,19 @@ class CruiseController extends Controller
     public function update(CruiseRequest  $request, $id)
     {
         $cruise = Cruise::findOrFail($id);
-
         $validated = $request->validated();
         DB::transaction(function () use ( $cruise, $validated ,$request ) {
 
             $cruise->update( CruiseStoreService::collectCruiseData($validated));
 
             foreach ($validated['rooms'] as $room){
-                CruiseStoreService::UpdatePackageHotelRoomData($cruise,$room);
+                // $cruise_id = CruiseStoreService::UpdatePackageHotelRoomData($cruise,$room);
+                $cruise->packageHotelRoom()->delete();
+                $cruise_id = CruiseStoreService::StoreCruiseRooms($validated['rooms'], $cruise);
+
+                $cruise->cruiseChildrenPackage()->delete();
+                $cruiseService = new CruiseStoreService();
+                $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             }
 
             if($request->images){

@@ -6,6 +6,7 @@ use App\Models\Cruise;
 use App\Models\PackageHotelChildren;
 use App\Models\PackageHotelRoom;
 use App\Models\PackageHotelSeason;
+use App\Models\CruiseChildrenPackage;
 use App\Services\StoreFileService;
 
 class CruiseStoreService
@@ -24,6 +25,8 @@ class CruiseStoreService
                 self::collectCruiseRoomData($room, $cruise)
             );
             self::collectCruiseRoomSeasonData($room, $cruiseRoom);
+
+            return $cruiseRoom->id;
         }
     }
 
@@ -56,7 +59,7 @@ class CruiseStoreService
         );
         self::collectCruiseRoomSeasonData($room,$cruiseRoom);
 
-        return true;
+        return $cruiseRoom->id;
     }
 
     public static function collectCruiseData($validatedData) : array
@@ -95,6 +98,23 @@ class CruiseStoreService
             'model_id'         => $cruise->id,
             'model_type'       => get_class($cruise)
         ];
+    }
+    public function storeChildrenData($roomData, $cruise_id, $cruiseRoom)
+    {
+        foreach($roomData as $room) {
+            if ($room['childrens']) {
+                foreach ($room['childrens'] as $children) {
+                    CruiseChildrenPackage::create([
+                        "min" => $children['min'],
+                        "max" => $children['max'],
+                        "children_Percentage" => $children['children_Percentage'],
+                        "cruise_id" => $cruise_id,
+                        'package_hotel_room_id'         => $cruiseRoom,
+                    ]);
+                }
+            }
+
+        }
     }
 
     private static function collectCruiseChildrenData($validatedData)
