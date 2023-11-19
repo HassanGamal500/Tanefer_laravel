@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Tours;
 
 use App\Http\Requests\ParentRequest;
-
 class StoreCityRequest extends ParentRequest
 {
     /**
@@ -23,10 +22,13 @@ class StoreCityRequest extends ParentRequest
      */
     public function rules()
     {
-        return [
+        return  [
             'name' => 'required|string|min:3|max:32|unique:tour_cities,name',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif',
-            // 'airportCode' => 'nullable|exists:airports,code'
+            'seo_title' => 'nullable|min:1|max:500',
+            'seo_description' => 'nullable|min:1|max:500',
+            'featured_image' => 'nullable|mimes:jpeg,png,jpg,gif',
+            'slug' => 'nullable|string|max:500|unique:tour_cities,slug',
         ];
     }
 }

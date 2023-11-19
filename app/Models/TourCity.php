@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class TourCity extends Model
 {
     protected $fillable = [
-        'name','airport_code','description','image','image_alt','image_caption'
+        'name','airport_code','description','image','image_alt','image_caption','seo_title','seo_description','slug'
     ];
 
     protected $hidden = [

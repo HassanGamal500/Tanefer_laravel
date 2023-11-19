@@ -23,6 +23,7 @@ class HomeController extends Controller
     }
 
     public function payment(Request $request) {
+        // dd($request->all(), Cache::has($request->sessionId));
         if(Cache::has($request->sessionId)){
             $cachedTotalPrice = Cache::get($request->sessionId);
             if($cachedTotalPrice['totalPrice'] != $request->price){
@@ -38,7 +39,8 @@ class HomeController extends Controller
         } else {
             $getPrice = $request->get('price');
         }
-
+        $getPrice = round($getPrice);
+        // dd($getPrice);
         $requestParams = array(
             'command' => 'PURCHASE',
             'access_code' => config('services.payfort.access_code'),
@@ -51,6 +53,7 @@ class HomeController extends Controller
             'return_url' => $request->url,
             'merchant_extra' => $request->bookingId
         );
+        // dd($requestParams);
 
         $shaString  = '';
 
