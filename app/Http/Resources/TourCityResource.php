@@ -23,7 +23,11 @@ class TourCityResource extends JsonResource
             'CityCountryName'   => $this->country_name,
             'cityImage'         => $this->image,
             'cityImageAlt'      => $this->image_alt,
-            'cityImageCaption'  => $this->image_caption
+            'cityImageCaption'  => $this->image_caption,
+            'citySlug'          => $this->slug,
+            'citySEOTitle'      => $this->seo_titel,
+            'citySEODescription'=> $this->seo_description,
+            'citySEOImage'      => $this->featured_image
         ];
     }
 }

@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Tours\Admin\CityService;
 use App\Http\Requests\Tours\StoreCityRequest;
 use App\Http\Requests\Tours\UpdateCityRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class TourCityController extends Controller
 {
@@ -67,6 +69,18 @@ class TourCityController extends Controller
      */
     public function update(UpdateCityRequest $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'slug' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::unique('main_page_seos', 'slug')->ignore($id),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
         $city = $this->cityService->update($request->all(),$id);
 
         if(!$city){

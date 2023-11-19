@@ -28,13 +28,6 @@ class UpdateCityRequest extends FormRequest
     {
         return [
             'name' => ['required','string','min:3','max:32'],
-            'slug' => [
-                'nullable',
-                'string',
-                'max:500',
-                Rule::unique('tour_cities')->ignore($this->route('id'))
-            ],
-
         ];
     }
 
