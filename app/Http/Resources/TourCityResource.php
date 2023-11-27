@@ -27,7 +27,7 @@ class TourCityResource extends JsonResource
             'citySlug'          => $this->slug,
             'citySEOTitle'      => $this->seo_titel,
             'citySEODescription'=> $this->seo_description,
-            'citySEOImage'      => $this->featured_image
+            'citySEOImage' => $this->featured_image != null ? asset('storage/'.$this->featured_image) : null
         ];
     }
 }

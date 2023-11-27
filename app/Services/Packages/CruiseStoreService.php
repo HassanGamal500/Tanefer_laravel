@@ -79,11 +79,8 @@ class CruiseStoreService
             'seo_title' => $validatedData['seo_title'],
             'seo_description' => $validatedData['seo_description'],
 
-            'slug' => (
-                isset($validatedData['slug']) && $validatedData['slug'] !== $cruise->slug
-                    ? $validatedData['slug']
-                    : (request()->method() == 'POST' ? Str::slug($validatedData['name']) : $cruise->slug)
-            ),
+            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $cruise->slug ? $validatedData['slug'] : Str::slug($validatedData['activity_title']),
+
 
             'start_days'       => array_key_exists('start_days',$validatedData) ? implode(',',$validatedData['start_days']) : null
         ];

@@ -18,6 +18,8 @@ use App\Services\Packages\PackageHotelStoreService;
 use App\Services\Packages\PackageStoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PackageActivityController extends Controller
 {
@@ -79,12 +81,17 @@ class PackageActivityController extends Controller
         if(isset($errorAvailability['status']) && $errorAvailability['status'] == 400) {
             return response()->json($errorAvailability);
         }
+
+        $validator = Validator::make($request->all(), [
+            'slug' => 'nullable|string|max:500|unique:package_activities,slug',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
         DB::transaction(function () use ( $request, $validated ) {
             $packageActivity = PackageActivityStoreService::storePackageActivityMainData($validated);
-            // if(! empty($request->seasons)){
-            //     PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
-            // }
-
 
             if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
                 $availabilityTime = PackageActivityStoreService::storeAvailabilityTime($request->availabilities, $packageActivity['id'],$validated);
@@ -148,22 +155,23 @@ class PackageActivityController extends Controller
         }
 
 
+        $validator = Validator::make($request->all(), [
+            'slug' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::unique('package_activities', 'slug')->ignore($packageActivity),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+
+
         DB::transaction(function () use ($validated,$request,$packageActivity ) {
-            $packageActivity->update( PackageActivityStoreService::collectPackageActivityMainData( $validated) );
-
-            // $packageActivity->seasons()->delete();
-
-            // if(! empty($request->seasons)){
-            //     PackageActivityStoreService::storeSeasons($packageActivity,$request->seasons);
-            // }
-
-            // if(!empty($packageActivity['id'])) {
-            //     $availabilityTime =  PackageActivityStoreService::storeAvailabilityTime($validated, $packageActivity['id']);
-            //     if(! empty($request->pricingtiers)){
-            //         PricingTiersTour::where('availabilities_tour_id', '=', $availabilityTime)->delete();
-            //         PackageActivityStoreService::storePricingTiersTour($request->pricingtiers,$availabilityTime,$packageActivity['id']);
-            //     }
-            // }
+            $packageActivity->update(PackageActivityStoreService::collectPackageActivityMainData($validated, $packageActivity));
 
             if(!empty($packageActivity['id'] && !empty($request->availabilities))) {
                 AvailabilitiesTour::where('package_activity_id', '=', $packageActivity['id'])->delete();

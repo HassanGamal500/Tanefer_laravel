@@ -74,7 +74,7 @@ class TourCityController extends Controller
                 'nullable',
                 'string',
                 'max:500',
-                Rule::unique('main_page_seos', 'slug')->ignore($id),
+                Rule::unique('tour_cities', 'slug')->ignore($id),
             ],
         ]);
 

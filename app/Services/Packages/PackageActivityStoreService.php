@@ -10,13 +10,14 @@ use App\Models\PricingTiersTour;
 use App\Services\StoreFileService;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Support\Str;
 
 class PackageActivityStoreService
 {
     public static function storePackageActivityMainData($validatedData)
     {
         return PackageActivity::create(
-            self::collectPackageActivityMainData($validatedData)
+            self::collectPackageActivityMainData($validatedData, null)
         );
     }
 
@@ -162,7 +163,7 @@ class PackageActivityStoreService
             }
         }
     }
-    public static function collectPackageActivityMainData($validatedData)
+    public static function collectPackageActivityMainData($validatedData, $packageActivity)
     {
         return [
             'title' => $validatedData['activity_title'],
@@ -171,30 +172,20 @@ class PackageActivityStoreService
             'itinerary' => $validatedData['activity_itinerary'],
             'includes' => json_encode($validatedData['activity_includes']),
             'excludes' => json_encode($validatedData['activity_excludes']),
-            // 'price_per_person' => $validatedData['activity_price_per_person'],
             'duration_digits' => $validatedData['activity_duration_digits'],
             'duration_type' => $validatedData['activity_duration_type'],
             'activity_type' => $validatedData['activity_type'],
             'tour_city_id' => $validatedData['activity_city_id'],
-            // 'pax_min_number' => $validatedData['activity_pax_min_number'] ?? 1,
             'start_time' => $validatedData['activity_start_time'] ?? null,
             'end_time' => $validatedData['activity_end_time'] ?? null,
-            'is_published' => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
-            // 'has_supplement' => array_key_exists('has_supplement',$validatedData) ? $validatedData['has_supplement'] : 0,
-            // 'solo_price'     => array_key_exists('solo_price',$validatedData) ? $validatedData['solo_price'] : 0,
-            // 'Limo_price'     => array_key_exists('Limo_price',$validatedData) ? $validatedData['Limo_price'] :0,
-            // 'HiAC_price'     => array_key_exists('HiAC_price',$validatedData) ?$validatedData['HiAC_price'] : 0,
-            // 'Caster_price'   => array_key_exists('Caster_price',$validatedData) ?$validatedData['Caster_price'] : 0,
-            // 'bus_price'      => array_key_exists('bus_price',$validatedData) ? $validatedData['bus_price'] : 0,
-            'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',
-            // 'single_supplement_percentage'    => array_key_exists('single_supplement_percentage',$validatedData) ?
-            //     $validatedData['single_supplement_percentage'] ?? 0.0 : 0.0,
-            // 'children_percentage'             => $validatedData['children_percentage'] ?? 0.0,
+            'seo_title' => $validatedData['seo_title'] ?? null,
+            'seo_description' => $validatedData['seo_description'] ?? null,
+            'featured_image'            => array_key_exists('featured_image',$validatedData) ? StoreFileService::SaveFile('cities',$validatedData['featured_image'],$validatedData['activity_title']) : null,
 
-            // 'limo_children_percentage'        => $validatedData['limo_children_percentage'] ?? 0,
-            // 'hiac_children_percentage'        => $validatedData['hiac_children_percentage'] ?? 0,
-            // 'caster_children_percentage'        => $validatedData['caster_children_percentage'] ??  0,
-            // 'bus_children_percentage'        => $validatedData['bus_children_percentage'] ?? 0,
+            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $packageActivity->slug ? $validatedData['slug'] : Str::slug($validatedData['activity_title']),
+
+            'is_published' => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
+            'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',
         ];
 //        if( array_key_exists('activity_image',$validatedData) )
 //            $data['image']   =  StoreFileService::SaveFile('activity/banner', $validatedData['activity_image']);

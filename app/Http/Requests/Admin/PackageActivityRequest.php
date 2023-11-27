@@ -55,25 +55,12 @@ class PackageActivityRequest extends ParentRequest
             'availabilities.*.pricingtiers.*.adult_price'      =>'required|numeric',
             'availabilities.*.pricingtiers.*.child_percentage' =>'required|numeric',
             'start_days'                    => 'array',
-            'activity_start_time'           => 'required|date_format:H:i'
-            // 'seasons'                             => 'array',
-            // 'seasons.from'                        => 'nullable|date',
-            // 'seasons.to'                          => 'nullable|date',
-            // 'solo_price'                          => 'required|numeric',
-            // 'Limo_price'                          => 'required|numeric',
-            // 'HiAC_price'                          => 'required|numeric',
-            // 'Caster_price'                          => 'required|numeric',
-            //  'bus_price'                          => 'required|numeric',
-            //  'single_supplement_percentage'        => 'nullable|numeric',
-            //  'children_percentage'                 => 'nullable|numeric',
-            //   'limo_children_percentage'            => 'nullable|numeric',
-            //  'hiac_children_percentage'            => 'nullable|numeric',
-            //  'caster_children_percentage'          => 'nullable|numeric',
-            //  'bus_children_percentage'             => 'nullable|numeric'
-        ];
-        //if(request()->method() == 'POST')
-          //  $rules['activity_image']  = 'required|image|max:2000';
+            'activity_start_time'           => 'required|date_format:H:i',
+            'seo_title' => 'nullable|min:1|max:500',
+            'seo_description' => 'nullable|min:1|max:500',
+            'featured_image' => 'nullable|mimes:jpeg,png,jpg,gif',
 
+        ];
         return  $rules;
     }
 
