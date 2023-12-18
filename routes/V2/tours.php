@@ -21,4 +21,5 @@ Route::namespace('Front')->group(function (){
     Route::get('/booking' , 'TourController@tourBooking');
     Route::post('/request-to-book' , 'TourController@storeBooking');
     Route::get('/totalPrice' , 'TourController@calTotalPrice');
+    Route::get('/getcitydetails/{slug}' , 'TourController@getcitydetails');
 });

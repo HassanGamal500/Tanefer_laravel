@@ -29,6 +29,10 @@ class CruiseResource extends JsonResource
             'number_of_nights' =>$this->number_of_nights,
             'start_days' => $this->start_days,
             'images' => $this->images,
+            'slug' => $this->slug,
+            'seo_title' => $this->seo_title,
+            'seo_description' => $this->seo_description,
+            'featured_image' => $this->featured_image != null ? asset('storage/'.$this->featured_image) : null,
             'available_dates' => CruiseSeasonResource::collection($this->rooms->map->packageHotelRoomSeason->flatten()),
             'rooms'           => $this->whenLoaded('rooms'),
             'cities'          => $this->whenLoaded('cities')

@@ -352,27 +352,27 @@ class PackageController extends Controller
                 $allIds = collect($availabilities)->flatten()->toArray();
             }
         }
+        if(isset($allIds)){
+            foreach ($allIds as $idd) {
+                $doubleValuechild = $idd['child_percentage'] / 100.0;
+                if($idd['max'] >= $totalOccupancy && $idd['min'] <= $totalOccupancy) {
 
-        foreach ($allIds as $idd) {
-            $doubleValuechild = $idd['child_percentage'] / 100.0;
-            if($idd['max'] >= $totalOccupancy && $idd['min'] <= $totalOccupancy) {
+                    $totalAdultPrice = $idd['adult_price'] * $adults;
 
-                $totalAdultPrice = $idd['adult_price'] * $adults;
+                    $totalChildrenPrice = $children * $doubleValuechild * $idd['adult_price'];
 
-                $totalChildrenPrice = $children * $doubleValuechild * $idd['adult_price'];
+                    $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
 
-                $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
+                    $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
+                    $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
+                    $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
 
-                $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
-                $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
-                $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
+                    $totalPrice += $totalPriceActivity;
 
-                $totalPrice += $totalPriceActivity;
+                }
 
             }
-
         }
-
 
         if($totalPrice != 0) {
             // get transportations

@@ -66,7 +66,7 @@ class CruiseController extends Controller
             if (array_key_exists('rooms', $validated)) {
                 $cruiseService = new CruiseStoreService();
                 $cruise_id = CruiseStoreService::StoreCruiseRooms($validated['rooms'], $cruise);
-                $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
+                // $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             }
         });
 

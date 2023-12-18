@@ -13,6 +13,7 @@
         "ext-json": "*",
         "ext-simplexml": "*",
         "authorizenet/authorizenet": "dev-bugfix-remove-parent-call-when-class-does-not-have-parent",
+        "barryvdh/laravel-dompdf": "^2.0",
         "doctrine/dbal": "2.*",
         "fideloper/proxy": "^4.0",
         "fruitcake/laravel-cors": "^2.0",

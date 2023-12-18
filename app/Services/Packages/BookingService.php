@@ -92,16 +92,28 @@ class BookingService
             if($availability['type'] === "adventure") {
                 if(count($availability['days']) > 0) {
                     foreach ((array)$availability['days'] as $adv) {
-                        foreach ((array)$adv['adventrues'] as $adventrue) {
+                        if (empty($adv['adventrues'])) {
                             PackageBookingData::create([
                                 'booking_id'   => $booking_id,
                                 'package_id'   => $package_id,
                                 'package_city_id'   => $availability['city_id'],
                                 'type'   => $availability['type'],
                                 'day_number'   => $adv['day_number'],
-                                'adventrue_id'   => $adventrue['adventrue_id'],
+                                'adventrue_id'   => null,
                             ]);
+                        } else {
+                            foreach ((array)$adv['adventrues'] as $adventrue) {
+                                PackageBookingData::create([
+                                    'booking_id'   => $booking_id,
+                                    'package_id'   => $package_id,
+                                    'package_city_id'   => $availability['city_id'],
+                                    'type'   => $availability['type'],
+                                    'day_number'   => $adv['day_number'],
+                                    'adventrue_id'   => $adventrue['adventrue_id'],
+                                ]);
+                            }
                         }
+
                     $daysIndex++;
                     }
                     $availabilityIndex++;

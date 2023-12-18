@@ -25,7 +25,7 @@ class TourCityResource extends JsonResource
             'cityImageAlt'      => $this->image_alt,
             'cityImageCaption'  => $this->image_caption,
             'citySlug'          => $this->slug,
-            'citySEOTitle'      => $this->seo_titel,
+            'citySEOTitle'      => $this->seo_title,
             'citySEODescription'=> $this->seo_description,
             'citySEOImage' => $this->featured_image != null ? asset('storage/'.$this->featured_image) : null
         ];

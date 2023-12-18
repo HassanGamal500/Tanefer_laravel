@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Http\Request;
+use PDF;
 
 
 class BookingController extends Controller
@@ -154,6 +154,7 @@ class BookingController extends Controller
         if(request()->merchant_extra){
             $adventures = '';
             $cruises = '';
+            $package_name = '';
             $booking = Booking::find(request()->merchant_extra);
             if(request()->url){
                 $url = request()->url . '/'.$booking->id;
@@ -170,31 +171,101 @@ class BookingController extends Controller
 
             if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity') {
                 $bookingdata = explode(",", $booking->model_ids);
-                $adventures = PackageActivity::whereIn('id',$bookingdata)->get();
+                $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
             }
-            if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
+            // if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
 
-                $package_data = PackageBookingData::select('adventrue_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('adventrue_id')->get();
-                $package_data_cruise = PackageBookingData::select('cruise_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('cruise_id')->get();
+            //     $package_data = PackageBookingData::select('adventrue_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNull('cruise_id')->get();
+            //     $package_data_cruise = PackageBookingData::select('cruise_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('cruise_id')->get();
+
+            //     $adventures = [];
+            //     $cruises = [];
+            //     $package_name = $booking->package->title;
+            //     foreach ($package_data as $advent) {
+
+            //         $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
+            //         $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
+            //         if ($adventures_id) {
+            //             $adventure_id = $adventures_id;
+            //             $day_number = $advent['day_number'];
+
+            //             $adventures[] = [
+            //                 'adventure_id' => $adventure_id,
+            //                 'day_number' => $day_number,
+            //                 'package_city_id' => $package_city_id,
+            //             ];
+            //         } else {
+            //             $day_number = $advent['day_number'];
+            //             $adventures[] = [
+            //                 'adventure_id' => null,
+            //                 'day_number' => $day_number,
+            //                 'package_city_id' => null,
+            //             ];
+            //         }
+            //     }
+
+            //    foreach ($package_data_cruise as $cruise) {
+            //         $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
+            //         $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
+
+            //         if ($cruise_id) {
+            //             $cruisee = $cruise_id;
+            //             $day_number = $cruise['day_number'];
+
+            //             $cruises[] = [
+            //                 'cruise_id' => $cruisee,
+            //                 'day_number' => $day_number,
+            //                 'package_city_id' => $package_city_id,
+            //             ];
+            //         }
+            //     }
+            // }
+            // Mail::to($booking->bookingData->contact_email)
+            //     ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures, $booking, $cruises, $package_name));
+            if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
+                $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
+                    ->where('booking_id', $booking->id)
+                    ->whereNull('cruise_id')
+                    ->get();
+
+                $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id','id')
+                    ->where('booking_id', $booking->id)
+                    ->whereNotNull('cruise_id')
+                    ->get();
+
                 $adventures = [];
                 $cruises = [];
+                $combinedList = [];
+                $package_name = $booking->package->title;
 
+                // Processing adventures
                 foreach ($package_data as $advent) {
-
                     $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
                     $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
+
                     if ($adventures_id) {
                         $adventure_id = $adventures_id;
                         $day_number = $advent['day_number'];
 
                         $adventures[] = [
+                            'id'=> $advent->id,
                             'adventure_id' => $adventure_id,
                             'day_number' => $day_number,
                             'package_city_id' => $package_city_id,
                         ];
+                    } else {
+                        $day_number = $advent['day_number'];
+                        $adventures[] = [
+                            'id'=> $advent->id,
+                            'adventure_id' => 'null',
+                            'day_number' => $day_number,
+                            'package_city_id' => null,
+                        ];
                     }
                 }
-               foreach ($package_data_cruise as $cruise) {
+
+                // Processing cruises
+                foreach ($package_data_cruise as $cruise) {
                     $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
                     $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
 
@@ -203,19 +274,34 @@ class BookingController extends Controller
                         $day_number = $cruise['day_number'];
 
                         $cruises[] = [
+                            'id'=> $cruise->id,
                             'cruise_id' => $cruisee,
                             'day_number' => $day_number,
                             'package_city_id' => $package_city_id,
                         ];
                     }
                 }
+                $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
+
             }
+            $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+                'url' => $url,
+                'total_price' => $booking->total_price,
+                'contact_name' => $booking->bookingData->contact_name,
+                'combinedList' => $combinedList,
+                'booking' => $booking,
+                'package_name' => $package_name,
+            ]);
+
+            $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
             Mail::to($booking->bookingData->contact_email)
-                ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures, $booking, $cruises));
+                ->send($mail->attachData($pdf->output(), "tanefer.pdf"));
+
             $booking->update(['send_confirm_email' => 1]);
 
             $message = 'Your booking confirmed';
-            return responseJson(request(),[],$message);
+            return responseJson(request(), [], $message);
+
         }
 
         $message = 'Your booking under processing, We will email you soon with booking status';

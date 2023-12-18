@@ -23,6 +23,9 @@ Auth::routes();
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });
+Route::get('/mailtemp', function () {
+    return view('email_templates.book');
+});
 Route::get('/clear/route', function () {
     Artisan::call('route:clear');
 });

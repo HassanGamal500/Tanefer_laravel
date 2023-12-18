@@ -107,4 +107,18 @@ class TourController extends Controller
 
         return response()->json(['totalPrice'=> $result['totalPrice'],'message' =>  $result['message'],"errors" => []], $result['status']);
     }
+
+    public function getcitydetails($slug) {
+        $cities = TourCity::where('slug', $slug)->first();
+        if($cities) {
+            return response()->json([
+                'data' => new TourCityResource($cities),'message' => 'city fetched successfully',"errors" => []
+            ]);
+        } else {
+            return response()->json([
+               'message' => 'city Not Found',"status" => 404
+            ]);
+
+        }
+    }
 }
