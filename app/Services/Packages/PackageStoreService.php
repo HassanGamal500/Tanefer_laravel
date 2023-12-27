@@ -9,6 +9,7 @@ use App\Models\PackageBookingadventrue;
 use App\Models\PackageBookingDays;
 use App\Models\PackageCity;
 use App\Models\PackageCityTransportation;
+use App\Models\PackageTransportation;
 use App\Models\PackageGtaHotel;
 use App\Models\PackageHotelRoom;
 use App\Models\Package;
@@ -103,13 +104,20 @@ class PackageStoreService
                 if($activity['type'] === "adventure") {
                     if (! empty($activity['transportation'] != null)) {
                         foreach ($activity['transportation'] as $adv) {
-
-                            PackageCityTransportation::create([
+                            PackageTransportation::create([
                                 'package_id'        => $package_id,
                                 'package_city_id'   => $booking->id,
-                                'type'              => $adv['type'],
-                                'price_per_person'  => $adv['price_per_person'],
+                                'name'              => $adv['name'],
+                                'min'               => $adv['min'],
+                                'max'               => $adv['max'],
+                                'price'             => $adv['price'],
                             ]);
+                            // PackageCityTransportation::create([
+                            //     'package_id'        => $package_id,
+                            //     'package_city_id'   => $booking->id,
+                            //     'type'              => $adv['type'],
+                            //     'price_per_person'  => $adv['price_per_person'],
+                            // ]);
                         }
                     }
 
@@ -150,13 +158,16 @@ class PackageStoreService
                 $package_activity_id = $availabilityIds[$availabilityIndex];
                 if(isset($availability['days'])) {
                     $availability_days = count($availability['days']);
+
                     for ($j = 1; $j <= $days_number; $j++) {
 
                         $day_data = null;
 
                         if ($j <= $availability_days) {
                             $adv = $availability['days'][$j - 1];
+
                             $day_number = $adv['day_number'] ?? null;
+
                             $day_data = PackageBookingDays::create([
                                 'package_id'        => $package_id,
                                 'day_number'        => $day_number,
@@ -173,17 +184,19 @@ class PackageStoreService
                                 'package_city_id'   => $package_activity_id,
                             ]);
                         }
-                    }
-                } else {
-                    $day_number = $days_number;
-                    $day_data = PackageBookingDays::create([
-                        'package_id'        => $package_id,
-                        'day_number'        => $day_number,
-                        'start'             => $i,
-                        'package_city_id'   => $package_activity_id,
-                    ]);
-                }
                 $bookingdays[] = $day_data->id;
+
+                    }
+                }
+                // else {
+                //     $day_number = $days_number;
+                //     $day_data = PackageBookingDays::create([
+                //         'package_id'        => $package_id,
+                //         'day_number'        => $day_number,
+                //         'start'             => $i,
+                //         'package_city_id'   => $package_activity_id,
+                //     ]);
+                // }
 
 
                 $availabilityIndex++;
@@ -200,14 +213,17 @@ class PackageStoreService
         if ($availability['type'] === "adventure") {
             $days_number = $availability['days_number'];
             $package_activity_id = $availabilityIds[$availabilityIndex];
-            $package_day_id = $daysId[$daysIndex];
             $adventrue_id = null;
             if(isset($availability['days'])) {
                 $availability_days = count($availability['days']);
                 for ($j = 1; $j <= $days_number; $j++) {
+                    $package_day_id = $daysId[$daysIndex];
 
                     if ($j <= $availability_days) {
+
                         $adv = $availability['days'][$j - 1];
+
+
                         if (isset($adv['adventrues'])) {
 
                             foreach ((array)$adv['adventrues'] as $adventure) {
@@ -220,6 +236,14 @@ class PackageStoreService
                                     'adventrue_id'      => $adventrue_id,
                                 ]);
                             }
+                        } else {
+                                $adventrue_id =  null;
+                                PackageBookingadventrue::create([
+                                    'package_id'        => $package_id,
+                                    'package_city_id'   => $package_activity_id,
+                                    'package_day_id'    => $package_day_id,
+                                    'adventrue_id'      => $adventrue_id,
+                                ]);
                         }
                     } else {
                         PackageBookingadventrue::create([
@@ -228,19 +252,20 @@ class PackageStoreService
                             'package_day_id'    => $package_day_id,
                             'adventrue_id'      => $adventrue_id,
                         ]);
-                        $daysIndex++;
                     }
 
+                    $daysIndex++;
                 }
-            } else {
-                PackageBookingadventrue::create([
-                    'package_id'        => $package_id,
-                    'package_city_id'   => $package_activity_id,
-                    'package_day_id'    => $package_day_id,
-                    'adventrue_id'      => $adventrue_id,
-                ]);
-                $daysIndex++;
             }
+            // else {
+            //     PackageBookingadventrue::create([
+            //         'package_id'        => $package_id,
+            //         'package_city_id'   => $package_activity_id,
+            //         'package_day_id'    => $package_day_id,
+            //         'adventrue_id'      => $adventrue_id,
+            //     ]);
+            //     $daysIndex++;
+            // }
             $availabilityIndex++;
         }
     }

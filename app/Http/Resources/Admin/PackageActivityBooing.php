@@ -24,7 +24,7 @@ class PackageActivityBooing extends JsonResource
         $tourActivities = array_map('intval', $tourActivities);
         $cruises = DB::table('cruises')->select('name')->where('id', $this->cruise_id)->first();
         $crui = DB::table('package_booking_days')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
-        $transportations = DB::table('package_city_transportations')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
+        $transportations = DB::table('package_transportations')->where('package_id', $this->package_id )->where('package_city_id', $this->id )->get();
         if($this->type === 'cruise') {
             $cru = Cruise::where('id', $this->cruise_id)->get();
         }

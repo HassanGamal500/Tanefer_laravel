@@ -16,8 +16,10 @@ class PackageCityTransportationResource extends JsonResource
     {
         return [
             'transportationID'              => $this->id ,
-            'transportationType'            => $this->type ,
-            'transportationPricePerPerson'  => $this->price_per_person ,
+            'transportationName'            => $this->name ,
+            'transportationMin'             => $this->min ,
+            'transportationMax'             => $this->max ,
+            'transportationPrice'           => $this->price ,
         ];
     }
 }
