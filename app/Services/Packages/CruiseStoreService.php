@@ -21,14 +21,17 @@ class CruiseStoreService
 
     public static function StoreCruiseRooms($rooms, $cruise)
     {
+        $cruiseIds = [];
         foreach ($rooms as $room) {
             $cruiseRoom = PackageHotelRoom::create(
                 self::collectCruiseRoomData($room, $cruise)
             );
+            $cruiseIds[] = $cruiseRoom->id;
             self::collectCruiseRoomSeasonData($room, $cruiseRoom);
 
-            return $cruiseRoom->id;
         }
+        return $cruiseIds;
+
     }
 
     public static function storeCruiseImages($images, $cruise)
@@ -109,23 +112,7 @@ class CruiseStoreService
             'model_type'       => get_class($cruise)
         ];
     }
-    public function storeChildrenData($roomData, $cruise_id, $cruiseRoom)
-    {
-        foreach($roomData as $room) {
-            if ($room['childrens']) {
-                foreach ($room['childrens'] as $children) {
-                    CruiseChildrenPackage::create([
-                        "min" => $children['min'],
-                        "max" => $children['max'],
-                        "children_Percentage" => $children['children_Percentage'],
-                        "cruise_id" => $cruise_id,
-                        'package_hotel_room_id'         => $cruiseRoom,
-                    ]);
-                }
-            }
 
-        }
-    }
 
     private static function collectCruiseChildrenData($validatedData)
     {
@@ -161,6 +148,27 @@ class CruiseStoreService
 
         ];
     }
+    public function storeChildrenData($roomData, $cruise_id, $cruiseRoom)
+{
+    $availabilityIndex = 0;
+    foreach ($roomData as $room) {
+        if ($room['childrens']) {
+            if (is_array($cruiseRoom) && isset($cruiseRoom)) {
+                $cruiseRoomdata = $cruiseRoom[$availabilityIndex];
+                foreach ($room['childrens'] as $children) {
+                    CruiseChildrenPackage::create([
+                        "min" => $children['min'],
+                        "max" => $children['max'],
+                        "children_Percentage" => $children['children_Percentage'],
+                        "cruise_id" => $cruise_id,
+                        'package_hotel_room_id' => $cruiseRoomdata,
+                    ]);
+                }
+                $availabilityIndex++;
+            }
+        }
+    }
+}
 
     private static function collectCruiseRoomSeasonData($roomData, $cruiseRoom)
     {
