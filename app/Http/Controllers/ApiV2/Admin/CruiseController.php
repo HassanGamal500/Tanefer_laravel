@@ -8,6 +8,7 @@ use App\Http\Requests\CruiseRequest;
 use App\Http\Resources\Admin\PackageHotelchildrenResource;
 use App\Models\Cruise;
 use App\Models\CruiseImage;
+use App\Models\CruiseChildrenPackage;
 use App\Services\Packages\CruiseStoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,11 +45,22 @@ class CruiseController extends Controller
 
     public function show($id)
     {
-        $cruise = Cruise::with(['images','rooms','cities'])->where('id',$id)->first();
-        // $cruise = Cruise::with(['images','rooms','cities','packageHotelChildren'])->where('id',$id)->first();
+        $cruise = Cruise::with(['images', 'rooms', 'cities'])->where('id', $id)->first();
+
+        // Check if the Cruise model was found
+        if (!$cruise) {
+            return response()->json(['error' => 'Cruise not found'], 404);
+        }
+        foreach ($cruise->rooms as $room) {
+            $childrenData = CruiseChildrenPackage::where('cruise_id', $cruise->id)
+                ->where('package_hotel_room_id', $room->id)
+                ->get();
+            $room->children = $childrenData;
+        }
+
+        // Return the data
         return [
             'cruise' => $cruise,
-            // 'cruiseChildrenPolicies' => PackageHotelchildrenResource::collection($cruise->packageHotelChildren)
         ];
     }
 

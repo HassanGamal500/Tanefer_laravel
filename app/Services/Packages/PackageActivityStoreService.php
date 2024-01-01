@@ -150,13 +150,14 @@ class PackageActivityStoreService
         foreach ($availabilities as $availability) {
             $previousTiersMax = -1;
             foreach ($availability['pricingtiers'] as $pricingtier) {
-                if ($pricingtier['min'] <= $previousTiersMax) {
-                    $message = 'Each pricing tier must be separate from the others';
-                    $data = ['errors' => $message, 'status' => 400];
-                    return $data;
-                } else {
+                // if ($pricingtier['min'] <= $previousTiersMax) {
+                //     dd($previousTiersMax);
+                //     $message = 'Each pricing tier must be separate from the others';
+                //     $data = ['errors' => $message, 'status' => 400];
+                //     return $data;
+                // } else {
                     $previousTiersMax = max($previousTiersMax, $pricingtier['max']);
-                }
+                // }
             }
             if ($previousTiersMax > $previousMax) {
                 $previousMax = $previousTiersMax;

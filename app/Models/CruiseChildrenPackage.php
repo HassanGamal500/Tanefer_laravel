@@ -13,7 +13,6 @@ class CruiseChildrenPackage extends Model
         'children_Percentage',
         'cruise_id',
         'package_hotel_room_id',
-        'package_hotel_season_id'
     ];
 
     protected $with = ['packageHotelRoomSeason'];
