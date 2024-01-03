@@ -51,11 +51,15 @@ class CruiseController extends Controller
         if (!$cruise) {
             return response()->json(['error' => 'Cruise not found'], 404);
         }
+
+        // Populate the 'children' column in each 'room'
         foreach ($cruise->rooms as $room) {
-            $childrenData = CruiseChildrenPackage::where('cruise_id', $cruise->id)
+            $childrenData = CruiseChildrenPackage::select('min', 'max', 'children_Percentage as percentage')
+                ->where('cruise_id', $cruise->id)
                 ->where('package_hotel_room_id', $room->id)
                 ->get();
-            $room->children = $childrenData;
+            // Add the 'children' column to the room and assign the data
+            $room->childrentiers = $childrenData;
         }
 
         // Return the data

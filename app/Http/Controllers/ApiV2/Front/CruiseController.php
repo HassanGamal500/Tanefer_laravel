@@ -121,67 +121,85 @@ class CruiseController extends Controller
         $data = '';
         $date = $validatedData['date'];
         $sessons = $validatedData['sesson'];
-        $cruise_rooms = PackageHotelRoom::select('id', 'max_num_adult', 'max_num_children')->where('model_id', $id)->get();
 
-        foreach ($sessons as $sesson) {
-            foreach ($cruise_rooms as $cruise_room) {
+        $adult_price = 0;
+        $child_price = 0;
 
-                if ($sesson['adult'] <= $cruise_room->max_num_adult && $sesson['child'] <= $cruise_room->max_num_children) {
+        $cruise = CruiseModel::findOrFail($id);
 
-                    $cruise_prices = PackageHotelRoomSeason::select('id', 'price_per_day', 'start_date', 'end_date')
-                    ->where('package_hotel_room_id', $cruise_room->id)
-                    ->where('start_date', '<=', $date)
-                    ->where('end_date', '>=', $date)
-                    ->get();
+        // max adult = 3
+        // max child = 3
+        // price = 120
+        // sessons = rooms
+        // 1 -3 => 10%
+        // 4 - 6 => 18%
 
-                    if (empty($cruise_prices)) {
-                        return response()->json([
-                            'status' => 400,
-                            'errors' => 'This Selected Date not allowed limit for the selected room.',
-                        ]);
-                    } else {
+        if($cruise) {
+            $numberOfNights = $cruise->number_of_nights;
 
-                        foreach($sesson['child_ages'] as $age) {
-                            $children_cruises = CruiseChildrenPackage::where('cruise_id', $id)
+            foreach ($sessons as $sesson) {
+                $cruise_room = PackageHotelRoom::select('id', 'max_num_adult', 'max_num_children')
+                    ->where('max_num_adult', '>=', $sesson['adult'])
+                    ->where('max_num_children', '>=', $sesson['child'])
+                    ->where('model_id', $id)
+                    ->first();
+
+                if($cruise_room) {
+                    $maxAdultNumber = $cruise_room->max_num_adult;
+                    $maxChildNumber = $cruise_room->max_num_children;
+
+                    if ($sesson['adult'] <= $maxAdultNumber && $sesson['child'] <= $maxChildNumber) {
+                        $cruise_price = PackageHotelRoomSeason::select('id', 'price_per_day', 'start_date', 'end_date')
                             ->where('package_hotel_room_id', $cruise_room->id)
-                            ->where('min', '<=', $age['age'])
-                            ->where('max', '>=', $age['age'])
-                            ->get();
+                            ->where('start_date', '<=', $date)
+                            ->where('end_date', '>=', $date)
+                            ->orderBy('price_per_day', 'ASC')
+                            ->first();
 
-                            if (empty($children_cruises)) {
-                                return response()->json([
-                                    'status' => 400,
-                                    'errors' => 'This Children age not allowed limit for the selected room.',
-                                ]);
-                            }
-                            $countOfChild = $age['child_count'];
-                            foreach($cruise_prices as $cruise_price) {
-                                $adult_price = $cruise_room->max_num_adult * $cruise_price->price_per_day;
-                                foreach($children_cruises as $children_cruise){
-                                    $child_price = $countOfChild * $cruise_price->price_per_day * $children_cruise->children_Percentage / 100;
-                                    $var[] = $child_price;
-                                }
-                            }
-
+                        if (empty($cruise_price)) {
+                            return response()->json([
+                                'status' => 400,
+                                'errors' => 'This Selected Date not allowed limit for the selected room.',
+                            ]);
                         }
-                        $allTotalPrices += array_sum($var);
 
-                        $total = $adult_price + $allTotalPrices;
+                        $adult_price += $sesson['adult'] * $cruise_price->price_per_day;
 
-                        $data = $total;
+                        if(isset($sesson['child_ages']) && count($sesson['child_ages']) > 0) {
+                            foreach($sesson['child_ages'] as $age) {
+                                $children_cruise = CruiseChildrenPackage::where('cruise_id', $id)
+                                    ->where('package_hotel_room_id', $cruise_room->id)
+                                    ->where('min', '<=', $age['age'])
+                                    ->where('max', '>=', $age['age'])
+                                    ->orderBy('children_Percentage', 'ASC')
+                                    ->first();
 
+                                if (empty($children_cruise)) {
+                                    return response()->json([
+                                        'status' => 400,
+                                        'errors' => 'This Children age not allowed limit for the selected room.',
+                                    ]);
+                                }
 
+                                $child_price += $cruise_price->price_per_day * $children_cruise->children_Percentage / 100; // 120 * 10% = 12
+                            }
+                        }
                     }
-
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'errors' => 'Adult or Children Count Not Allowed Limit',
+                    ]);
                 }
-
-
             }
+
+            $allTotalPrices = ($adult_price + $child_price) * $numberOfNights;
         }
+
         $successResponse = [
             'status' => 200,
             'message' => 'Calculation successful.',
-            'total_price' => $data,
+            'total_price' => (string)round($allTotalPrices, 2),
         ];
 
         return response()->json($successResponse);
