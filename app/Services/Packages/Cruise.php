@@ -69,9 +69,11 @@ class Cruise
 
     public static function BookingTravellers($validatedData,$booking)
     {
-        foreach ($validatedData['passengerDetails'] as $passengerDetail){
-            $booking->bookingTraveler()->create(self::travellerData($passengerDetail));
-        }
+        // dd($validatedData['passengerDetails']);
+        // foreach ($validatedData['passengerDetails'] as $passengerDetail){
+        //     $booking->bookingTraveler()->create(self::travellerData($passengerDetail));
+        // }
+        $booking->bookingTraveler()->create(self::travellerData($validatedData['passengerDetails']));
     }
 
     public static function storeBookingRooms($cachedData,$booking)
@@ -104,10 +106,11 @@ class Cruise
     {
         return [
             'zipCode' => array_key_exists('zip_code',$validatedData) ? $validatedData['zip_code'] : null,
+            'contact_name'  => $validatedData['contact_name'],
             'contact_phone' => $validatedData['contact_phone'],
             'contact_email' => $validatedData['contact_email'],
             'address'       => array_key_exists('address',$validatedData) ? $validatedData['address'] : null,
-            'contact_name'  => array_key_exists('contact_person_name',$validatedData) ? $validatedData['contact_person_name'] : null
+            // 'contact_name'  => array_key_exists('contact_person_name',$validatedData) ? $validatedData['contact_person_name'] : null
         ];
     }
 
@@ -119,7 +122,8 @@ class Cruise
         ];
         return [
             'passengerTitle' => $passengerDetail['passengerTitle'],
-            'passengerGender'           => array_key_exists('passengerGender',$passengerDetail) ? $gender[$passengerDetail['passengerGender']] : null,
+            // 'passengerGender' => array_key_exists('passengerGender',$passengerDetail) ? $gender[$passengerDetail['passengerGender']] : null,
+            'passengerGender' => isset($passengerDetail['passengerGender']) && $passengerDetail['passengerGender'] ? $passengerDetail['passengerGender'] : null,
             'passengerFirstName' => $passengerDetail['passengerFirstName'],
             'passengerLastName'  => $passengerDetail['passengerLastName'],
             'date_of_birth' => $passengerDetail['date_of_birth'],

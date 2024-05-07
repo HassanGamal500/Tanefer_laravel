@@ -10,7 +10,7 @@ use App\Models\PackageHotel;
 
 class SearchService
 {
-    public static function activitySearch( $cityID = null, $duration = null, $startTime = null,$for_package = 0,$type = null, $date = null){
+    public static function activitySearch( $cityID = null, $duration = null, $startTime = null,$for_package = 0,$type = null, $date = null, $activities = null){
         $packageActivityQuery = PackageActivity::query();
         $packageAvaliQuery = AvailabilitiesTour::query();
 
@@ -26,11 +26,17 @@ class SearchService
         if(! $for_package){
             $packageActivityQuery->where('is_published',1);
         }
-
+        
         if(isset($date) && !empty($date) && $date != null && $date != 'null' && $date != '' && $date != 'undefined' && $date){
             $packageActivityQuery->whereHas('availabilityTour', function($q) use ($date) {
                 $q->where('from_date', '<=', $date)->where('to_date', '>=', $date);
             });
+        }
+        
+        if(isset($activities) && !empty($activities) && $activities != null && $activities != 'null' && $activities != '' && $activities != 'undefined' && $activities) {
+            $listActivities = explode(',', $activities);
+            $maxEndTimePackage = \DB::table('package_activities')->whereIn('id', $listActivities)->max('end_time');
+            $packageActivityQuery->where('start_time', '>', $maxEndTimePackage);
         }
 
         if($type){

@@ -111,6 +111,7 @@ class PackageActivityStoreService
                     'min' => $pricingtier['min'],
                     'max' => $pricingtier['max'],
                     'adult_price' => $pricingtier['adult_price'],
+                    'max_child' => $pricingtier['max_child'],
                     'child_percentage' => $pricingtier['child_percentage'],
                     'availabilities_tour_id' => $availability_id,
                     'package_activity_id' => $tour_id,

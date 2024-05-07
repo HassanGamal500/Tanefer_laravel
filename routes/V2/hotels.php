@@ -14,4 +14,4 @@
 
 Route::get('/', 'Front\PackageHotelController@index');
 Route::get('details/{packageHotel}', 'Front\PackageHotelController@details');
-
+Route::post('save', 'Front\PackageHotelController@save');

@@ -13,15 +13,8 @@ class CruiseChildrenPackage extends Model
         'children_Percentage',
         'cruise_id',
         'package_hotel_room_id',
+        'package_hotel_season_id'
     ];
-
-    protected $with = ['packageHotelRoomSeason'];
-
-    public function packageHotelRoomSeason()
-    {
-        return $this->hasMany(PackageHotelRoomSeason::class,'package_hotel_room_id','id');
-    }
-
 
     public function packageHotelRoom(){
         return $this->belongsTo(PackageHotelRoom::class,'package_hotel_room_id');

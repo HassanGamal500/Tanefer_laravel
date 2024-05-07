@@ -9,7 +9,7 @@ class PackageHotelRoom extends Model
     const roomOccupancy = ['Single','Double','Triple'] ;
     const cruiseRoomOccupancy =  ['Single','Double','Solo','Triple','SGL','DBL'];
     protected $guarded =[];
-    protected $with = ['packageHotelRoomSeason'];
+    // protected $with = ['packageHotelRoomSeason'];
 
     public function packageHotel()
     {

@@ -128,3 +128,14 @@ if(! function_exists('responseJson')){
     }
 
 }
+
+if(! function_exists('calculateAdventureDate')){
+
+    function calculateAdventureDate($startDate, $dayNumber) {
+        $startDateTime = new DateTime($startDate);
+        $interval = new DateInterval('P' . ($dayNumber - 1) . 'D');
+        $adventureDate = $startDateTime->add($interval);
+        return $adventureDate->format('Y-m-d');
+    }
+
+}

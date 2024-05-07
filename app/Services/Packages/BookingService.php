@@ -11,6 +11,7 @@ use App\Models\PackageActivity;
 use App\Models\PackageBookingData;
 use App\Models\PackageHotelBooking;
 use App\Models\PackageHotelRoom;
+use App\Models\BookingHotel;
 
 class BookingService
 {
@@ -79,8 +80,14 @@ class BookingService
             'status'                        => 'pending payment',
             'model_id'                      => $validatedData['package_id'],
             'model_type'                    => get_class(new Package()),
-            'model_ids'                    => null,
+            'model_ids'                     => null,
             'start_date'                    => $validatedData['start_date'],
+            // 'start_date'                    => $validatedData['hotelStartDate'],
+            // 'end_date'                      => $validatedData['hotelEndDate'],
+            'hotel_jpcode'                  => $validatedData['hotelJPCode'],
+            'hotel_int_code'                => $validatedData['hotelIntCode'],
+            'hotel_locator'                 => $validatedData['hotelLocator'],
+            'hotel_object_form_id'          => $validatedData['finalBookHotelFormData'],
         ];
     }
 
@@ -139,6 +146,26 @@ class BookingService
                     'booking_id'   => $booking_id,
                     'hotel_id'   => $hotel['hotel_id'],
                 ]);
+            }
+        }
+    }
+    
+    public static function storeHotelJPCode($validatedData, $booking_id) {
+        if (isset($validatedData['hotelJPCodes']) && !empty($validatedData['hotelJPCodes'] != null)) {
+            foreach ($validatedData['hotelJPCodes'] as $key => $hotel) {
+                $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $hotel)->first();
+                if ($hotelData) {
+                    BookingHotel::create([
+                        'booking_id'        => $booking_id,
+                        'hotel_id'          => $hotelData->id,
+                        'object_form_id'    => $validatedData['finalBookHotelsFormData'][$key],
+                        'start_date'        => $validatedData['hotelStartDates'][$key],
+                        'end_date'          => $validatedData['hotelEndDates'][$key],
+                        'jpcode'            => $hotel,
+                        'int_code'          => $validatedData['hotelIntCodes'][$key] ?? null,
+                        'locator'           => $validatedData['hotelLocators'][$key] ?? null
+                    ]);
+                }
             }
         }
     }

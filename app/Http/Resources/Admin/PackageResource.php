@@ -5,6 +5,7 @@ namespace App\Http\Resources\Admin;
 use App\Http\Resources\PackageImageResource;
 use App\Services\Packages\PackageTerPrice;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\PackageTransportation;
 
 class PackageResource extends JsonResource
 {
@@ -22,6 +23,8 @@ class PackageResource extends JsonResource
                 ->select('name As cityName','code As cityCode')->first() : null ;
         $packageTerPrice = new PackageTerPrice();
         $tierprice = $packageTerPrice->calculatetierPrice($this->id);
+        // $transportations = PackageTransportation::where('package_id', $this->id)->min('price');
+        // $transportationPrice = $transportations ? $transportations : 0;
         return [
             'packageID'                => $this->id,
             'packageTitle'             => $this->title,
@@ -35,7 +38,7 @@ class PackageResource extends JsonResource
             'additionalprice'           => $this->additional_price,
             'discountprecentage'           => $this->discount_precentage,
             'availabilities'            => PackageAbilities::collection( $this->packageAbilities ),
-            // 'activities'            => PackageActivityBooing::collection( $this->packageCity ),
+            'activities'            => PackageActivityBooing::collection( $this->packageCity ),
             'package_hotel'            => PackageHotelGtaResource::collection( $this->gtaHotel ),
             'packageDuration'          => $this->duration,
             'packagePricePerPerson'    => $this->has_supplement ? ($this->price_per_person * 0.05) + $this->price_per_person : $this->price_per_person,

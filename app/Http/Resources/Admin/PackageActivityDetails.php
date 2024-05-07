@@ -6,6 +6,7 @@ use App\Http\Resources\PackageImageResource;
 use App\Services\Packages\PackageTerPrice;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\PackageGtaHotel;
+use App\Models\PackageTransportation;
 
 class PackageActivityDetails extends JsonResource
 {
@@ -17,18 +18,20 @@ class PackageActivityDetails extends JsonResource
      */
     public function toArray($request)
     {
-        $firstStartCity = $this->startCity()->first();
-        $startCity = isset($firstStartCity) ?
-            $this->startCity()->first()->tourCity()
-                ->select('name As cityName','code As cityCode')->first() : null ;
+        // $firstStartCity = $this->startCity()->first();
+        // $startCity = isset($firstStartCity) ?
+        //     $this->startCity()->first()->tourCity()
+        //         ->select('name As cityName','code As cityCode')->first() : null ;
         $packageTerPrice = new PackageTerPrice();
         $tierprice = $packageTerPrice->calculatetierPrice($this->id);
+        // $transportations = PackageTransportation::where('package_id', $this->id)->min('price');
+        // $transportationPrice = $transportations ? $transportations : 0;
         $getGtaHotels = PackageGtaHotel::where('package_id', $this->id)->groupBy('city_id')->get();
         return [
             'packageID'                => $this->id,
             'packageTitle'             => $this->title,
             'packageSlug'              => $this->slug,
-            'intialprice'               => $tierprice,
+            'intialprice'              => $tierprice,
             'packageImageAlt'          => $this->image_alt,
             'packageImageCaption'      => $this->image_caption,
             'packageImage'             => $this->image,

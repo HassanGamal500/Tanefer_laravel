@@ -56,14 +56,14 @@ class CruiseRequest extends FormRequest
         ];
 
         if(request()->method() == 'POST'){
-            // $rules['master_image']  = 'required|image|max:2000';
+            $rules['master_image']  = 'required|image|max:2000';
             $rules['rooms.*.seasons'] = 'required|array';
             $rules['rooms.*.seasons.*.id'] = 'required|exists:package_hotel_seasons,id';
             $rules['rooms.*.seasons.*.price_per_person'] = 'required|numeric';
             $rules['slug'] = 'nullable|string|max:500|unique:cruises,slug';
 
         }else{
-            // $rules['master_image']  = 'nullable|image|max:2000';
+            $rules['master_image']  = 'nullable|image|max:2000';
             $rules['slug'] = [
                 'nullable',
                 'string',

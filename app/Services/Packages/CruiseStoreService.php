@@ -175,6 +175,7 @@ class CruiseStoreService
         if (array_key_exists('seasons', $roomData)) {
             foreach ($roomData['seasons'] as $season) {
                 $seasonObject = PackageHotelSeason::find($season['id']);
+
                 if ($seasonObject != null) {
                     $cruiseRoom->packageHotelRoomSeason()->updateOrCreate([
                         'package_hotel_season_id' => $season['id']

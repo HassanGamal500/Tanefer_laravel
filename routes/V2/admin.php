@@ -58,9 +58,12 @@ Route::namespace('Admin')->group(function (){
         Route::get('/{id}' , 'CruiseController@show');
         Route::post('/store', 'CruiseController@store');
         Route::put('/{id}/update' , 'CruiseController@update');
+        Route::delete('/{cruise}/delete' , 'CruiseController@destroy');
         Route::post('/children-policy', 'CruiseController@childrenPolicy');
 
         Route::delete('/delete-image/{id}' , 'CruiseController@removeImage');
+        //Sending Email with Book ID
+        Route::post('/send_email', 'CruiseController@sendEmail');
     });
 
     # --------- package Activities  section ------------------
@@ -99,5 +102,8 @@ Route::namespace('Admin')->group(function (){
         Route::get('/{id}', 'MainSeoPagesController@show');
         Route::post('update/{id}', 'MainSeoPagesController@update');
     });
+    
+    Route::get('cruises-bookings' , 'BookingController@cruiseBookings');
+    Route::get('hotels-bookings' , 'BookingController@hotelBookings');
 
 });

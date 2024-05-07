@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\BookingConfirmation;
 use App\Mail\NewBooking;
 use App\Mail\SendCustomPackage;
+use App\Mail\ConfirmIntegrationBooking;
 use App\Models\CustomPackage;
 use App\Models\Package;
 use Carbon\Carbon;
@@ -24,12 +25,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PDF;
 
-
 class BookingController extends Controller
 {
-
-
-    public function  save(BookingSaveRequest $request )
+    public function save(BookingSaveRequest $request )
     {
         if(! is_null($request->start_date)){
             $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
@@ -39,6 +37,7 @@ class BookingController extends Controller
                 abort(422,'this tour not start in '.$startDay);
             }
         }
+        
         // if(count($package->seasons) > 0 && !is_null($request->start_date)){
         //     $season = $package->seasons()->where('from','<=',$request->start_date)
         //         ->where('to','>',$request->start_date)->first();
@@ -46,6 +45,8 @@ class BookingController extends Controller
         //         abort(422,'You cannot book package in this day');
         //     }
         // }
+        
+        $validated = $request->validated();
 
         if(Cache::has($request->sessionId)){
             $cachedTotalPrice = Cache::get($request->sessionId);
@@ -53,6 +54,9 @@ class BookingController extends Controller
                 $cachedTotalPrice = json_encode($cachedTotalPrice);
                 return responseJson($request,new \stdClass(),
                     'Package Total Price not valid, Valid price is '.$cachedTotalPrice,422);
+            } else {
+                $request->total_price = $request->final_price ? $request->final_price : $request->total_price;
+                $validated['total_price'] = $request->final_price;
             }
         }else{
             return responseJson($request,new \stdClass(),'Something wrong in total price',422);
@@ -75,8 +79,11 @@ class BookingController extends Controller
         //         }
         //     }
         // }
+        
+        
+        $contactName = $request->contact_name ? $request->contact_name : $validated['bookingDetails']['contact_name'];
+        $contactEmail = $request->contact_email ? $request->contact_email : $validated['bookingDetails']['contact_email'];
 
-        $validated = $request->validated();
         DB::transaction(function () use ( $validated ) {
             $booking = BookingService::storeBookingMainData($validated);
             // foreach ( $validated['booking_cities'] as $key => $booking_city ){
@@ -86,6 +93,7 @@ class BookingController extends Controller
         $booking = Booking::orderBy('id', 'DESC')->first();
         BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
         BookingService::storeHotel($request->accommodation,$booking->id);
+        BookingService::storeHotelJPCode($validated,$booking->id);
         $bookingdata = Booking::find($booking->id);
         DB::transaction(function () use ($bookingdata, $validated ) {
 
@@ -94,15 +102,18 @@ class BookingController extends Controller
             // }
             BookingService::storeBookingTData( $bookingdata , $validated['bookingDetails']);
         });
+        
+        $customTextMessage = '
+            Thank you, ('.$contactName.')
+            we have received your inquiry and one of our travel experts will contact you within 24 hours.
+            We\'ll send your new travel plans to : '.$contactEmail.'
+            Don\'t see a response after 24 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
+        ';
 
-       return  responseJson($request,['booking_id'=>$booking->id],'operation done successfully');
+       return  responseJson($request,['booking_id'=>$booking->id, 'custom_text_message' => $customTextMessage],'operation done successfully');
     }
 
-
-
-
-
-    public function  complete($id, BookingCompleteRequest $request)
+    public function complete($id, BookingCompleteRequest $request)
     {
         $validated = $request->validated();
         $booking = Booking::find($id);
@@ -117,10 +128,6 @@ class BookingController extends Controller
 
         return responseJson($request,[],'operation done successfully');
     }
-
-
-
-
 
     public function saveToEmail()
     {
@@ -146,9 +153,6 @@ class BookingController extends Controller
        return responseJson(request(),[],'Email send to you with custom package link');
     }
 
-
-
-
     public function confirmBooking()
     {
         if(request()->merchant_extra){
@@ -161,6 +165,7 @@ class BookingController extends Controller
             }else{
                 $url = 'https://tanefer.com/trip-booking/'.$booking->id;
             }
+            
             if(request()->response_message == 'Success'){
                 $booking->update([
                     'status' => 'Confirm Payment',
@@ -168,11 +173,64 @@ class BookingController extends Controller
                     'authorization_code' => request()->authorization_code
                 ]);
             }
-
+            
+            if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->hotel_jpcode && $booking->integration_booked == 0) {
+                $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
+                if ($booking->model_type == 'App\Models\Package') {
+                    $hotelData = \DB::table('gta_hotel_portfolios')->where('id', $booking->model_id)->first();
+                } else {
+                    $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $booking->hotel_jpcode)->first();
+                }
+                if($hotelFormData) {
+                    $getRequestData = json_decode($hotelFormData->request_data);
+                    $getBodyData = json_decode($hotelFormData->body);
+                    $options = array(
+                        'soap_version' => SOAP_1_2,
+                        'encoding' => 'UTF-8',
+                        'exceptions' => true,
+                        'trace' => true,
+                        'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+                    );
+                    
+                    $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+                    
+                    $requestData = $getRequestData;
+                    
+                    try {
+                        $response = $client->__soapCall('HotelBooking', array('parameters' => $requestData));
+                        $bookingRS = $response->BookingRS;
+                        // return response()->json($response);
+                        if($bookingRS) {
+                            if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
+                                Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
+                            }
+                            $booking->update([
+                                'integration_booked' => 1,
+                                'hotel_int_code' => $bookingRS->IntCode,
+                                'hotel_locator' => $bookingRS->Reservations->Reservation->Locator,
+                                // 'start_date' => $getBodyData->startDate,
+                                // 'end_date' => $getBodyData->endDate,
+                                'hotel_start_date' => $getBodyData->startDate,
+                                'hotel_end_date' => $getBodyData->endDate,
+                                'send_confirm_email' => 1
+                            ]);
+                        }
+                    } catch (SoapFault $fault) {
+                        // echo "Error: " . $fault->getMessage();
+                    }
+                }
+            }
+            
             if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity') {
                 $bookingdata = explode(",", $booking->model_ids);
                 $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
             }
+            
+            // if($booking->model_id != null && $booking->model_type == 'App\Models\Cruise') {
+            //     $bookingdata = explode(",", $booking->model_ids);
+            //     $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
+            // }
+            
             // if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
 
             //     $package_data = PackageBookingData::select('adventrue_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNull('cruise_id')->get();
@@ -222,6 +280,7 @@ class BookingController extends Controller
             // }
             // Mail::to($booking->bookingData->contact_email)
             //     ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures, $booking, $cruises, $package_name));
+            
             if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
                 $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
                     ->where('booking_id', $booking->id)
@@ -284,34 +343,59 @@ class BookingController extends Controller
                 $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
 
             }
-            $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
-                'url' => $url,
-                'total_price' => $booking->total_price,
-                'contact_name' => $booking->bookingData->contact_name,
-                'combinedList' => $combinedList,
-                'booking' => $booking,
-                'package_name' => $package_name,
-            ]);
+            
+            // $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+            //     'url' => $url,
+            //     'total_price' => $booking->total_price,
+            //     'contact_name' => $booking->bookingData->contact_name,
+            //     'combinedList' => $combinedList,
+            //     'booking' => $booking,
+            //     'package_name' => $package_name,
+            // ]);
+            // Mail::to($booking->bookingData->contact_email)
+            //     ->send(new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList,$booking, $package_name))->attachData($pdf->output(), "test.pdf");;
 
-            $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
-            Mail::to($booking->bookingData->contact_email)
-                ->send($mail->attachData($pdf->output(), "tanefer.pdf"));
 
-            $booking->update(['send_confirm_email' => 1]);
 
-            $message = 'Your booking confirmed';
-            return responseJson(request(), [], $message);
+            // $booking->update(['send_confirm_email' => 1]);
 
+            // $message = 'Your booking confirmed';
+            // return responseJson(request(),[],$message);
+            // return response()->json($combinedList);
+            if($booking->model_type != 'App\Models\Cruise' && $booking->model_type != 'App\Models\GtaHotelPortfolio') {
+                $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+                    'url' => $url,
+                    'total_price' => $booking->total_price,
+                    'contact_name' => $booking->bookingData->contact_name,
+                    'combinedList' => $combinedList,
+                    'booking' => $booking,
+                    'package_name' => $package_name,
+                ]);
+    
+                $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
+                Mail::to($booking->bookingData->contact_email)
+                    ->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
+    
+                $booking->update(['send_confirm_email' => 1]);
+            } else {
+                // Mail::to($booking->bookingData->contact_email)
+                //     ->send(new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $adventures, $booking, $cruises, $package_name));
+                    
+                // $booking->update(['send_confirm_email' => 1]);
+            }
+            
+            if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package')) {
+                echo 'You have been booked successfully';die;
+            } else {
+                $message = 'Your booking confirmed';
+                return responseJson(request(), [], $message);
+            }
         }
 
         $message = 'Your booking under processing, We will email you soon with booking status';
 
         return responseJson(request(),[],$message);
     }
-
-
-
-
 
     public function displayCustomPackage()
     {
@@ -322,10 +406,6 @@ class BookingController extends Controller
 
        return responseJson(request(),json_decode($customPackage->package),'success');
     }
-
-
-
-
 
     public function bookingDetails($id)
     {
@@ -339,15 +419,12 @@ class BookingController extends Controller
 
         return responseJson(request(),['bookingDetails' => $booking],'success');
     }
+    
     public function testmail()
     {
         $url = 'data';
         Mail::to('mohamedhamdytotti@gmail.com')->send(new SendCustomPackage('mohamedhamdytotti@gmail.com',$url));
         $message = 'Your booking under processing, We will email you soon with booking status';
-
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
-
-
     }
-
 }

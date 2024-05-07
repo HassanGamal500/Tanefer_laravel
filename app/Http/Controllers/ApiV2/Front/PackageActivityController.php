@@ -26,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class PackageActivityController extends Controller
 {
     public function index(Request $request) {
-        $packageActivityQuery = SearchService::activitySearch($request->city_id,$request->duration,$request->start_time,$request->for_package,$request->type, $request->date) ;
+        $packageActivityQuery = SearchService::activitySearch($request->city_id,$request->duration,$request->start_time,$request->for_package,$request->type, $request->date, $request->activities) ;
         return responseJson($request, [
             'ActivityTotal'=> $packageActivityQuery->count(),
             'ActivityList'=> PackageActivityResource::collection( $packageActivityQuery->get() )
@@ -126,31 +126,80 @@ class PackageActivityController extends Controller
             $availabilityId = $activity['availability_id'];
             $activityResults = [];
             $totalOccupancy = $adults + $children;
-            $availabilities = PricingTiersTour::where('availabilities_tour_id', $availabilityId)
-                ->where('package_activity_id', $activity['activity_id'])->orderBy('min', 'asc')->get();
-            foreach($availabilities as $availability) {
+            // $availabilities = PricingTiersTour::where('availabilities_tour_id', $availabilityId)->where('package_activity_id', $activity['activity_id'])->orderBy('min', 'asc')->get();
+            // foreach($availabilities as $availability) {
+            //     $doubleValuechild = $availability->child_percentage / 100.0;
+            //     // if($availability->max >= $totalOccupancy && $availability->min <= $totalOccupancy) {
+            //     if($availability->max >= $adults && $availability->min <= $adults) {
+            //         $totalAdultPrice = $availability->adult_price * $adults;
+            //         // $totalChildrenPrice = $children * $doubleValuechild * $availability->adult_price;
+            //         // $totalChildrenPrice = $availability->max_child >= $children ? ($children * $doubleValuechild * $availability->adult_price) : 0;
+            //         if($availability->max_child >= $children) {
+            //             $totalChildrenPrice = $children * $doubleValuechild * $availability->adult_price;
+            //         } else {
+            //             return response()->json([
+            //                 'status' => 400,
+            //                 'errors' => 'Maximum number of children with ('.$availability->max.') adults is ('.$availability->max_child.')',
+            //             ]);
+            //         }
+            //         $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
+
+            //         $activityTitle = $activityModel->title;
+            //         $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
+            //         $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
+            //         $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
+
+            //         $activityResults = [
+            //             'activity_id' => $activity['activity_id'],
+            //             'activityTitle' => $activityTitle,
+            //             'totalAdultPrice' => $totalAdultPrice,
+            //             'totalChildrenPrice' => $totalChildrenPrice,
+            //             'subTotalPrice' => $totalPriceActivity,
+            //         ];
+
+            //         $totalPrice += $totalPriceActivity;
+            //         $fullTitleNames .= empty($fullTitleNames) ? $activityModel->title : ' & ' . $activityModel->title;
+            //     }
+            // }
+            
+            $availability = PricingTiersTour::where('availabilities_tour_id', $availabilityId)
+                ->where('package_activity_id', $activity['activity_id'])
+                ->where('min', '<=', $adults)
+                ->where('max', '>=', $adults)
+                ->where('max_child', '>=', $children)
+                ->orderBy('min', 'asc')
+                ->first();
+            
+            if($availability) {
                 $doubleValuechild = $availability->child_percentage / 100.0;
-                if($availability->max >= $totalOccupancy && $availability->min <= $totalOccupancy) {
-                    $totalAdultPrice = $availability->adult_price * $adults;
+                
+                $totalAdultPrice = $availability->adult_price * $adults;
+                
+                if($availability->max_child >= $children) {
                     $totalChildrenPrice = $children * $doubleValuechild * $availability->adult_price;
-                    $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
-
-                    $activityTitle = $activityModel->title;
-                    $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
-                    $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
-                    $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
-
-                    $activityResults = [
-                        'activity_id' => $activity['activity_id'],
-                        'activityTitle' => $activityTitle,
-                        'totalAdultPrice' => $totalAdultPrice,
-                        'totalChildrenPrice' => $totalChildrenPrice,
-                        'subTotalPrice' => $totalPriceActivity,
-                    ];
-
-                    $totalPrice += $totalPriceActivity;
-                    $fullTitleNames .= empty($fullTitleNames) ? $activityModel->title : ' & ' . $activityModel->title;
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'errors' => 'Maximum number of children with ('.$availability->max.') adults is ('.$availability->max_child.')',
+                    ]);
                 }
+                $totalPriceActivity = $totalAdultPrice + $totalChildrenPrice;
+
+                $activityTitle = $activityModel->title;
+                $totalAdultPrice = isset($totalAdultPrice) ? $totalAdultPrice : 0;
+                $totalChildrenPrice = isset($totalChildrenPrice) ? $totalChildrenPrice : 0;
+                $totalPriceActivity = isset($totalPriceActivity) ? $totalPriceActivity : 0;
+
+                $activityResults = [
+                    'activity_id' => $activity['activity_id'],
+                    'activityTitle' => $activityTitle,
+                    'totalAdultPrice' => $totalAdultPrice,
+                    'totalChildrenPrice' => $totalChildrenPrice,
+                    'subTotalPrice' => $totalPriceActivity,
+                ];
+
+                $totalPrice += $totalPriceActivity;
+                $fullTitleNames .= empty($fullTitleNames) ? $activityModel->title : ' & ' . $activityModel->title;
             }
 
             if (count($activityResults) > 0) {
@@ -263,7 +312,6 @@ class PackageActivityController extends Controller
         $listActivitiesByTime = PackageActivity::whereIn('id', $activityIds)->orderBy('start_time', 'asc')->get();
 
         for ($i = 0; $i < count($activities) - 1; $i++) {
-            dd($activities);
             $current_to_date = new DateTime($activities[$i]['from_date']);
             $next_from_date = new DateTime($activities[$i + 1]['from_date']);
             $end_time = $listActivitiesByTime[$i]['end_time'];
@@ -271,12 +319,12 @@ class PackageActivityController extends Controller
                 $next_activity_model = $listActivitiesByTime[$i+1];
                 $next_start_time = $next_activity_model['start_time'];
 
-                if ($end_time >= $next_start_time) {
-                    return response()->json([
-                        'errors' => 'two adventures have the same time please select another one',
-                        'status' => 400
-                    ]);
-                }
+                // if ($end_time >= $next_start_time) {
+                //     return response()->json([
+                //         'errors' => 'two adventures have the same time please select another one',
+                //         'status' => 400
+                //     ]);
+                // }
             }
         }
 

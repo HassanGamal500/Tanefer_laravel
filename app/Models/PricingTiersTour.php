@@ -12,6 +12,7 @@ class PricingTiersTour extends Model
         'min',
         'max',
         'adult_price',
+        'max_child',
         'child_percentage',
         'availabilities_tour_id',
         'package_activity_id',

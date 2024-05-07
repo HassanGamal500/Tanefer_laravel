@@ -19,6 +19,7 @@ class PricingTiersTourResource extends JsonResource
             'min' => $this->min,
             'max' => $this->max,
             'adult_price' => $this->adult_price,
+            'max_child' => $this->max_child,
             'child_percentage' => $this->child_percentage,
         ];
         return $data;

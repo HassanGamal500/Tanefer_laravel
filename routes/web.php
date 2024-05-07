@@ -23,9 +23,6 @@ Auth::routes();
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });
-Route::get('/mailtemp', function () {
-    return view('email_templates.book');
-});
 Route::get('/clear/route', function () {
     Artisan::call('route:clear');
 });
@@ -43,6 +40,7 @@ Route::get('/seed', function(){
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::post('payment', 'HomeController@payment');
+Route::get('getPaymentPayFort', 'HomeController@getPayment');
 
 Route::get('test' , function (){
 

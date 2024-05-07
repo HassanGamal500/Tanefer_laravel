@@ -19,13 +19,17 @@ class PackageDaysActivityBooing extends JsonResource
             ->select('id', 'adventrue_id')
             ->where('package_id', $this->package_id)
             ->where('package_day_id', $this->id)
+            ->where('adventrue_id', '!=', null)
             ->get();
         $list_adventures = DB::table('package_bookingadventrues')->select('adventrue_id')->where('package_id', $this->package_id)->where('package_day_id', $this->id)->pluck('adventrue_id');
         return [
+            'package_id' => $this->package_id,
+            'package_day_id' => $this->id,
             'id'  => $this->id ,
             'day_number'  => $this->day_number ,
             'start'  => $this->start ,
             'days' =>  PackagetourzBooing::collection($crui),
+            'ddddd' => $crui,
             'list_adventures' => $list_adventures
         ];
     }

@@ -213,7 +213,7 @@ class PackageStoreService
         if ($availability['type'] === "adventure") {
             $days_number = $availability['days_number'];
             $package_activity_id = $availabilityIds[$availabilityIndex];
-            $adventrue_id = null;
+            // $adventrue_id = null;
             if(isset($availability['days'])) {
                 $availability_days = count($availability['days']);
                 for ($j = 1; $j <= $days_number; $j++) {
@@ -224,16 +224,17 @@ class PackageStoreService
                         $adv = $availability['days'][$j - 1];
 
 
-                        if (isset($adv['adventrues'])) {
+                        if (isset($adv['adventrues']) && !empty($adv['adventrues'])) {
 
                             foreach ((array)$adv['adventrues'] as $adventure) {
-                                $adventrue_id = $adventure['adventrue_id'] ?? null;
+                                // $adventrue_id = $adventure['adventrue_id'] ?? null;
+                                $adventrue_id = $adventure['adventrue_id'] && !empty($adventure['adventrue_id']) && $adventure['adventrue_id'] != 'undefined' && $adventure['adventrue_id'] != 'null' ? $adventure['adventrue_id'] : null;
 
                                 PackageBookingadventrue::create([
                                     'package_id'        => $package_id,
                                     'package_city_id'   => $package_activity_id,
                                     'package_day_id'    => $package_day_id,
-                                    'adventrue_id'      => $adventrue_id,
+                                    'adventrue_id'      => $adventrue_id ?? null,
                                 ]);
                             }
                         } else {
@@ -246,6 +247,7 @@ class PackageStoreService
                                 ]);
                         }
                     } else {
+                        $adventrue_id =  null;
                         PackageBookingadventrue::create([
                             'package_id'        => $package_id,
                             'package_city_id'   => $package_activity_id,

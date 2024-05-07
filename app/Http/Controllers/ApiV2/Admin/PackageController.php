@@ -69,6 +69,7 @@ class PackageController extends Controller
      */
     public function store(PackageRequest $request)
     {
+        // return response()->json(['message' => $request->all(), 'status' => 400]);
         $validated = $request->validated();
         DB::transaction(function () use ( $validated,$request ) {
              $package =  PackageStoreService::storePackageMainData($validated);
@@ -161,7 +162,12 @@ class PackageController extends Controller
 
             if( isset($request->accommodation) && !empty($request->accommodation)){
                 $package->gtaHotel()->delete();
-                PackageStoreService::storeHotel($request->accommodation,$package['id']);
+                PackageStoreService::storeHotel($request->accommodation, $package['id']);
+            }
+            
+            if (isset($request->images) && !empty($request->images)) {
+                $package->packageImages()->delete();
+                PackageStoreService::storePackageImages($request->images, $package);
             }
 
 

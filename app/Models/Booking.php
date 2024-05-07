@@ -59,4 +59,14 @@ class Booking extends Model
     {
         return $this->hasMany(BookingCruiseRoom::class,'booking_id','id');
     }
+    
+    public function bookingHotels()
+    {
+        return $this->hasMany(BookingHotel::class, 'booking_id', 'id');
+    }
+    
+    public function bookingHotel()
+    {
+        return $this->belongsTo(GtaHotelPortfolio::class, 'model_id', 'id');
+    }
 }

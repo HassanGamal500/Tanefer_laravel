@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('cancel:flightBooking')->everyFifteenMinutes();
         $schedule->command('telescope:prune --hours=168')->daily();
         //$schedule->command('save:tbo-cities')->monthly();
+        $schedule->command('create_update:gta_hotel')->cron('0 12 */15 * *')->appendOutputTo('create_update_gta_hotel.log');//->cron('0 12 */15 * *');
     }
 
     /**

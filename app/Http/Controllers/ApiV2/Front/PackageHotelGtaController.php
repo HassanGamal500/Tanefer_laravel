@@ -30,7 +30,7 @@ class PackageHotelGtaController extends Controller
                     'Jpd_code' => $record->JPDCode,
                     'area_type' => $record->AreaType
                 ]);
-        }
+            }
         }
         return response()->json(['message' =>'Country add successfully', 'status' => 201]);
     }
@@ -42,7 +42,7 @@ class PackageHotelGtaController extends Controller
         $countries = GtaCountry::pluck('code');
         foreach($countries as $country) {
             foreach ($list as $record) {
-                if (isset($record->AreaType) && $record->AreaType === 'REG' && $country == $record->ParentCode) {
+                if (isset($record->AreaType) && $record->AreaType === 'REG' && (isset($record->ParentCode) && $country == $record->ParentCode)) {
                     GtaRegion::create([
                         'name' => $record->Name,
                         'code' => $record->Code,
@@ -112,7 +112,9 @@ class PackageHotelGtaController extends Controller
         $OfferSupplementType = $list->OfferSupplementTypeList->OfferSupplementType;
         $SpecialSupplementType = $list->SpecialSupplementTypeList->SpecialSupplementType;
         $arrayloop = [$RoomCategory,$HotelCategory,$HotelType, $Board, $OfferSupplementType ,$SpecialSupplementType];
-
+        
+        // GtaHotelCatalogue::truncate();
+        
         foreach ($arrayloop as $record) {
             foreach ($record as $item) {
                 if ($record === $SpecialSupplementType) {
@@ -267,6 +269,24 @@ class PackageHotelGtaController extends Controller
     public function get_hotel_catalogues(){
 
         $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'HotelCategory')->get();
+
+        return response()->json([ 'message' =>'success','status' => 200,
+            'data'=> GtaHotelCatalogueResource::collection( $hotel_catalogues )
+        ]);
+    }
+    
+    public function get_hotel_categories(){
+
+        $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'RoomCategory')->get();
+
+        return response()->json([ 'message' =>'success','status' => 200,
+            'data'=> GtaHotelCatalogueResource::collection( $hotel_catalogues )
+        ]);
+    }
+    
+    public function get_hotel_boards(){
+
+        $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'Board')->get();
 
         return response()->json([ 'message' =>'success','status' => 200,
             'data'=> GtaHotelCatalogueResource::collection( $hotel_catalogues )

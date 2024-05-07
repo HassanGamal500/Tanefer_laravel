@@ -19,7 +19,8 @@ class PackagetourzBooing extends JsonResource
         $crui = PackageActivity::where('id', $this->adventrue_id)->first();
 
         return [
-            'adventrue_id ' => $this->adventrue_id  ,
+            'adventrue_id' => $this->adventrue_id,
+            'adventure_id' => $this->adventrue_id,
             'adventrue' =>  new PackageActivityResource($crui)
          ];
     }
