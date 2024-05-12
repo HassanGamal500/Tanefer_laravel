@@ -6,6 +6,7 @@ use App\Mail\BookingConfirmation;
 use App\Mail\NewBooking;
 use App\Mail\SendCustomPackage;
 use App\Mail\ConfirmIntegrationBooking;
+use App\Mail\BookingCruiseConfirmation;
 use App\Models\CustomPackage;
 use App\Models\Package;
 use Carbon\Carbon;
@@ -90,7 +91,7 @@ class BookingController extends Controller
             //     BookingService::storeBookingCityData($booking,$booking_city);
             // }
         });
-        $booking = Booking::orderBy('id', 'DESC')->first();
+        $booking = Booking::with(['bookingData', 'package.packageCity'])->orderBy('id', 'DESC')->first();
         BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
         BookingService::storeHotel($request->accommodation,$booking->id);
         BookingService::storeHotelJPCode($validated,$booking->id);
@@ -103,11 +104,93 @@ class BookingController extends Controller
             BookingService::storeBookingTData( $bookingdata , $validated['bookingDetails']);
         });
         
+        if($checkHasCruise = $booking->package->packageCity->where('type', 'cruise')->first()) {
+            $cruise = Cruise::where('id', $checkHasCruise->cruise_id)->first();
+            $booking->cruise = $cruise;
+        } else {
+            $booking->cruise = null;
+        }
+        
+        if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
+            $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
+                ->where('booking_id', $booking->id)
+                ->whereNull('cruise_id')
+                ->get();
+
+            $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id','id')
+                ->where('booking_id', $booking->id)
+                ->whereNotNull('cruise_id')
+                ->get();
+
+            $adventures = [];
+            $cruises = [];
+            $combinedList = [];
+            $package_name = $booking->package->title;
+
+            // Processing adventures
+            foreach ($package_data as $advent) {
+                $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
+                $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
+
+                if ($adventures_id) {
+                    $adventure_id = $adventures_id;
+                    $day_number = $advent['day_number'];
+
+                    $adventures[] = [
+                        'id'=> $advent->id,
+                        'adventure_id' => $adventure_id,
+                        'day_number' => $day_number,
+                        'package_city_id' => $package_city_id,
+                    ];
+                } else {
+                    $day_number = $advent['day_number'];
+                    $adventures[] = [
+                        'id'=> $advent->id,
+                        'adventure_id' => 'null',
+                        'day_number' => $day_number,
+                        'package_city_id' => null,
+                    ];
+                }
+            }
+
+            // Processing cruises
+            foreach ($package_data_cruise as $cruise) {
+                $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
+                $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
+
+                if ($cruise_id) {
+                    $cruisee = $cruise_id;
+                    $day_number = $cruise['day_number'];
+
+                    $cruises[] = [
+                        'id'=> $cruise->id,
+                        'cruise_id' => $cruisee,
+                        'day_number' => $day_number,
+                        'package_city_id' => $package_city_id,
+                    ];
+                }
+            }
+            $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
+        }
+        
+        $bookId = $booking->id;
+        $price = $booking->total_price;
+        $username = $contactName;
+        $email = $contactEmail;
+        $cruiseData = $booking->cruise;
+        $startDate = $booking->start_date;
+        $addtionalMessage = 'We will contact you within 48 hours';
+        $combinedList = $combinedList;
+        $booking = $booking;
+        $package_name = $package_name;
+        
+        Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, $addtionalMessage, $combinedList, $booking, $package_name));
+        
         $customTextMessage = '
             Thank you, ('.$contactName.')
-            we have received your inquiry and one of our travel experts will contact you within 24 hours.
+            we have received your inquiry and one of our travel experts will contact you within 48 hours.
             We\'ll send your new travel plans to : '.$contactEmail.'
-            Don\'t see a response after 24 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
+            Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
         ';
 
        return  responseJson($request,['booking_id'=>$booking->id, 'custom_text_message' => $customTextMessage],'operation done successfully');

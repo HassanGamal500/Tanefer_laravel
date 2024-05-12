@@ -15,13 +15,16 @@ class BookingCruiseConfirmation extends Mailable
     protected $email;
     protected $cruiseData;
     protected $startDate;
+    protected $combinedList;
+    protected $booking;
+    protected $package_name;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($bookId, $price, $username, $email, $cruiseData, $startDate)
+    public function __construct($bookId, $price, $username, $email, $cruiseData, $startDate, $addtionalMessage = null, $combinedList, $booking, $package_name)
     {
         $this->bookId = $bookId;
         $this->price = $price;
@@ -29,6 +32,10 @@ class BookingCruiseConfirmation extends Mailable
         $this->email = $email;
         $this->cruiseData = $cruiseData;
         $this->startDate = $startDate;
+        $this->addtionalMessage = $addtionalMessage;
+        $this->combinedList = $combinedList;
+        $this->booking = $booking;
+        $this->package_name = $package_name;
     }
 
     /**
@@ -44,7 +51,11 @@ class BookingCruiseConfirmation extends Mailable
             'username' => $this->username,
             'email' => $this->email,
             'cruiseData' => $this->cruiseData,
-            'startDate' => $this->startDate
+            'startDate' => $this->startDate,
+            'addtionalMessage' => $this->addtionalMessage,
+            'combinedList' => $this->combinedList,
+            'booking' => $this->booking,
+            'package_name' => $this->package_name,
         ]);
     }
 }
