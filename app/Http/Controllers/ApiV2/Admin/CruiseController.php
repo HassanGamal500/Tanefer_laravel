@@ -118,7 +118,7 @@ class CruiseController extends Controller
         // dd($request->all());
         $cruise = Cruise::findOrFail($id);
         $validated = $request->validated();
-        DB::transaction(function () use ( $cruise, $validated ,$request ) {
+        // DB::transaction(function () use ( $cruise, $validated ,$request ) {
 
             $cruise->update( CruiseStoreService::collectCruiseData($validated, $cruise));
             // $cruise->cruiseChildrenPackage()->delete();
@@ -130,9 +130,14 @@ class CruiseController extends Controller
             //     // $cruiseService = new CruiseStoreService();
             //     // $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             // }
-
+            
+            if($request->master_image){
+                CruiseStoreService::storeCruiseMasterimage($request->master_image, $cruise);
+            }
+            
             if($request->images){
-                CruiseStoreService::storeCruiseImages($request->images,$cruise);
+                // CruiseStoreService::storeCruiseImages($request->images,$cruise);
+                CruiseStoreService::createOrUpdateCruiseImages($request->images, $cruise);
             }
             
             if($request->rooms){
@@ -143,7 +148,7 @@ class CruiseController extends Controller
                 $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             }
 
-        });
+        // });
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }

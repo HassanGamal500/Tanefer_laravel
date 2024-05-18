@@ -3,6 +3,7 @@
 namespace App\Services\Packages;
 
 use App\Models\Cruise;
+use App\Models\CruiseImage;
 use App\Models\PackageHotelChildren;
 use App\Models\PackageHotelRoom;
 use App\Models\PackageHotelSeason;
@@ -41,6 +42,53 @@ class CruiseStoreService
             $cruise->images()->create([
                 'image' => $imagePath,
             ]);
+        }
+    }
+    
+    public static function storeCruiseMasterimage($image, $cruise)
+    {
+        $imagePath = StoreFileService::SaveFile('cruises', $image);
+        $cruise->update([
+            'master_image' => $imagePath,
+        ]);
+    }
+    
+    public static function createOrUpdateCruiseImages($images, $cruise)
+    {
+        $deleteImagesArray = array();
+        $getImageIds = $cruise->images()->pluck('id')->toArray();
+
+        foreach ($getImageIds as $id) {
+            if(!in_array($id, $images['id'])) {
+                $deleteImagesArray[] = $id;
+            }
+        }
+
+        foreach ($images['sort'] as $index => $sort) {
+            if ($images['id'][$index] != null && $images['id'][$index] != 'null') {
+                if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
+                    $imagePath = StoreFileService::SaveFile('cruises', $images['file'][$index]);
+                    CruiseImage::where('id', $images['id'][$index])->update([
+                        'image' => $imagePath, 
+                        'sort'  => $sort
+                    ]);
+                } else {
+                    CruiseImage::where('id', $images['id'][$index])->update(['sort' => $sort]);
+                }
+            } else {
+                if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
+                    $imagePath = StoreFileService::SaveFile('cruises', $images['file'][$index]);
+                    $cruise->images()->create([
+                        'image' => $imagePath,
+                        'sort'  => $sort
+                    ]);
+                }
+            }
+        }
+        
+        if (count($deleteImagesArray) > 0) {
+            //Delete Image
+            CruiseImage::whereIn('id', $deleteImagesArray)->delete();
         }
     }
 

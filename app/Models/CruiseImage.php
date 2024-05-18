@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\URL;
 
 class CruiseImage extends Model
 {
-
-    protected $fillable = ['image','cruise_id'];
+    protected $fillable = ['image', 'sort', 'cruise_id'];
 
     public function getImageAttribute()
     {
-        return    URL::to('storage/' . $this->attributes['image']);
+        return URL::to('storage/' . $this->attributes['image']);
     }
 }
