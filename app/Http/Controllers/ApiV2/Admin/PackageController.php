@@ -164,7 +164,7 @@ class PackageController extends Controller
                 $package->gtaHotel()->delete();
                 PackageStoreService::storeHotel($request->accommodation, $package['id']);
             }
-            
+
             if (isset($request->images) && !empty($request->images)) {
                 $package->packageImages()->delete();
                 PackageStoreService::storePackageImages($request->images, $package);
