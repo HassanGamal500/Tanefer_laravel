@@ -38,13 +38,14 @@ class CruiseStoreService
     public static function storeCruiseImages($images, $cruise)
     {
         foreach ($images as $image) {
-            $imagePath = StoreFileService::SaveFile('cruises', $image);
+            $imagePath = StoreFileService::SaveFile('cruises', $image['image']);
             $cruise->images()->create([
                 'image' => $imagePath,
+                'sort' => $image['sort']
             ]);
         }
     }
-
+    
     public static function storeCruiseMasterimage($image, $cruise)
     {
         $imagePath = StoreFileService::SaveFile('cruises', $image);
@@ -52,7 +53,7 @@ class CruiseStoreService
             'master_image' => $imagePath,
         ]);
     }
-
+    
     public static function createOrUpdateCruiseImages($images, $cruise)
     {
         $deleteImagesArray = array();
@@ -69,7 +70,7 @@ class CruiseStoreService
                 if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
                     $imagePath = StoreFileService::SaveFile('cruises', $images['file'][$index]);
                     CruiseImage::where('id', $images['id'][$index])->update([
-                        'image' => $imagePath,
+                        'image' => $imagePath, 
                         'sort'  => $sort
                     ]);
                 } else {
@@ -85,7 +86,7 @@ class CruiseStoreService
                 }
             }
         }
-
+        
         if (count($deleteImagesArray) > 0) {
             //Delete Image
             CruiseImage::whereIn('id', $deleteImagesArray)->delete();

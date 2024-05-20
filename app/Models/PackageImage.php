@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\URL;
 class PackageImage extends Model
 {
     protected $fillable = [
-        'image' ,'sort', 'image_alt' , 'image_caption' , 'package_id'
+        'image' , 'image_alt' , 'image_caption' , 'sort', 'package_id'
     ];
 
     public function getImageAttribute()

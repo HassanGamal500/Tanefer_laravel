@@ -19,7 +19,7 @@ class Cruise extends Model
 
     public function images()
     {
-        return $this->hasMany(CruiseImage::class);
+        return $this->hasMany(CruiseImage::class)->orderBy('sort', 'ASC');
     }
 
     public function cruiseChildrenPackage(){

@@ -18,7 +18,8 @@ class PackageImageResource extends JsonResource
             'id' => $this->id,
             'image' => $this->image,
             'image_alt' => $this->image_alt,
-            'image_caption' => $this->image_caption
+            'image_caption' => $this->image_caption,
+            'sort' => $this->sort
         ];
     }
 }

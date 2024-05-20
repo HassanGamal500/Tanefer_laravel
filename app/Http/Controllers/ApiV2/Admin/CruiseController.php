@@ -68,7 +68,7 @@ class CruiseController extends Controller
                 ->get();
             // Add the 'children' column to the room and assign the data
             $room->childrentiers = $childrenData;
-
+            
             $seasons = PackageHotelRoomSeason::select('package_hotel_season_id as id', 'price_per_day', 'start_date', 'end_date')
                 ->where('package_hotel_room_id', $room->id)
                 ->get();
@@ -90,8 +90,7 @@ class CruiseController extends Controller
             $cruise->cities()->attach($validated['cities_ids']);
 
             if (array_key_exists('images', $validated)) {
-                CruiseStoreService::createOrUpdateCruiseImages($validated['images'], $cruise);
-
+                CruiseStoreService::storeCruiseImages($validated['images'], $cruise);
             }
 
             if (array_key_exists('rooms', $validated)) {
@@ -127,20 +126,20 @@ class CruiseController extends Controller
             //     $cruise_id = CruiseStoreService::UpdatePackageHotelRoomData($cruise,$room);
             //     // $cruise->packageHotelRoom()->delete();
             //     // $cruise_id = CruiseStoreService::StoreCruiseRooms($validated['rooms'], $cruise);
-
+                
             //     // $cruiseService = new CruiseStoreService();
             //     // $cruiseService->storeChildrenData($validated['rooms'], $cruise->id, $cruise_id);
             // }
-
+            
             if($request->master_image){
                 CruiseStoreService::storeCruiseMasterimage($request->master_image, $cruise);
             }
-
+            
             if($request->images){
                 // CruiseStoreService::storeCruiseImages($request->images,$cruise);
-                CruiseStoreService::storeCruiseImages($request->images, $cruise);
+                CruiseStoreService::createOrUpdateCruiseImages($request->images, $cruise);
             }
-
+            
             if($request->rooms){
                 $cruise->packageHotelRoom()->delete();
                 $cruise->cruiseChildrenPackage()->delete();
@@ -164,7 +163,7 @@ class CruiseController extends Controller
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }
-
+    
     public function destroy(Cruise $cruise)
     {
         if( $cruise->delete() )
@@ -172,7 +171,7 @@ class CruiseController extends Controller
 
         return response()->json(['message' =>'operation failed', 'status' => 400]);
     }
-
+    
     public function sendEmail(Request $request)
     {
         $validator = Validator::make(request()->all(),[
@@ -180,28 +179,28 @@ class CruiseController extends Controller
             'price' => 'required',
             'status' => 'required|in:accept,reject'
         ]);
-
+        
         if($validator->fails()){
             throw new ValidationException($validator);
         }
-
+        
         $booking = Booking::with([
             'bookingCity', 'bookingPayment', 'bookingTraveler', 'bookingData',
             'startCity', 'endCity', 'package.packageCity'
         ])->where('id', $request->book_id)->first();
-
+        
         if (is_null($booking)) {
             return response()->json(['message' => 'This booking was not found'], 404);
         }
-
+        
         $getPackage = null;
-
+        
         if($booking->package_id) {
             $trip = Package::where('id',$booking->package_id)->first();
             $booking->package = new PackageActivityDetails( $trip );
             $getPackage = new PackageActivityDetails( $trip );
         }
-
+        
         if($booking->model_type == 'App\Models\Cruise') {
             $cruise = Cruise::where('id', $booking->model_id)->first();
             $booking->cruise = $cruise;
@@ -220,18 +219,18 @@ class CruiseController extends Controller
         $email = $booking->bookingData->contact_email;
         $cruiseData = $booking->cruise;
         $startDate = $booking->start_date;
-
-
+        
+        
         if($request->status == 'accept') {
             // return response()->json($cruiseData);
             Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate));
-
+            
             return responseJson(request(), $booking, 'Email send to you with confirmation booking cruise link');
         } else {
             $updateBooking = Booking::where('id', $request->book_id)->update(['status' => 'Rejected']);
-
+            
             Mail::to($email)->send(new BookingCruiseRejection($bookId, $price, $username, $email, $cruiseData, $startDate));
-
+            
             return responseJson(request(), $booking, 'Email send to you with rejection booking');
         }
     }

@@ -139,7 +139,8 @@ class PackageController extends Controller
     {
         $package = Package::find($id);
         $validated = $request->validated();
-        DB::transaction(function () use ( $validated ,$request, $package) {
+        // return response()->json(['message' => $validated, 'status' => 400]);
+        // DB::transaction(function () use ( $validated ,$request, $package) {
             if($request->slug != $package->slug){
                 $package->slugHistories()->create(['slug' => $package->slug]);
             }
@@ -164,9 +165,10 @@ class PackageController extends Controller
                 $package->gtaHotel()->delete();
                 PackageStoreService::storeHotel($request->accommodation, $package['id']);
             }
-
+            
             if (isset($request->images) && !empty($request->images)) {
                 $package->packageImages()->delete();
+                // return response()->json(['message' => $request->images[0]['file'], 'status' => 400]);
                 PackageStoreService::storePackageImages($request->images, $package);
             }
 
@@ -184,7 +186,7 @@ class PackageController extends Controller
             //         PackageStoreService::storePackageCityData($package, $packageCity);
             //     }
             // }
-        });
+        // });
 
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }

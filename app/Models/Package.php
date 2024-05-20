@@ -64,7 +64,7 @@ class Package extends Model
 
     public function packageImages()
     {
-        return $this->hasMany(PackageImage::class);
+        return $this->hasMany(PackageImage::class)->orderBy('sort', 'ASC');
     }
 
     public function slugHistories()

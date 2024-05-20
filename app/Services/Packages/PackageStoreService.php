@@ -13,7 +13,6 @@ use App\Models\PackageTransportation;
 use App\Models\PackageGtaHotel;
 use App\Models\PackageHotelRoom;
 use App\Models\Package;
-use App\Models\PackageImage;
 use App\Services\StoreFileService;
 use Carbon\Carbon;
 
@@ -340,56 +339,21 @@ class PackageStoreService
         ];
     }
 
-    public static function storePackageImages($images,$package)
+    public static function storePackageImages($images, $package)
     {
         if(is_array($images)){
             foreach ($images as $image){
                 $package->packageImages()->create([
-                    // 'image' => 'hjk',
-                    'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
-                //    'image_alt' => array_key_exists('image_alt',$image) ? $image['image_alt'] : null,
-                //    'image_caption' => array_key_exists('image_caption',$image) ? $image['image_caption'] : null
+                    'image' => StoreFileService::SaveFile('package/'.$package->id.'/images', $image['file']),
+                    'sort' => $image['sort'],
                 ]);
+                // $package->packageImages()->create([
+                //     // 'image' => 'hjk',
+                //     'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),
+                // //    'image_alt' => array_key_exists('image_alt',$image) ? $image['image_alt'] : null,
+                // //    'image_caption' => array_key_exists('image_caption',$image) ? $image['image_caption'] : null
+                // ]);
             }
-        }
-    }
-
-    public static function createOrUpdatepackageImages($images, $package)
-    {
-        $deleteImagesArray = array();
-        $getImageIds = $package->images()->pluck('id')->toArray();
-
-        foreach ($getImageIds as $id) {
-            if(!in_array($id, $images['id'])) {
-                $deleteImagesArray[] = $id;
-            }
-        }
-
-        foreach ($images['sort'] as $index => $sort) {
-            if ($images['id'][$index] != null && $images['id'][$index] != 'null') {
-                if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
-                    $imagePath = StoreFileService::SaveFile('package/', $images['file'][$index]);
-                    PackageImage::where('id', $images['id'][$index])->update([
-                        'image' => $imagePath,
-                        'sort'  => $sort
-                    ]);
-                } else {
-                    PackageImage::where('id', $images['id'][$index])->update(['sort' => $sort]);
-                }
-            } else {
-                if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
-                    $imagePath = StoreFileService::SaveFile('package', $images['file'][$index]);
-                    $package->images()->create([
-                        'image' => $imagePath,
-                        'sort'  => $sort
-                    ]);
-                }
-            }
-        }
-
-        if (count($deleteImagesArray) > 0) {
-            //Delete Image
-            PackageImage::whereIn('id', $deleteImagesArray)->delete();
         }
     }
 }
