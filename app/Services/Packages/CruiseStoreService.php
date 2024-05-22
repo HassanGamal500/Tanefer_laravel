@@ -45,7 +45,7 @@ class CruiseStoreService
             ]);
         }
     }
-    
+
     public static function storeCruiseMasterimage($image, $cruise)
     {
         $imagePath = StoreFileService::SaveFile('cruises', $image);
@@ -53,7 +53,7 @@ class CruiseStoreService
             'master_image' => $imagePath,
         ]);
     }
-    
+
     public static function createOrUpdateCruiseImages($images, $cruise)
     {
         $deleteImagesArray = array();
@@ -70,7 +70,7 @@ class CruiseStoreService
                 if ($images['file'][$index] != null && $images['file'][$index] != 'null') {
                     $imagePath = StoreFileService::SaveFile('cruises', $images['file'][$index]);
                     CruiseImage::where('id', $images['id'][$index])->update([
-                        'image' => $imagePath, 
+                        'image' => $imagePath,
                         'sort'  => $sort
                     ]);
                 } else {
@@ -86,7 +86,7 @@ class CruiseStoreService
                 }
             }
         }
-        
+
         if (count($deleteImagesArray) > 0) {
             //Delete Image
             CruiseImage::whereIn('id', $deleteImagesArray)->delete();
@@ -119,6 +119,7 @@ class CruiseStoreService
     {
         $data = [
             'name' => $validatedData['name'],
+            'sort_cuise' => array_key_exists('sort', $validatedData) ? $validatedData['sort'] : null,
             'cruise_line' => array_key_exists('cruise_line', $validatedData) ? $validatedData['cruise_line'] : null,
             'ship_name'   => array_key_exists('ship_name', $validatedData) ? $validatedData['ship_name'] : null,
             'facilities'  => array_key_exists('facilities',$validatedData) ? implode(',',$validatedData['facilities']) : null,

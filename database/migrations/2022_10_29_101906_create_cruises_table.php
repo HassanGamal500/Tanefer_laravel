@@ -16,6 +16,7 @@ class CreateCruisesTable extends Migration
         Schema::create('cruises', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
+            $table->string('sort_cruise');
             $table->string('cruise_line')->nullable();
             $table->string('ship_name')->nullable();
             $table->text('facilities')->nullable();

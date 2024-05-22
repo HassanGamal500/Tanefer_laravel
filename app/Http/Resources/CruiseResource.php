@@ -17,6 +17,7 @@ class CruiseResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'sort_cruise' => $this->sort_cruise,
             'cruise_line' => $this->cruise_line,
             'ship_name' => $this->ship_name,
             'facilities' => $this->facilities,
