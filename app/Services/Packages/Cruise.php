@@ -54,7 +54,8 @@ class Cruise
             });
         }
 
-        return  $cruiseQuery->orderByDesc('id');
+        // return  $cruiseQuery->orderByDesc('id');
+        return  $cruiseQuery->orderBy ('sort', 'asc');
     }
 
     public static function bookingCruise($validatedData,$cruise,$cachedData)

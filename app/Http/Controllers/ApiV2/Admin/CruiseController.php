@@ -30,7 +30,7 @@ class CruiseController extends Controller
     {
         $cruises = Cruise::select('id','name')->whereHas('cities', function ($q) use ($cityId) {
             $q->where('tour_cities.id', $cityId)->where('cruise_tour_city.is_start',1);
-        })->get();
+        })->orderBy('sort', 'ASC')->get();
 
         return response()->json(['data' => $cruises]);
     }
@@ -40,7 +40,7 @@ class CruiseController extends Controller
     {
         $rowPerPage = $request->row_per_page ?? 10;
         $cruiseQuery = Cruise::query();
-
+        $cruiseQuery->orderBy('sort', 'ASC');
         $cruises = $cruiseQuery->paginate($rowPerPage);
 
         return response()->json([ 'message' =>'success','status' => 200,

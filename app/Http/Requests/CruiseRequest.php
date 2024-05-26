@@ -54,7 +54,8 @@ class CruiseRequest extends FormRequest
             'rooms.*.max_num_adult'             =>'required|numeric',
             'rooms.*.max_num_children'          =>'required|numeric',
             'number_of_nights'                  => 'required|integer',
-            'start_days'                        => 'nullable|array'
+            'start_days'                        => 'nullable|array',
+            'sort'      => 'nullable|integer'
         ];
 
         if(request()->method() == 'POST'){

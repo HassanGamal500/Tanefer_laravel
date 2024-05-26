@@ -130,11 +130,9 @@ class CruiseStoreService
             'number_of_nights' => $validatedData['number_of_nights'],
             'seo_title' => $validatedData['seo_title'],
             'seo_description' => $validatedData['seo_description'],
-
-            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $cruise->slug ? $validatedData['slug'] : Str::slug($validatedData['name']),
-
-
-            'start_days'       => array_key_exists('start_days',$validatedData) ? implode(',',$validatedData['start_days']) : null
+            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $cruise->slug ? $validatedData['slug'] : Str::slug($validatedData['name']) . '_' . rand(1,100),
+            'start_days'       => array_key_exists('start_days',$validatedData) ? implode(',',$validatedData['start_days']) : null,
+            'sort'  => $validatedData['sort'],
         ];
 
         if(array_key_exists('master_image',$validatedData)){
