@@ -18,6 +18,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use PDF;
+use App\Mail\NewBooking;
+use Illuminate\Support\Facades\Mail;
 
 class CruiseController extends Controller
 {
@@ -134,6 +137,28 @@ class CruiseController extends Controller
         Cruise::BookingTravellers($validatedData,$booking);
         Cruise::storeBookingRooms($cachedData,$booking);
         
+        try {
+        	$url = 'https://tanefer.com/trip-booking/'.$booking->id;
+        
+            // $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+            //     'url' => $url,
+            //     'total_price' => $booking->total_price,
+            //     'contact_name' => $booking->bookingData->contact_name,
+            //     'combinedList' => null,
+            //     'booking' => $booking,
+            //     'package_name' => null,
+            // ]);
+    
+            // $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, null, $booking, null);
+            
+            // Mail::to($booking->bookingData->contact_email)->send($mail->attachData($pdf->output(), "cruise_booking.pdf"));
+    
+            $booking->update(['send_confirm_email' => 1]);
+        } catch (Exception $ex) {
+        	// jump to this part
+        	// if an exception occurred
+        }
+        
         $customTextMessage = '
             Thank you, ('.$request->contact_name.')
             we have received your inquiry and one of our travel experts will contact you within 24 hours.
@@ -141,7 +166,10 @@ class CruiseController extends Controller
             Don\'t see a response after 24 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
         ';
 
-        return  responseJson($request,['booking_id'=>$booking->id, 'custom_text_message' => $customTextMessage],'operation done successfully');
+        return  responseJson($request,[
+            'booking_id'=>$booking->id,
+            'custom_text_message' => $customTextMessage
+            ],'operation done successfully');
     }
 
 
