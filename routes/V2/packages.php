@@ -65,7 +65,9 @@ Route::get('gta-get-region' , 'Front\PackageHotelGtaController@get_region');
 Route::get('gta-get-city' , 'Front\PackageHotelGtaController@get_city');
 Route::get('gta-get-zone' , 'Front\PackageHotelGtaController@get_zone');
 Route::get('gta-get-hotel-catalogues' , 'Front\PackageHotelGtaController@get_hotel_catalogues');
-Route::get('gta-get-categories' , 'Front\PackageHotelGtaController@get_hotel_categories');
+Route::get('gta-get-hotel-categories' , 'Front\PackageHotelGtaController@get_hotel_categories');
+Route::get('gta-get-hotel-type-categories' , 'Front\PackageHotelGtaController@get_hotel_type_categories');
+Route::get('gta-get-room-categories' , 'Front\PackageHotelGtaController@get_room_categories');
 Route::get('gta-get-boards' , 'Front\PackageHotelGtaController@get_hotel_boards');
 Route::get('gta-get-hotel' , 'Front\PackageHotelGtaController@get_hotel');
 
@@ -85,6 +87,7 @@ Route::get('get-city-list' , 'Admin\PackageHotelGtaController@cityList');
 Route::get('get-hotel-list' , 'Admin\PackageHotelGtaController@hotelList');
 Route::get('get-hotel-catalogue-data' , 'Admin\PackageHotelGtaController@hotelCatalogueData');
 Route::post('get-booking-test' , 'Admin\PackageHotelGtaController@BookingTest');
+Route::get('gta-test-hotel-job' , 'Admin\PackageHotelGtaController@testFinalBookingGtaJob');
 
 
 Route::get('booking-test-case-hotel-avail' , 'Admin\PackageHotelGtaController@testCasesHotelAvail');

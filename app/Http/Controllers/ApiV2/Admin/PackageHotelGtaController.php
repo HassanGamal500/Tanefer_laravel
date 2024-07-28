@@ -157,13 +157,21 @@ class PackageHotelGtaController extends Controller
         $ages = $request->ages;
         $rooms = $request->rooms;
         $board = $request->board;
+        $hotelSearch = $request->hotel_name;
+        $hotelCategory = $request->hotel_category;
+        $hotelTypeCategory = $request->hotel_type_category;
         
+        $segments = array();
         $paxes = array();
         $relPaxes = array();
         $relPaxesDist = array();
         
         $paxNumberSum = 0;
         $paxCount = 0;
+        
+        if(count($hotels) > 500) {
+            $hotels = array_slice($hotels, 0, 500, true);
+        }
         
         if(isset($rooms) && $rooms > 0) {
             for($r = 0; $r < count($rooms); $r++) {
@@ -199,7 +207,7 @@ class PackageHotelGtaController extends Controller
                 $paxNumberSum = $roomAdults + $roomChildren;
         
                 if ((isset($rooms[$r]['travellers']) && $rooms[$r]['travellers'] > 0) || (isset($rooms[$r]['children']) && $rooms[$r]['children'] > 0)) {
-                    if(isset($rooms[$r]['category']) && !empty($rooms[$r]['category'])) {
+                    if(isset($rooms[$r]['category']) && !empty($rooms[$r]['category']) && $rooms[$r]['category'] != null && $rooms[$r]['category'] != 'null') {
                         $relPaxesDist[] = [
                             'RelPaxes' => ['RelPax' => $relPaxesIds],
                             'Rooms' => ['Room' => ['CategoryType' => $rooms[$r]['category'] != 'all' ? $rooms[$r]['category'] : '']]
@@ -217,6 +225,43 @@ class PackageHotelGtaController extends Controller
             'HotelCode' => $hotels
         );
         
+        $segments['SearchSegmentHotels'] = [
+            'Start' => $startDate,
+            'End' => $endDate
+        ];
+        
+        $segments['CountryOfResidence'] = 'EG';
+        
+        $segments['HotelCodes'] = $hotelCodes;
+        
+        if (isset($hotelSearch) && !empty($hotelSearch) && $hotelSearch != null && $hotelSearch != 'null') {
+            $segments['HotelName'] = $hotelSearch;
+        }
+        
+        if (isset($hotelCategory) && !empty($hotelCategory) && $hotelCategory != null && $hotelCategory != 'null' && $hotelCategory != 'all') {
+            $segments['HotelCategories'] = [
+                'HotelCategory' => [
+                    'Type' => $hotelCategory
+                ]
+            ];
+        }
+        
+        if (isset($hotelTypeCategory) && !empty($hotelTypeCategory) && $hotelTypeCategory != null && $hotelTypeCategory != 'null' && $hotelTypeCategory != 'all') {
+            $segments['HotelTypes'] = [
+                'HotelType' => [
+                    'Type' => $hotelTypeCategory
+                ]
+            ];
+        }
+        
+        if (isset($board) && !empty($board) && $board != null && $board != 'null' && $board != 'all') {
+            $segments['Boards'] = [
+                'Board' => [
+                    'Type' => $board
+                ]
+            ];
+        }
+        
         $requestData = array(
             'HotelAvailRQ' => array(
                 'Version' => '1.1',
@@ -229,19 +274,7 @@ class PackageHotelGtaController extends Controller
                     'Pax' => $paxes
                 ),
                 'HotelRequest' => array(
-                    'SearchSegmentsHotels' => array(
-                        'SearchSegmentHotels' => array(
-                            'Start' => $startDate,
-                            'End' => $endDate
-                        ),
-                        'CountryOfResidence' => 'ES',
-                        'HotelCodes' => $hotelCodes,
-                        'Boards' => array(
-                            'Board' => array(
-                                'Type' => $board != 'all' ? $board : ''
-                            )
-                        )
-                    ),
+                    'SearchSegmentsHotels' => $segments,
                     'RelPaxesDist' => array(
                         'RelPaxDist' => $relPaxesDist
                     )
@@ -249,7 +282,7 @@ class PackageHotelGtaController extends Controller
                 'AdvancedOptions' => array(
                     'ShowHotelInfo' => true,
                     'ShowCancellationPolicies' => true,
-                    'ShowOnlyBestPriceCombination' => true,
+                    // 'ShowOnlyBestPriceCombination' => true,
                     'ShowAllCombinations' => true,
                     'ShowOnlyAvailable' => true,
                     'TimeOut' => '10000',
@@ -378,7 +411,7 @@ class PackageHotelGtaController extends Controller
     public function Booking(Request $request)
     {
         $language = "en"; // Replace with the actual language
-        $guid = "ExternalFakeRef"; // Replace with the actual GUID
+        $guid = "ExternalRef_".rand(111111111,999999999); // Replace with the actual GUID
         $bookingCode = $request->bookingCode; // Replace with the actual booking code
         $startDate = $request->startDate; // Replace with the actual start date
         $endDate = $request->endDate; // Replace with the actual end date
@@ -2204,65 +2237,32 @@ class PackageHotelGtaController extends Controller
                 <soapenv:Body>
                     <HotelAvail xmlns="http://www.juniper.es/webservice/2007/">
                         <HotelAvailRQ Version="1.1" Language="en">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+                            <Login Password="Tanefer_xml@159" Email="Xml_TaneferTours"/>
                             <Paxes>
                                 <Pax IdPax="1"/>
-                                <Pax IdPax="2"/>
-                                <Pax IdPax="3">
-                                    <Age>17</Age>
-                                </Pax>
-                                <Pax IdPax="4"/>
-                                <Pax IdPax="5"/>
-                                <Pax IdPax="6"/>
                             </Paxes>
                             <HotelRequest>
                                 <SearchSegmentsHotels>
-                                    <SearchSegmentHotels Start="2024-03-20" End="2024-03-21"/>
-                                    <CountryOfResidence>ES</CountryOfResidence>
+                                    <SearchSegmentHotels Start="2024-08-20" End="2024-08-21"/>
+                                    <CountryOfResidence>EG</CountryOfResidence>
                                     <HotelCodes>
-                                        <HotelCode>JP046300</HotelCode>
+                                        <HotelCode>JP05697G</HotelCode>
                                     </HotelCodes>
-                                    <Boards>
-                                        <Board Type="AD"/>
-                                    </Boards>
                                 </SearchSegmentsHotels>
                                 <RelPaxesDist>
                                     <RelPaxDist>
                                         <RelPaxes>
                                             <RelPax IdPax="1"/>
                                         </RelPaxes>
-                                        <Rooms>
-                                            <Room CategoryType="4"/>
-                                        </Rooms>
-                                    </RelPaxDist>
-                                    <RelPaxDist>
-                                        <RelPaxes>
-                                            <RelPax IdPax="2"/>
-                                            <RelPax IdPax="3"/>
-                                        </RelPaxes>
-                                        <Rooms>
-                                            <Room CategoryType="4"/>
-                                        </Rooms>
-                                    </RelPaxDist>
-                                    <RelPaxDist>
-                                        <RelPaxes>
-                                            <RelPax IdPax="4"/>
-                                            <RelPax IdPax="5"/>
-                                            <RelPax IdPax="6"/>
-                                        </RelPaxes>
-                                        <Rooms>
-                                            <Room CategoryType="4"/>
-                                        </Rooms>
                                     </RelPaxDist>
                                 </RelPaxesDist>
                             </HotelRequest>
                             <AdvancedOptions>
                                 <ShowHotelInfo>true</ShowHotelInfo>
                                 <ShowCancellationPolicies>true</ShowCancellationPolicies>
-                                <ShowOnlyBestPriceCombination>true</ShowOnlyBestPriceCombination>
                                 <ShowAllCombinations>true</ShowAllCombinations>
                                 <ShowOnlyAvailable>true</ShowOnlyAvailable>
-                                <TimeOut>30000</TimeOut>
+                                <TimeOut>10000</TimeOut>
                                 <UseCurrency>USD</UseCurrency>
                             </AdvancedOptions>
                         </HotelAvailRQ>
@@ -2271,7 +2271,7 @@ class PackageHotelGtaController extends Controller
             </soapenv:Envelope>
         ';
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/availtransactions.asmx', [
+        $response = $client->post('http://xml.gte.travel/WebService/jp/operations/availtransactions.asmx', [
             'headers' => [
                 'Content-Type' => 'text/xml;charset=UTF-8',
                 'Accept-Encoding' => 'gzip, deflate',
@@ -2295,13 +2295,13 @@ class PackageHotelGtaController extends Controller
                 <soapenv:Body>
                     <HotelBookingRules>
                         <HotelBookingRulesRQ Version="1.1" Language="en">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+                            <Login Password="Tanefer_xml@159" Email="Xml_TaneferTours"/>
                             <HotelBookingRulesRequest>
-                                <HotelOption RatePlanCode="ya79dM4dS6R6EywV4XhfEgUStu50IuaijEd3bjUW0HlZ41sw0gaRL0EOZ9GePO9shb0OnWnuEZ3bXZq2MF83lZAK//2lrFBNWrrUlbKswtkZFoxeQ8Wn6iFOOIr6tJSpP3EQeGAIoAiP9fRfBcM35ytLDORl+X8nvy2WN05XPli4ETVzlNXGa8EfX+n+mtBa396MjY2z4Z+7I5HF2WgjsEJOjBomFlfUNDh5McaowcbcGjngW6cXfqoGH1eGN1YkKxICSsEuSb/vPZ1NcD3ao0GrZkMTfTiqP5I53z0YUl92as7KPIuMpxDF+yZ3QYXnGgdJyyLpicswK7AqCrMBGeaptt1D3HOvOdCrUH88pooZ2esFEjtUgPTjGd2DP+mM"/>
+                                <HotelOption RatePlanCode="LHoTNlSmrRzvUtuv4UmYOHmrmYh/Y0LIokuoaw4gewsxbnuSEuA+dW07IUmMOVINCObrAijyQFJzuKq68jU60VVWw3cOqvb3IAEq17dyVOYA36f+qZD+4Cq4HdbfaMpMF7JMw9Rl4/fm7V7y+bV2eLxQhocZsjQ/dmnESlIQGJfX72K+iBiwqbCR+siHX/AlxkHFyOHzLC0w9TczZhckbkQO9IMncTXXw2sVDXNDygoZCbS+CXzAcQ3ifdDFrfPcRvvR2pjokUkLFjmW4hmIPuK3w2kByT4RSa4Iq/JuW9HrOWC7H8sgufgAsmTnbtKyGhKA9s90MYgQOXRPGCpXxUOEPT54voHpJxlP0H9890T35BgEq/Ygh3jnIXygW13HIfiS8sVMs62ydJeXOX3gCKwUOUFIBoPeMkBn6n+/m0Vom/Kk61JyY3Ym2X5As77nYNvpRrZtxSJ1HUmtSWcRZb69njtlmYSTfMn7vWsHSdp/HPnnsSen5gF7B9SlfMhKP/mtWk5+1x7bOhKb0zEssLnRlymVPSLMe7Azz02rsIPFpJIP4HX5ymE5ENpiWZHP6YqkOI2gO4iyMNjB2SLw+VcwC5RW3PEvbHQIokm9SvPx9oO4XCGMFAR9g4DAYvgH+OnqaTzof4/tuxAtEb0nK2h2JiqMI5VKr8YK5Zd1er9HSVmwisRa34E0FQpnUT1L"/>
                                 <SearchSegmentsHotels>
-                                    <SearchSegmentHotels Start="2024-03-20" End="2024-03-21"/>
+                                    <SearchSegmentHotels Start="2024-08-20" End="2024-08-21"/>
                                     <HotelCodes>
-                                        <HotelCode>JP046300</HotelCode>
+                                        <HotelCode>JP05697G</HotelCode>
                                     </HotelCodes>
                                 </SearchSegmentsHotels>
                             </HotelBookingRulesRequest>
@@ -2315,7 +2315,7 @@ class PackageHotelGtaController extends Controller
             </soapenv:Envelope>
         ';
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/checktransactions.asmx', [
+        $response = $client->post('http://xml.gte.travel/WebService/jp/operations/checktransactions.asmx', [
             'headers' => [
                 'Content-Type' => 'text/xml;charset=UTF-8',
                 'Accept-Encoding' => 'gzip, deflate',
@@ -2339,7 +2339,7 @@ class PackageHotelGtaController extends Controller
                 <soapenv:Body>
                     <HotelBooking xmlns="http://www.juniper.es/webservice/2007/">
                         <HotelBookingRQ Version="1.1" Language="en">
-                            <Login Password="U3dIp8i*eyAC8N7" Email="Xml_TestXMLTaNefer"/>
+                            <Login Password="Tanefer_xml@159" Email="Xml_TaneferTours"/>
                             <Paxes>
                                 <Pax IdPax="1">
                                     <Title>Mr</Title>
@@ -2352,77 +2352,41 @@ class PackageHotelGtaController extends Controller
                                     <Email>hassan.alex26@gmail.com</Email>
                                     <Nationality>EG</Nationality>
                                 </Pax>
-                                <Pax IdPax="2">
-                                    <Name>mohamed</Name>
-                                    <Surname>omar</Surname>
-                                    <Age>30</Age>
-                                </Pax>
-                                <Pax IdPax="3">
-                                    <Name>ahmed</Name>
-                                    <Surname>soliman</Surname>
-                                    <Age>17</Age>
-                                </Pax>
-                                <Pax IdPax="4">
-                                    <Name>samy</Name>
-                                    <Surname>zidan</Surname>
-                                    <Age>30</Age>
-                                </Pax>
-                                <Pax IdPax="5">
-                                    <Name>abdel</Name>
-                                    <Surname>aziz</Surname>
-                                    <Age>30</Age>
-                                </Pax>
-                                <Pax IdPax="6">
-                                    <Name>karim</Name>
-                                    <Surname>ahmed</Surname>
-                                    <Age>30</Age>
-                                </Pax>
                             </Paxes>
                             <Holder>
                                 <RelPax IdPax="1"/>
                             </Holder>
-                            <ExternalBookingReference>ExternalFakeRef</ExternalBookingReference>
+                            <ExternalBookingReference>ExternalRef_123456789</ExternalBookingReference>
                             <Elements>
                                 <HotelElement>
-                                    <BookingCode>ya79dM4dS6R6EywV4XhfEgUStu50IuaijEd3bjUW0HlZ41sw0gaRL0EOZ9GePO9shb0OnWnuEZ3bXZq2MF83lZAK//2lrFBNWrrUlbKswtkZFoxeQ8Wn6iFOOIr6tJSpP3EQeGAIoAiP9fRfBcM35ytLDORl+X8nvy2WN05XPliUFpZt+o8QOdL9nyjuf9X+ETrlicn0egqu4J6oPFDpDucjPirC+2hsr9qmDx0ZGoxdfoXWCoMref1znspKVoSKlX3X4xZSAnwIOqKCSMQ5aC5CAZFNRmGWwYBxTf75AF2sFcpQjs4stPDXFtPoE82vc+WaauDmEGiH+dZ8mi6UBhhbp6g939PmaOq9aYufvHGACpjdEGyEYgpfO+bz9ApfxzSPWnKO9u43zrDzfezjhEYmRsxitOit60Elq4KtBMdBlgqagptA1HuXmFFHdzHoFulpYsyEWHk26xkzksHe8w==</BookingCode>
+                                    <BookingCode>LHoTNlSmrRzvUtuv4UmYOHmrmYh/Y0LIokuoaw4gewuRvcQ52vEaa9fhmfw4bEgXEDU8kyDymmz4oRk/dz1dhZeOpADvXjS2Tgl6Kldxw1mTt01bY5hSwbEWdmbnwNwt1Vy1F3oRAalaO8w8O+hxweUZXa2k1vHsiKYzknRbNSEK2LWZ/gyRMxJSw4mnt3uIckwmrvpdxXE8uDNbKK8AOqkqycLwn3BtFDl1VA5SCbdLkvUaqjQ7hVn2iaSVgOkVYpIrFD0diOc3OFm8aX69H86c6Ikj7NU9k0TLj3ZhoaMheDh2UFok0V3+NCak4PlWNtrp+YvUf4H2kjfsDSzXCGXAlvxPvg3QwID0fdKmNUJPwcG8odaQNvmVmE2PcWSxPoBJh2jj4a/kI4pMN55MDuPLelMdNihCdpv+70JGYb9MlOmmlLPFm1tU3+bfr6Urilp/a5VSHlx/pcQLtUCx9+LuW1nrm0dzD5DVUQbeFELkw9+QYWxff+GXE628QFAapiR4QOdsfC/TG2fcFYTvGIRK857UGATP7yJCnFKBBcXrp6bsU79MmGWweiugRyFTdQ82pWUvqA6OswkKXLNBIoi/uWnFEC3lDF+0lV0QzKPVLX+B08xPVADMFJPd7fSUDpmDkyFAiFmPkngfZc2CT3LCkQoAXNDeWum+iJ4M6y8CJUVBR5XLD+Rgd0VWI0Aiu1HnCHz696C/Vk+9lCnCxBnSyS32r5A+Y3iHymnn4Wf5A/SMdlQSFHyZlFsU9tOw/XohfLl4hkBqb75vCrDxVw==</BookingCode>
                                     <RelPaxesDist>
                                         <RelPaxDist>
                                             <RelPaxes>
                                                 <RelPax IdPax="1"/>
                                             </RelPaxes>
                                         </RelPaxDist>
-                                        <RelPaxDist>
-                                            <RelPaxes>
-                                                <RelPax IdPax="2"/>
-                                                <RelPax IdPax="3"/>
-                                            </RelPaxes>
-                                        </RelPaxDist>
-                                        <RelPaxDist>
-                                            <RelPaxes>
-                                                <RelPax IdPax="4"/>
-                                                <RelPax IdPax="5"/>
-                                                <RelPax IdPax="6"/>
-                                            </RelPaxes>
-                                        </RelPaxDist>
                                     </RelPaxesDist>
-                                    <HotelBookingInfo Start="2024-03-20" End="2024-03-21">
+                                    <HotelBookingInfo Start="2024-08-20" End="2024-08-21">
                                         <Price>
-                                            <PriceRange Minimum="351.08" Maximum="388.04" Currency="USD"/>
+                                            <PriceRange Minimum="15.54" Maximum="17.18" Currency="USD"/>
                                         </Price>
-                                        <HotelCode>JP046300</HotelCode>
+                                        <HotelCode>JP05697G</HotelCode>
                                     </HotelBookingInfo>
                                 </HotelElement>
                             </Elements>
                             <AdvancedOptions>
+                                <ShowBreakdownPrice>true</ShowBreakdownPrice>
                                 <UseCurrency>USD</UseCurrency>
                             </AdvancedOptions>
                         </HotelBookingRQ>
                     </HotelBooking>
                 </soapenv:Body>
             </soapenv:Envelope>
+
         ';
 
-        $response = $client->post('https://xml-uat.bookingengine.es/WebService/jp/operations/BookTransactions.asmx', [
+        $response = $client->post('http://xml.gte.travel/WebService/jp/operations/BookTransactions.asmx', [
             'headers' => [
                 'Content-Type' => 'text/xml;charset=UTF-8',
                 'Accept-Encoding' => 'gzip, deflate',
@@ -2501,5 +2465,47 @@ class PackageHotelGtaController extends Controller
         $responseJson = $response->getBody()->getContents();
 
         return $responseJson;
+    }
+    
+    public function testFinalBookingGtaJob()
+    {
+        $booking = Booking::find(274);
+        // dd($booking, 1);
+        $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
+        $getRequestData = json_decode($hotelFormData->request_data);
+        $getBodyData = json_decode($hotelFormData->body);
+        $options = array(
+            'soap_version'  => SOAP_1_2,
+            'encoding'      => 'UTF-8',
+            'exceptions'    => true,
+            'trace'         => true,
+            'compression'   => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        );
+        
+        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+        $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+        
+        $requestData = $getRequestData;
+        
+        // try {
+            $response = $client->__soapCall('HotelBooking', array('parameters' => $requestData));
+            $bookingRS = $response->BookingRS;
+            dd($requestData, $bookingRS);
+            if($bookingRS) {
+                if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
+                    Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
+                }
+                $booking->update([
+                    'integration_booked'    => 1,
+                    'hotel_int_code'        => $bookingRS->IntCode,
+                    'hotel_locator'         => $bookingRS->Reservations ? $bookingRS->Reservations->Reservation->Locator : null,
+                    'hotel_start_date'      => $getBodyData->startDate,
+                    'hotel_end_date'        => $getBodyData->endDate,
+                    'send_confirm_email'    => 1
+                ]);
+            }
+        // } catch (SoapFault $fault) {
+        //     // echo "Error: " . $fault->getMessage();
+        // }
     }
 }

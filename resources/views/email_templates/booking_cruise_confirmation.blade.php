@@ -1,44 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Confirm Booking</title>
+    <title>New Booking</title>
 </head>
 <body>
     
-    <h1>Confirm Booking</h1>
+    <h1>New Booking</h1>
 
     <p>Dear MR: {{ $username }},</p>
     <p>Greetings from Tanefer Team! I’m from the Sales Department, and it will be my pleasure to be your personal tour consultant.</p>
-    
-    <!--@php-->
-    <!--$startDate = \Carbon\Carbon::parse($startDate); // Replace with your actual start date-->
-    <!--$endDate = $startDate->copy()->addDays($cruiseData->number_of_nights); // Replace 3 with your actual duration-->
-    <!--@endphp-->
-
-    <!--<p>Regarding your request, kindly find below an offer from {{ $startDate->format('d M') }} to {{ $endDate->format('d M Y') }}:</p>-->
-
-    <!--{!! $cruiseData->description !!}-->
-
-    <!--<p><strong>Children Policy</strong></p>-->
-    <!--<ul>-->
-    <!--    @foreach($cruiseData->policies as $policy)-->
-    <!--    <li>{{ $policy }}</li>-->
-    <!--    @endforeach-->
-    <!--</ul>-->
-
-    <!--<p><strong>Included</strong></p>-->
-    <!--<ul>-->
-    <!--    @foreach($cruiseData->includes as $include)-->
-    <!--    <li>{{ $include }}</li>-->
-    <!--    @endforeach-->
-    <!--</ul>-->
-
-    <!--<p><strong>Excluded</strong></p>-->
-    <!--<ul>-->
-    <!--    @foreach($cruiseData->excludes as $exclude)-->
-    <!--    <li>{{ $exclude }}</li>-->
-    <!--    @endforeach-->
-    <!--</ul>-->
     
     @if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package')
         @php
@@ -171,7 +141,50 @@
         </div>
     @endif
     
-    
+    @php use App\Models\Cruise; @endphp
+        
+    @if($booking->model_type == 'App\Models\Cruise')
+        @php
+            $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $booking->start_date);
+            $startDateFormat = \Carbon\Carbon::parse($booking->start_date);
+            $lastDate = null;
+            $cruise = Cruise::findOrFail($booking->model_id);
+            $startDateFormat = \Carbon\Carbon::parse($lastDate);
+            $startDateFormat = $startDateFormat->addDays(1);
+            $endDateFormat = $startDateFormat->copy()->addDays($cruise->number_of_nights - 2);
+        @endphp
+        <div class="body">
+            <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
+            Cruise Name: {{ $cruise->name }}
+            </h1><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">Description:</p>
+            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                {!! $cruise->description !!}
+            </p><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">Children Policy:</p>
+            <ul>
+                @foreach($cruise->policies as $policy)
+                <li>{{ $policy }}</li>
+                @endforeach
+            </ul><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">cruise line:</p>
+            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                {!!$cruise->cruise_line!!}
+            </p><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">ship name:</p>
+            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                {!!$cruise->ship_name!!}
+            </p><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">excludes:</p>
+            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                {{ is_array($cruise->excludes) ? implode(', ', $cruise->excludes) : $cruise->excludes }}
+            </p><br />
+            <p class="s8" style="text-indent: 0pt;text-align: left;">includes:</p>
+            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                {{ is_array($cruise->includes) ? implode(', ', $cruise->includes) : $cruise->includes }}
+            </p><br />
+        </div>
+    @endif
     
     <p><strong>NB:</strong> Above Offer, availability might be changed until we proceed with confirmation.</p>
     
@@ -195,6 +208,7 @@
     <p>To confirm your booking, please proceed to the payment, please click</p>
     
     <a href="{{ $paymentLink }}" style="background-color: #4f3316; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Proceed to Payment</a>
+    
     
     @endif
     

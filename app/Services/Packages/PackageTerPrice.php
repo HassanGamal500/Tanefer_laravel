@@ -151,15 +151,17 @@ class PackageTerPrice {
                             ->orderBy('price_per_day', 'ASC')
                             ->first();
 
-                        if (empty($cruise_price)) {
-                            return response()->json([
-                                'status' => 400,
-                                'errors' => 'This Selected Date not allowed limit for the selected room.',
-                            ]);
-                        }
+                        // if (empty($cruise_price)) {
+                        //     return response()->json([
+                        //         'status' => 400,
+                        //         'errors' => 'This Selected Date not allowed limit for the selected room.',
+                        //     ]);
+                        // }
+                        
+                        $cruise_price_per_day = $cruise_price->price_per_day ?? 0;
                         
                         if ($adults > 0) {
-                            $adult_price += $adults * $cruise_price->price_per_day;
+                            $adult_price += $adults * $cruise_price_per_day;
                             
                             if(isset($childAges) && count($childAges) > 0) {
                                 for($x = 0; $x < $children; $x++) {
@@ -177,11 +179,11 @@ class PackageTerPrice {
                                         ]);
                                     }
                                     
-                                    $child_price += $cruise_price->price_per_day * $children_cruise->children_Percentage / 100; // 120 * 10% = 12
+                                    $child_price += $cruise_price_per_day * $children_cruise->children_Percentage / 100; // 120 * 10% = 12
                                 }
                             }
                         } else {
-                            $adult_price += $cruise_price->price_per_day;
+                            $adult_price += $cruise_price_per_day;
                         }
                     // }
                 // } else {

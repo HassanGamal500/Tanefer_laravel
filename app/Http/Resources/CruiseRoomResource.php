@@ -69,5 +69,6 @@ class CruiseRoomResource extends JsonResource
         }
         
         return $adult_price + $child_price;
+        // return $cruise_price;
     }
 }

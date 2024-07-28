@@ -15,6 +15,9 @@ use App\Models\Cruise;
 use App\Models\CruiseImage;
 use App\Models\CruiseChildrenPackage;
 use App\Models\PackageHotelRoomSeason;
+use App\Models\PackageBookingData;
+use App\Models\PackageActivity;
+use App\Models\TourCity;
 use App\Services\Packages\CruiseStoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -201,6 +204,9 @@ class CruiseController extends Controller
             $getPackage = new PackageActivityDetails( $trip );
         }
         
+        $combinedList = [];
+        $package_name = null;
+        
         if($booking->model_type == 'App\Models\Cruise') {
             $cruise = Cruise::where('id', $booking->model_id)->first();
             $booking->cruise = $cruise;
@@ -211,6 +217,65 @@ class CruiseController extends Controller
             } else {
                 $booking->cruise = null;
             }
+            
+            $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
+                ->where('booking_id', $booking->id)
+                ->whereNull('cruise_id')
+                ->get();
+
+            $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id','id')
+                ->where('booking_id', $booking->id)
+                ->whereNotNull('cruise_id')
+                ->get();
+
+            $adventures = [];
+            $cruises = [];
+            $package_name = $booking->package->title;
+
+            // Processing adventures
+            foreach ($package_data as $advent) {
+                $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
+                $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
+
+                if ($adventures_id) {
+                    $adventure_id = $adventures_id;
+                    $day_number = $advent['day_number'];
+
+                    $adventures[] = [
+                        'id'=> $advent->id,
+                        'adventure_id' => $adventure_id,
+                        'day_number' => $day_number,
+                        'package_city_id' => $package_city_id,
+                    ];
+                } else {
+                    $day_number = $advent['day_number'];
+                    $adventures[] = [
+                        'id'=> $advent->id,
+                        'adventure_id' => 'null',
+                        'day_number' => $day_number,
+                        'package_city_id' => null,
+                    ];
+                }
+            }
+
+            // Processing cruises
+            foreach ($package_data_cruise as $cruise) {
+                $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
+                $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
+
+                if ($cruise_id) {
+                    $cruisee = $cruise_id;
+                    $day_number = $cruise['day_number'];
+
+                    $cruises[] = [
+                        'id'=> $cruise->id,
+                        'cruise_id' => $cruisee,
+                        'day_number' => $day_number,
+                        'package_city_id' => $package_city_id,
+                    ];
+                }
+            }
+            $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
         }
 
         $bookId = $booking->id;
@@ -223,7 +288,7 @@ class CruiseController extends Controller
         
         if($request->status == 'accept') {
             // return response()->json($cruiseData);
-            Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate));
+            Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, null, $combinedList, $booking, $package_name));
             
             return responseJson(request(), $booking, 'Email send to you with confirmation booking cruise link');
         } else {

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PDF;
+use App\Jobs\FinalBookingGTA;
 
 class BookingController extends Controller
 {
@@ -184,7 +185,24 @@ class BookingController extends Controller
         $booking = $booking;
         $package_name = $package_name;
         
-        Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, $addtionalMessage, $combinedList, $booking, $package_name));
+        // Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, $addtionalMessage, $combinedList, $booking, $package_name));
+        
+        $url = 'https://tanefer.com/trip-booking/'.$booking->id;
+        
+        $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+            'url' => $url,
+            'total_price' => $price,
+            'contact_name' => $contactName,
+            'combinedList' => $combinedList,
+            'booking' => $booking,
+            'package_name' => $package_name,
+        ]);
+
+        $mail = new NewBooking($url, $price, $contactName, $combinedList, $booking, $package_name);
+        
+        Mail::to($contactEmail)->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
+
+        $bookingdata->update(['send_confirm_email' => 1]);
         
         $customTextMessage = '
             Thank you, ('.$contactName.')
@@ -255,51 +273,53 @@ class BookingController extends Controller
                     'transaction_id' => request()->fort_id,
                     'authorization_code' => request()->authorization_code
                 ]);
-            }
-            
-            if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->hotel_jpcode && $booking->integration_booked == 0) {
-                $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
-                if ($booking->model_type == 'App\Models\Package') {
-                    $hotelData = \DB::table('gta_hotel_portfolios')->where('id', $booking->model_id)->first();
-                } else {
-                    $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $booking->hotel_jpcode)->first();
-                }
-                if($hotelFormData) {
-                    $getRequestData = json_decode($hotelFormData->request_data);
-                    $getBodyData = json_decode($hotelFormData->body);
-                    $options = array(
-                        'soap_version' => SOAP_1_2,
-                        'encoding' => 'UTF-8',
-                        'exceptions' => true,
-                        'trace' => true,
-                        'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
-                    );
-                    
-                    $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
-                    
-                    $requestData = $getRequestData;
-                    
-                    try {
-                        $response = $client->__soapCall('HotelBooking', array('parameters' => $requestData));
-                        $bookingRS = $response->BookingRS;
-                        // return response()->json($response);
-                        if($bookingRS) {
-                            if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
-                                Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
-                            }
-                            $booking->update([
-                                'integration_booked' => 1,
-                                'hotel_int_code' => $bookingRS->IntCode,
-                                'hotel_locator' => $bookingRS->Reservations->Reservation->Locator,
-                                // 'start_date' => $getBodyData->startDate,
-                                // 'end_date' => $getBodyData->endDate,
-                                'hotel_start_date' => $getBodyData->startDate,
-                                'hotel_end_date' => $getBodyData->endDate,
-                                'send_confirm_email' => 1
-                            ]);
+
+                if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->integration_booked == 0) {
+                    $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
+                    if ($booking->model_type == 'App\Models\Package') {
+                        $hotelData = \DB::table('gta_hotel_portfolios')->where('id', $booking->model_id)->first();
+                    } else {
+                        if ($booking->hotel_jpcode) {
+                            $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $booking->hotel_jpcode)->first();
                         }
-                    } catch (SoapFault $fault) {
-                        // echo "Error: " . $fault->getMessage();
+                    }
+                    if($hotelFormData) {
+                        dispatch(new FinalBookingGTA($booking->id));
+                        
+                        // $getRequestData = json_decode($hotelFormData->request_data);
+                        // $getBodyData = json_decode($hotelFormData->body);
+                        // $options = array(
+                        //     'soap_version'  => SOAP_1_2,
+                        //     'encoding'      => 'UTF-8',
+                        //     'exceptions'    => true,
+                        //     'trace'         => true,
+                        //     'compression'   => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+                        // );
+                        
+                        // $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+                        
+                        // $requestData = $getRequestData;
+                        
+                        // // try {
+                        //     $response = $client->__soapCall('HotelBooking', array('parameters' => $requestData));
+                        //     $bookingRS = $response->BookingRS;
+                        //     dd($requestData, $bookingRS);
+                        //     if($bookingRS) {
+                        //         if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
+                        //             Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
+                        //         }
+                        //         $booking->update([
+                        //             'integration_booked'    => 1,
+                        //             'hotel_int_code'        => $bookingRS->IntCode,
+                        //             'hotel_locator'         => $bookingRS->Reservations ? $bookingRS->Reservations->Reservation->Locator : null,
+                        //             'hotel_start_date'      => $getBodyData->startDate,
+                        //             'hotel_end_date'        => $getBodyData->endDate,
+                        //             'send_confirm_email'    => 1
+                        //         ]);
+                        //     }
+                        // // } catch (SoapFault $fault) {
+                        // //     // echo "Error: " . $fault->getMessage();
+                        // // }
                     }
                 }
             }
@@ -308,61 +328,6 @@ class BookingController extends Controller
                 $bookingdata = explode(",", $booking->model_ids);
                 $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
             }
-            
-            // if($booking->model_id != null && $booking->model_type == 'App\Models\Cruise') {
-            //     $bookingdata = explode(",", $booking->model_ids);
-            //     $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
-            // }
-            
-            // if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
-
-            //     $package_data = PackageBookingData::select('adventrue_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNull('cruise_id')->get();
-            //     $package_data_cruise = PackageBookingData::select('cruise_id','day_number','package_city_id')->where('booking_id', $booking->id)->whereNotNull('cruise_id')->get();
-
-            //     $adventures = [];
-            //     $cruises = [];
-            //     $package_name = $booking->package->title;
-            //     foreach ($package_data as $advent) {
-
-            //         $adventures_id = PackageActivity::where('id', $advent['adventrue_id'])->first();
-            //         $package_city_id = TourCity::where('id', $advent['package_city_id'])->pluck('name')->first();
-            //         if ($adventures_id) {
-            //             $adventure_id = $adventures_id;
-            //             $day_number = $advent['day_number'];
-
-            //             $adventures[] = [
-            //                 'adventure_id' => $adventure_id,
-            //                 'day_number' => $day_number,
-            //                 'package_city_id' => $package_city_id,
-            //             ];
-            //         } else {
-            //             $day_number = $advent['day_number'];
-            //             $adventures[] = [
-            //                 'adventure_id' => null,
-            //                 'day_number' => $day_number,
-            //                 'package_city_id' => null,
-            //             ];
-            //         }
-            //     }
-
-            //    foreach ($package_data_cruise as $cruise) {
-            //         $cruise_id = Cruise::where('id', $cruise['cruise_id'])->first();
-            //         $package_city_id = TourCity::where('id', $cruise['package_city_id'])->pluck('name')->first();
-
-            //         if ($cruise_id) {
-            //             $cruisee = $cruise_id;
-            //             $day_number = $cruise['day_number'];
-
-            //             $cruises[] = [
-            //                 'cruise_id' => $cruisee,
-            //                 'day_number' => $day_number,
-            //                 'package_city_id' => $package_city_id,
-            //             ];
-            //         }
-            //     }
-            // }
-            // Mail::to($booking->bookingData->contact_email)
-            //     ->send(new NewBooking($url,$booking->total_price,$booking->bookingData->contact_name,$adventures, $booking, $cruises, $package_name));
             
             if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
                 $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
@@ -426,25 +391,7 @@ class BookingController extends Controller
                 $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
 
             }
-            
-            // $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
-            //     'url' => $url,
-            //     'total_price' => $booking->total_price,
-            //     'contact_name' => $booking->bookingData->contact_name,
-            //     'combinedList' => $combinedList,
-            //     'booking' => $booking,
-            //     'package_name' => $package_name,
-            // ]);
-            // Mail::to($booking->bookingData->contact_email)
-            //     ->send(new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList,$booking, $package_name))->attachData($pdf->output(), "test.pdf");;
 
-
-
-            // $booking->update(['send_confirm_email' => 1]);
-
-            // $message = 'Your booking confirmed';
-            // return responseJson(request(),[],$message);
-            // return response()->json($combinedList);
             if($booking->model_type != 'App\Models\Cruise' && $booking->model_type != 'App\Models\GtaHotelPortfolio') {
                 $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
                     'url' => $url,
@@ -468,7 +415,9 @@ class BookingController extends Controller
             }
             
             if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package')) {
-                echo 'You have been booked successfully';die;
+                // echo 'You have been booked successfully';die;
+                $message = 'You have been booked successfully';
+                return responseJson(request(), [], $message);
             } else {
                 $message = 'Your booking confirmed';
                 return responseJson(request(), [], $message);
@@ -506,7 +455,7 @@ class BookingController extends Controller
     public function testmail()
     {
         $url = 'data';
-        Mail::to('mohamedhamdytotti@gmail.com')->send(new SendCustomPackage('mohamedhamdytotti@gmail.com',$url));
+        Mail::to('ahmed@nahrdev.com')->send(new SendCustomPackage('ahmed@nahrdev.com',$url));
         $message = 'Your booking under processing, We will email you soon with booking status';
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }

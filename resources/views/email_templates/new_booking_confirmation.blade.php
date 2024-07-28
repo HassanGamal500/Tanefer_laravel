@@ -331,5 +331,33 @@
                 </p><br />
             </div>
         @endif
+        
+        @php
+        $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $booking->hotel_jpcode)->first();
+        @endphp
+        
+        @if($booking->hotel_jpcode != NULL)
+        <p class="s8" style="text-indent: 0pt;text-align: left;">Accmmodation:</p>
+        <p>Check In ({{ $hotelData->name }}) from (Check In {{ $booking->hotel_start_date }}) to (Check Out {{ $booking->hotel_end_date }}) </p>
+        <p>Confirmation Code ({{ $booking->hotel_locator }})</p>
+        @endif
+        
+        <div class="body row">
+            <div class="col-md-6">
+                <p class="s8" style="text-indent: 0pt;text-align: left;">Head Quarter - Egypt</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">29 Refaa St. Dokki, Giza</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">(G) Floor, Suite # B1</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">IATA # 90214176</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">Tel: +2 333 84000/06</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">Mobile: +201001705555</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">+201224806531</p>
+            </div>
+            <div class="col-md-6">
+                <p class="s8" style="text-indent: 0pt;text-align: left;">Tanefer Tours Inc - USA</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">6066 Leesburg Pike Suite # 430</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">Falls Church, VA 20141</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;">IATA # 49575061</p>
+            </div>
+        </div>
     </body>
 </html>

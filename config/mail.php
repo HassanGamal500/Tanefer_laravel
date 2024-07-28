@@ -132,5 +132,17 @@ return [
     */
 
     'log_channel' => env('MAIL_LOG_CHANNEL'),
+    
+    // 'timeout' => null,
+    
+    // 'auth_mode' => env('MAIL_AUTH_MODE', null),
+    
+    // 'stream' => [
+    //     'ssl' => [
+    //         'allow_self_signed' => true,
+    //         'verify_peer' => false,
+    //         'verify_peer_name' => false,
+    //     ],
+    // ],
 
 ];

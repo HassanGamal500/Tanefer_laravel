@@ -147,6 +147,7 @@ class PackageHotelGtaController extends Controller
         }
         return response()->json(['message' =>'hotel catalogue add successfully', 'status' => 201]);
     }
+    
     public function store_hotel_portfolio() {
         $arrContextOptions = array(
             "ssl" => array(
@@ -235,6 +236,7 @@ class PackageHotelGtaController extends Controller
             'data'=> GtaCountryResource::collection( $country )
         ]);
     }
+    
     public function get_region(Request $request){
 
         $country_code = $request->country_code;
@@ -244,6 +246,7 @@ class PackageHotelGtaController extends Controller
             'data'=> GtaRegionResource::collection( $region )
         ]);
     }
+    
     public function get_city(Request $request){
 
         // $city_code = $request->city_code;
@@ -257,6 +260,7 @@ class PackageHotelGtaController extends Controller
             'data'=> GtaRegionResource::collection( $city )
         ]);
     }
+    
     public function get_zone(Request $request){
 
         $zone_code = $request->zone_code;
@@ -266,6 +270,7 @@ class PackageHotelGtaController extends Controller
             'data'=> GtaRegionResource::collection( $zone )
         ]);
     }
+    
     public function get_hotel_catalogues(){
 
         $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'HotelCategory')->get();
@@ -276,6 +281,24 @@ class PackageHotelGtaController extends Controller
     }
     
     public function get_hotel_categories(){
+
+        $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'HotelCategory')->get();
+
+        return response()->json([ 'message' =>'success','status' => 200,
+            'data'=> GtaHotelCatalogueResource::collection( $hotel_catalogues )
+        ]);
+    }
+    
+    public function get_hotel_type_categories(){
+
+        $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'HotelType')->get();
+
+        return response()->json([ 'message' =>'success','status' => 200,
+            'data'=> GtaHotelCatalogueResource::collection( $hotel_catalogues )
+        ]);
+    }
+    
+    public function get_room_categories(){
 
         $hotel_catalogues = GtaHotelCatalogue::where('catalogue_type', 'RoomCategory')->get();
 

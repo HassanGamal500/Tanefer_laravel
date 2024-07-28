@@ -62,8 +62,12 @@ class CruiseController extends Controller
 
             // $i++;
             
-            $rooms = $cruise->rooms()->whereHas('packageHotelRoomSeason', function ($q) use ($request) {
+            $cruiseRooms = PackageHotelRoom::whereModelId($id);
+            
+            $rooms = $cruiseRooms->whereHas('packageHotelRoomSeason', function ($q) use ($request) {
+                // $q->where('start_date', '>=', $request->start_date);
                 $q->where('start_date', '<=', $request->start_date);
+                $q->where('end_date', '>=', $request->start_date);
             })->where('max_num_adult', '>=', $roomGuest['adults'])
                 ->where('max_num_children', '>=', $roomGuest['children'])
                 ->get()->take(1)
@@ -140,18 +144,18 @@ class CruiseController extends Controller
         try {
         	$url = 'https://tanefer.com/trip-booking/'.$booking->id;
         
-            // $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
-            //     'url' => $url,
-            //     'total_price' => $booking->total_price,
-            //     'contact_name' => $booking->bookingData->contact_name,
-            //     'combinedList' => null,
-            //     'booking' => $booking,
-            //     'package_name' => null,
-            // ]);
+            $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+                'url' => $url,
+                'total_price' => $booking->total_price,
+                'contact_name' => $booking->bookingData->contact_name,
+                'combinedList' => null,
+                'booking' => $booking,
+                'package_name' => null,
+            ]);
     
-            // $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, null, $booking, null);
+            $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, null, $booking, null);
             
-            // Mail::to($booking->bookingData->contact_email)->send($mail->attachData($pdf->output(), "cruise_booking.pdf"));
+            Mail::to($booking->bookingData->contact_email)->send($mail->attachData($pdf->output(), "cruise_booking.pdf"));
     
             $booking->update(['send_confirm_email' => 1]);
         } catch (Exception $ex) {

@@ -343,10 +343,12 @@ class PackageStoreService
     {
         if(is_array($images)){
             foreach ($images as $image){
-                $package->packageImages()->create([
-                    'image' => StoreFileService::SaveFile('package/'.$package->id.'/images', $image['file']),
-                    'sort' => $image['sort'],
-                ]);
+                if ($image['file'] != null && $image['file'] != 'null' && !empty($image['file'])) {
+                    $package->packageImages()->create([
+                        'image' => StoreFileService::SaveFile('package/'.$package->id.'/images', $image['file']),
+                        'sort' => $image['sort'],
+                    ]);
+                }
                 // $package->packageImages()->create([
                 //     // 'image' => 'hjk',
                 //     'image' => StoreFileService::SaveFile('package/'.$package->id.'/images',$image),

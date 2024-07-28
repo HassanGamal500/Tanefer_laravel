@@ -12,6 +12,7 @@ use App\Models\PackageSlugHistory;
 use App\Models\TourCity;
 use App\Models\Trip;
 use App\Models\PackageCityTransportation;
+use App\Models\PackageImage;
 use App\Services\Packages\PackageStoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -167,8 +168,27 @@ class PackageController extends Controller
             }
             
             if (isset($request->images) && !empty($request->images)) {
-                $package->packageImages()->delete();
-                // return response()->json(['message' => $request->images[0]['file'], 'status' => 400]);
+                // $package->packageImages()->delete();
+                $listImages = $package->packageImages()->pluck('id')->toArray();
+                $imageExists = array();
+                $imageNotExists = array();
+                
+                foreach($request->images as $image) {
+                    if ($image['id'] != null && $image['id'] != 'null' && !empty($image['id'])) {
+                        $imageExists[] = $image['id'];
+                    }
+                }
+                
+                foreach($listImages as $image) {
+                    if (!in_array($image, $imageExists)) {
+                        $imageNotExists[] = $image;
+                    }
+                }
+                
+                if (count($imageNotExists) > 0) {
+                    PackageImage::whereIn('id', $imageNotExists)->delete();
+                }
+                
                 PackageStoreService::storePackageImages($request->images, $package);
             }
 
