@@ -29,6 +29,7 @@ class PackageActivityRequest extends ParentRequest
     {
         $rules = [
             'activity_title'                => 'required|string|max:191',
+            'activity_sort'                 => 'required',
             'activity_overview'             => 'required',
             'activity_intro'             => 'required',
             'activity_itinerary'             => 'required',

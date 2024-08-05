@@ -26,6 +26,7 @@ class PackageActivityResource extends JsonResource
         $data = [
             'activityID'                => $this->id ,
             'activityTitle'             => $this->title ,
+            'activitySort'              => $this->sort ,
             'activityOverview'          => $this->overview ,
             'activityIntro'             => $this->intro ,
             'activityItinerary'         => $this->itinerary ,

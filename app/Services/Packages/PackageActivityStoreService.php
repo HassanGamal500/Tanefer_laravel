@@ -169,6 +169,7 @@ class PackageActivityStoreService
     {
         return [
             'title' => $validatedData['activity_title'],
+            'sort' => $validatedData['activity_sort'],
             'overview' => $validatedData['activity_overview'],
             'intro' => $validatedData['activity_intro'],
             'itinerary' => $validatedData['activity_itinerary'],
