@@ -57,6 +57,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiActivitiesRoutes();
 
         $this->mapApiCruisesRoutes();
+        
+        $this->mapApiBookingRoutes();
     }
 
     /**

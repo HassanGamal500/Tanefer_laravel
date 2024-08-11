@@ -462,19 +462,33 @@ class BookingController extends Controller
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
     }
 
+    // public function bookingHistory()
+    // {
+    //     $rowPerPage = \request()->row_per_page ?? 10;
+
+    //     $historyQuery = BookingHistory::search(\request());
+
+    //     $histories = $historyQuery->paginate($rowPerPage);
+
+    //     return responseJson(\request(), [
+    //         'historyTotal' => $histories->total(),
+    //         'historyList' => BookingHistoryResource::collection($histories),
+    //     ], 'success');
+    // }
+
     public function bookingHistory()
-    {
-        $rowPerPage = \request()->row_per_page ?? 10;
+{
+    $rowPerPage = \request()->row_per_page ?? 10;
 
-        $historyQuery = BookingHistory::search(\request());
+    $historyQuery = BookingHistory::search(\request());
 
-        $histories = $historyQuery->paginate($rowPerPage);
+    $histories = $historyQuery->paginate($rowPerPage);
 
-        return responseJson(\request(), [
-            'historyTotal' => $histories->total(),
-            'historyList' => BookingHistoryResource::collection($histories),
-        ], 'success');
-    }
+    return responseJson(\request(), [
+        'historyTotal' => $histories->total(),
+        'historyList' => BookingHistoryResource::collection($histories),
+    ], 'success');
+}
 
     public function bookingHistoryDetail($id)
     {
