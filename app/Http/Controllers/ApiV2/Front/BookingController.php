@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\ApiV2\Front;
 
 use App\Http\Controllers\Controller;
@@ -31,17 +32,17 @@ use App\Models\BookingHistory;
 
 class BookingController extends Controller
 {
-    public function save(BookingSaveRequest $request )
+    public function save(BookingSaveRequest $request)
     {
-        if(! is_null($request->start_date)){
+        if (! is_null($request->start_date)) {
             $startDay = ucfirst(strtolower(Carbon::parse($request->start_date)->format('l')));
             $package = Package::find($request->package_id);
             $days = $package->packageAbilities->pluck('days');
-            if(!str_contains($days,$startDay) && ! empty($days)){
-                abort(422,'this tour not start in '.$startDay);
+            if (!str_contains($days, $startDay) && ! empty($days)) {
+                abort(422, 'this tour not start in ' . $startDay);
             }
         }
-        
+
         // if(count($package->seasons) > 0 && !is_null($request->start_date)){
         //     $season = $package->seasons()->where('from','<=',$request->start_date)
         //         ->where('to','>',$request->start_date)->first();
@@ -49,21 +50,25 @@ class BookingController extends Controller
         //         abort(422,'You cannot book package in this day');
         //     }
         // }
-        
+
         $validated = $request->validated();
 
-        if(Cache::has($request->sessionId)){
+        if (Cache::has($request->sessionId)) {
             $cachedTotalPrice = Cache::get($request->sessionId);
-            if($cachedTotalPrice['totalPrice'] != $request->total_price){
+            if ($cachedTotalPrice['totalPrice'] != $request->total_price) {
                 $cachedTotalPrice = json_encode($cachedTotalPrice);
-                return responseJson($request,new \stdClass(),
-                    'Package Total Price not valid, Valid price is '.$cachedTotalPrice,422);
+                return responseJson(
+                    $request,
+                    new \stdClass(),
+                    'Package Total Price not valid, Valid price is ' . $cachedTotalPrice,
+                    422
+                );
             } else {
                 $request->total_price = $request->final_price ? $request->final_price : $request->total_price;
                 $validated['total_price'] = $request->final_price;
             }
-        }else{
-            return responseJson($request,new \stdClass(),'Something wrong in total price',422);
+        } else {
+            return responseJson($request, new \stdClass(), 'Something wrong in total price', 422);
         }
 
         // foreach ($request->booking_cities as $booking_city){
@@ -83,44 +88,44 @@ class BookingController extends Controller
         //         }
         //     }
         // }
-        
-        
+
+
         $contactName = $request->contact_name ? $request->contact_name : $validated['bookingDetails']['contact_name'];
         $contactEmail = $request->contact_email ? $request->contact_email : $validated['bookingDetails']['contact_email'];
 
-        DB::transaction(function () use ( $validated ) {
+        DB::transaction(function () use ($validated) {
             $booking = BookingService::storeBookingMainData($validated);
             // foreach ( $validated['booking_cities'] as $key => $booking_city ){
             //     BookingService::storeBookingCityData($booking,$booking_city);
             // }
         });
         $booking = Booking::with(['bookingData', 'package.packageCity'])->orderBy('id', 'DESC')->first();
-        BookingService::storeAdventure($request->activities,$booking->id,$request->package_id);
-        BookingService::storeHotel($request->accommodation,$booking->id);
-        BookingService::storeHotelJPCode($validated,$booking->id);
+        BookingService::storeAdventure($request->activities, $booking->id, $request->package_id);
+        BookingService::storeHotel($request->accommodation, $booking->id);
+        BookingService::storeHotelJPCode($validated, $booking->id);
         $bookingdata = Booking::find($booking->id);
-        DB::transaction(function () use ($bookingdata, $validated ) {
+        DB::transaction(function () use ($bookingdata, $validated) {
 
             // foreach ($validated['passengerDetails'] as $traveller){
-                BookingService::storeBookingTravelerData( $bookingdata , $validated['passengerDetails']);
+            BookingService::storeBookingTravelerData($bookingdata, $validated['passengerDetails']);
             // }
-            BookingService::storeBookingTData( $bookingdata , $validated['bookingDetails']);
+            BookingService::storeBookingTData($bookingdata, $validated['bookingDetails']);
         });
-        
-        if($checkHasCruise = $booking->package->packageCity->where('type', 'cruise')->first()) {
+
+        if ($checkHasCruise = $booking->package->packageCity->where('type', 'cruise')->first()) {
             $cruise = Cruise::where('id', $checkHasCruise->cruise_id)->first();
             $booking->cruise = $cruise;
         } else {
             $booking->cruise = null;
         }
-        
+
         if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
-            $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
+            $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id', 'id')
                 ->where('booking_id', $booking->id)
                 ->whereNull('cruise_id')
                 ->get();
 
-            $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id','id')
+            $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id', 'id')
                 ->where('booking_id', $booking->id)
                 ->whereNotNull('cruise_id')
                 ->get();
@@ -140,7 +145,7 @@ class BookingController extends Controller
                     $day_number = $advent['day_number'];
 
                     $adventures[] = [
-                        'id'=> $advent->id,
+                        'id' => $advent->id,
                         'adventure_id' => $adventure_id,
                         'day_number' => $day_number,
                         'package_city_id' => $package_city_id,
@@ -148,7 +153,7 @@ class BookingController extends Controller
                 } else {
                     $day_number = $advent['day_number'];
                     $adventures[] = [
-                        'id'=> $advent->id,
+                        'id' => $advent->id,
                         'adventure_id' => 'null',
                         'day_number' => $day_number,
                         'package_city_id' => null,
@@ -166,7 +171,7 @@ class BookingController extends Controller
                     $day_number = $cruise['day_number'];
 
                     $cruises[] = [
-                        'id'=> $cruise->id,
+                        'id' => $cruise->id,
                         'cruise_id' => $cruisee,
                         'day_number' => $day_number,
                         'package_city_id' => $package_city_id,
@@ -175,7 +180,7 @@ class BookingController extends Controller
             }
             $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
         }
-        
+
         $bookId = $booking->id;
         $price = $booking->total_price;
         $username = $contactName;
@@ -186,11 +191,11 @@ class BookingController extends Controller
         $combinedList = $combinedList;
         $booking = $booking;
         $package_name = $package_name;
-        
+
         // Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, $addtionalMessage, $combinedList, $booking, $package_name));
-        
-        $url = 'https://tanefer.com/trip-booking/'.$booking->id;
-        
+
+        $url = 'https://tanefer.com/trip-booking/' . $booking->id;
+
         $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
             'url' => $url,
             'total_price' => $price,
@@ -201,19 +206,19 @@ class BookingController extends Controller
         ]);
 
         $mail = new NewBooking($url, $price, $contactName, $combinedList, $booking, $package_name);
-        
+
         Mail::to($contactEmail)->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
 
         $bookingdata->update(['send_confirm_email' => 1]);
-        
+
         $customTextMessage = '
-            Thank you, ('.$contactName.')
+            Thank you, (' . $contactName . ')
             we have received your inquiry and one of our travel experts will contact you within 48 hours.
-            We\'ll send your new travel plans to : '.$contactEmail.'
+            We\'ll send your new travel plans to : ' . $contactEmail . '
             Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
         ';
 
-       return  responseJson($request,['booking_id'=>$booking->id, 'custom_text_message' => $customTextMessage],'operation done successfully');
+        return  responseJson($request, ['booking_id' => $booking->id, 'custom_text_message' => $customTextMessage], 'operation done successfully');
     }
 
     public function complete($id, BookingCompleteRequest $request)
@@ -221,25 +226,25 @@ class BookingController extends Controller
         $validated = $request->validated();
         $booking = Booking::find($id);
 
-        DB::transaction(function () use ($booking, $validated ) {
+        DB::transaction(function () use ($booking, $validated) {
 
-            foreach ($validated['passengerDetails'] as $traveller){
-                BookingService::storeBookingTravelerData( $booking , $traveller);
+            foreach ($validated['passengerDetails'] as $traveller) {
+                BookingService::storeBookingTravelerData($booking, $traveller);
             }
-            BookingService::storeBookingTData( $booking , $validated['bookingDetails']);
+            BookingService::storeBookingTData($booking, $validated['bookingDetails']);
         });
 
-        return responseJson($request,[],'operation done successfully');
+        return responseJson($request, [], 'operation done successfully');
     }
 
     public function saveToEmail()
     {
-        $validator = Validator::make(request()->all(),[
+        $validator = Validator::make(request()->all(), [
             'url' => 'required|url',
             'email' => 'required|email',
             'package' => 'required'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
@@ -250,33 +255,33 @@ class BookingController extends Controller
             'package' => json_encode(request()->all()),
         ]);
 
-        $url = request()->url.'?custom_package='.$customPackageId->toString();
-        Mail::to(request()->email)->send(new SendCustomPackage(request()->email,$url));
+        $url = request()->url . '?custom_package=' . $customPackageId->toString();
+        Mail::to(request()->email)->send(new SendCustomPackage(request()->email, $url));
 
-       return responseJson(request(),[],'Email send to you with custom package link');
+        return responseJson(request(), [], 'Email send to you with custom package link');
     }
 
     public function confirmBooking()
     {
-        if(request()->merchant_extra){
+        if (request()->merchant_extra) {
             $adventures = '';
             $cruises = '';
             $package_name = '';
             $booking = Booking::find(request()->merchant_extra);
-            if(request()->url){
-                $url = request()->url . '/'.$booking->id;
-            }else{
-                $url = 'https://tanefer.com/trip-booking/'.$booking->id;
+            if (request()->url) {
+                $url = request()->url . '/' . $booking->id;
+            } else {
+                $url = 'https://tanefer.com/trip-booking/' . $booking->id;
             }
-            
-            if(request()->response_message == 'Success'){
+
+            if (request()->response_message == 'Success') {
                 $booking->update([
                     'status' => 'Confirm Payment',
                     'transaction_id' => request()->fort_id,
                     'authorization_code' => request()->authorization_code
                 ]);
 
-                if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->integration_booked == 0) {
+                if (($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->integration_booked == 0) {
                     $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
                     if ($booking->model_type == 'App\Models\Package') {
                         $hotelData = \DB::table('gta_hotel_portfolios')->where('id', $booking->model_id)->first();
@@ -285,9 +290,9 @@ class BookingController extends Controller
                             $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $booking->hotel_jpcode)->first();
                         }
                     }
-                    if($hotelFormData) {
+                    if ($hotelFormData) {
                         dispatch(new FinalBookingGTA($booking->id));
-                        
+
                         // $getRequestData = json_decode($hotelFormData->request_data);
                         // $getBodyData = json_decode($hotelFormData->body);
                         // $options = array(
@@ -297,11 +302,11 @@ class BookingController extends Controller
                         //     'trace'         => true,
                         //     'compression'   => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
                         // );
-                        
+
                         // $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
-                        
+
                         // $requestData = $getRequestData;
-                        
+
                         // // try {
                         //     $response = $client->__soapCall('HotelBooking', array('parameters' => $requestData));
                         //     $bookingRS = $response->BookingRS;
@@ -325,19 +330,19 @@ class BookingController extends Controller
                     }
                 }
             }
-            
-            if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity') {
+
+            if ($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity') {
                 $bookingdata = explode(",", $booking->model_ids);
-                $combinedList = PackageActivity::whereIn('id',$bookingdata)->get();
+                $combinedList = PackageActivity::whereIn('id', $bookingdata)->get();
             }
-            
+
             if ($booking->model_ids == null && $booking->model_type == 'App\Models\Package') {
-                $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id','id')
+                $package_data = PackageBookingData::select('adventrue_id', 'day_number', 'package_city_id', 'id')
                     ->where('booking_id', $booking->id)
                     ->whereNull('cruise_id')
                     ->get();
 
-                $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id','id')
+                $package_data_cruise = PackageBookingData::select('cruise_id', 'day_number', 'package_city_id', 'id')
                     ->where('booking_id', $booking->id)
                     ->whereNotNull('cruise_id')
                     ->get();
@@ -357,7 +362,7 @@ class BookingController extends Controller
                         $day_number = $advent['day_number'];
 
                         $adventures[] = [
-                            'id'=> $advent->id,
+                            'id' => $advent->id,
                             'adventure_id' => $adventure_id,
                             'day_number' => $day_number,
                             'package_city_id' => $package_city_id,
@@ -365,7 +370,7 @@ class BookingController extends Controller
                     } else {
                         $day_number = $advent['day_number'];
                         $adventures[] = [
-                            'id'=> $advent->id,
+                            'id' => $advent->id,
                             'adventure_id' => 'null',
                             'day_number' => $day_number,
                             'package_city_id' => null,
@@ -383,7 +388,7 @@ class BookingController extends Controller
                         $day_number = $cruise['day_number'];
 
                         $cruises[] = [
-                            'id'=> $cruise->id,
+                            'id' => $cruise->id,
                             'cruise_id' => $cruisee,
                             'day_number' => $day_number,
                             'package_city_id' => $package_city_id,
@@ -391,10 +396,9 @@ class BookingController extends Controller
                     }
                 }
                 $combinedList = collect(array_merge($adventures, $cruises))->sortby('id');
-
             }
 
-            if($booking->model_type != 'App\Models\Cruise' && $booking->model_type != 'App\Models\GtaHotelPortfolio') {
+            if ($booking->model_type != 'App\Models\Cruise' && $booking->model_type != 'App\Models\GtaHotelPortfolio') {
                 $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
                     'url' => $url,
                     'total_price' => $booking->total_price,
@@ -403,20 +407,20 @@ class BookingController extends Controller
                     'booking' => $booking,
                     'package_name' => $package_name,
                 ]);
-    
+
                 $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
                 Mail::to($booking->bookingData->contact_email)
                     ->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
-    
+
                 $booking->update(['send_confirm_email' => 1]);
             } else {
                 // Mail::to($booking->bookingData->contact_email)
                 //     ->send(new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $adventures, $booking, $cruises, $package_name));
-                    
+
                 // $booking->update(['send_confirm_email' => 1]);
             }
-            
-            if(($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package')) {
+
+            if (($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package')) {
                 // echo 'You have been booked successfully';die;
                 $message = 'You have been booked successfully';
                 return responseJson(request(), [], $message);
@@ -428,71 +432,62 @@ class BookingController extends Controller
 
         $message = 'Your booking under processing, We will email you soon with booking status';
 
-        return responseJson(request(),[],$message);
+        return responseJson(request(), [], $message);
     }
 
     public function displayCustomPackage()
     {
-        $customPackage = CustomPackage::where('custom_package_id',request()->custom_package)->first();
-        if(is_null($customPackage)){
-            return response()->json(['message' => 'This custom package not found'],404);
+        $customPackage = CustomPackage::where('custom_package_id', request()->custom_package)->first();
+        if (is_null($customPackage)) {
+            return response()->json(['message' => 'This custom package not found'], 404);
         }
 
-       return responseJson(request(),json_decode($customPackage->package),'success');
+        return responseJson(request(), json_decode($customPackage->package), 'success');
     }
 
     public function bookingDetails($id)
     {
         $booking = Booking::with([
-            'bookingCity','bookingPayment','bookingTraveler','bookingData',
-            'startCity','endCity','package'
-        ])->where('id',$id)->first();
-        if(is_null($booking)){
-            return responseJson(request(),[],'this booking not found',404);
+            'bookingCity',
+            'bookingPayment',
+            'bookingTraveler',
+            'bookingData',
+            'startCity',
+            'endCity',
+            'package'
+        ])->where('id', $id)->first();
+        if (is_null($booking)) {
+            return responseJson(request(), [], 'this booking not found', 404);
         }
 
-        return responseJson(request(),['bookingDetails' => $booking],'success');
+        return responseJson(request(), ['bookingDetails' => $booking], 'success');
     }
-    
+
     public function testmail()
     {
         $url = 'data';
-        Mail::to('ahmed@nahrdev.com')->send(new SendCustomPackage('ahmed@nahrdev.com',$url));
+        Mail::to('ahmed@nahrdev.com')->send(new SendCustomPackage('ahmed@nahrdev.com', $url));
         $message = 'Your booking under processing, We will email you soon with booking status';
-        return response()->json(['message' =>'operation done successfully', 'status' => 200]);
+        return response()->json(['message' => 'operation done successfully', 'status' => 200]);
     }
 
-    // public function bookingHistory()
-    // {
-    //     $rowPerPage = \request()->row_per_page ?? 10;
-
-    //     $historyQuery = BookingHistory::search(\request());
-
-    //     $histories = $historyQuery->paginate($rowPerPage);
-
-    //     return responseJson(\request(), [
-    //         'historyTotal' => $histories->total(),
-    //         'historyList' => BookingHistoryResource::collection($histories),
-    //     ], 'success');
-    // }
-
     public function bookingHistory()
-{
-    $rowPerPage = \request()->row_per_page ?? 10;
-
-    $historyQuery = BookingHistory::search(\request());
-
-    $histories = $historyQuery->paginate($rowPerPage);
-
-    return responseJson(\request(), [
-        'historyTotal' => $histories->total(),
-        'historyList' => BookingHistoryResource::collection($histories),
-    ], 'success');
-}
+    {
+        $rowPerPage = \request()->row_per_page ?? 10;
+        $historyQuery = BookingHistory::search(\request());
+        $histories = $historyQuery->paginate($rowPerPage);
+        return responseJson(\request(), [
+            'historyTotal' => $histories->total(),
+            'historyList' => BookingHistoryResource::collection($histories),
+        ], 'success');
+    }
 
     public function bookingHistoryDetail($id)
     {
         $details = BookingHistory::find($id);
+        if (is_null($details)) {
+            return responseJson(request(), [], 'this booking details not found', 404);
+        }
         return new BookingHistoryResource($details);
     }
 }
