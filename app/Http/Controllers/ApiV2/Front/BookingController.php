@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\BookingCompleteRequest;
 use App\Http\Requests\BookingSaveRequest;
+use App\Http\Resources\BookingHistoryResource;
 use App\Models\Booking;
 use App\Models\Cruise;
 use App\Models\PackageActivity;
@@ -26,6 +27,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PDF;
 use App\Jobs\FinalBookingGTA;
+use App\Models\BookingHistory;
 
 class BookingController extends Controller
 {
@@ -458,5 +460,25 @@ class BookingController extends Controller
         Mail::to('ahmed@nahrdev.com')->send(new SendCustomPackage('ahmed@nahrdev.com',$url));
         $message = 'Your booking under processing, We will email you soon with booking status';
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
+    }
+
+    public function bookingHistory()
+    {
+        $rowPerPage = \request()->row_per_page ?? 10;
+
+        $historyQuery = BookingHistory::search(\request());
+
+        $histories = $historyQuery->paginate($rowPerPage);
+
+        return responseJson(\request(), [
+            'historyTotal' => $histories->total(),
+            'historyList' => BookingHistoryResource::collection($histories),
+        ], 'success');
+    }
+
+    public function bookingHistoryDetail($id)
+    {
+        $details = BookingHistory::find($id);
+        return new BookingHistoryResource($details);
     }
 }

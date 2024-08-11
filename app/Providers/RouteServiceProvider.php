@@ -231,5 +231,13 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path('routes/V2/activity.php'));
     }
 
+    protected function mapApiBookingRoutes()
+    {
+        Route::prefix('api/v2/booking')
+            ->middleware('api')
+            ->namespace($this->namespace.'\ApiV2')
+            ->group(base_path('routes/V2/booking.php'));
+    }
+
 
 }
