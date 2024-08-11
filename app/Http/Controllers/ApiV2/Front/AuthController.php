@@ -90,6 +90,7 @@ class AuthController extends Controller
         ], 401);
     }
 
+    ///**  check this function **///
     public function getProfile(): JsonResponse
     {
         $user = Auth::user();
