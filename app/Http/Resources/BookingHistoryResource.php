@@ -19,6 +19,7 @@ class BookingHistoryResource extends JsonResource
             'type'      => $this->type,
             'title'     => $this->title,
             'date'      => $this->date,
+            'duration'  => $this->duration,
             'total'     => $this->total,
             'status'    => $this->status,
             'details'   => $this->booking,

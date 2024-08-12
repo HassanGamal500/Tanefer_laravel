@@ -7,6 +7,7 @@ namespace App\Services\Packages;
 use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PackageHotel;
+use Illuminate\Support\Facades\DB;
 
 class SearchService
 {
@@ -44,6 +45,8 @@ class SearchService
         }else{
             $packageActivityQuery->where('activity_type','!=','cruise');
         }
+
+        $packageActivityQuery->orderBy(DB::raw('ISNULL(sort), sort'), 'ASC');
 
         return $packageActivityQuery;
     }

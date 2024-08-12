@@ -18,6 +18,7 @@ class CreateBookingHistoriesTable extends Migration
             $table->enum('type', ['adventure', 'cruise', 'package', 'hotel']);
             $table->string('title');
             $table->date('date');
+            $table->integer('duration');
             $table->double('total', '8', '2');
             $table->string('status');
             $table->unsignedBigInteger('booking_id');

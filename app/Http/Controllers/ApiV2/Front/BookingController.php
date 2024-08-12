@@ -29,6 +29,9 @@ use Illuminate\Validation\ValidationException;
 use PDF;
 use App\Jobs\FinalBookingGTA;
 use App\Models\BookingHistory;
+use Illuminate\Support\Facades\Auth;
+use PhpParser\Node\Expr\Cast\Object_;
+use stdClass;
 
 class BookingController extends Controller
 {
@@ -473,12 +476,19 @@ class BookingController extends Controller
 
     public function bookingHistory()
     {
+        $user = Auth::user();
+        $userDetails = [
+            'name' => $user->username,
+            'email' => $user->email,
+            'phone' => $user->phone
+        ];
         $rowPerPage = \request()->row_per_page ?? 10;
         $historyQuery = BookingHistory::search(\request());
         $histories = $historyQuery->paginate($rowPerPage);
         return responseJson(\request(), [
             'historyTotal' => $histories->total(),
             'historyList' => BookingHistoryResource::collection($histories),
+            'userDetails' => (object)$userDetails
         ], 'success');
     }
 
