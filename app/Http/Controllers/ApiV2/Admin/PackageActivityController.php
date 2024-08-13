@@ -254,4 +254,17 @@ class PackageActivityController extends Controller
 
         }
     }
+    public function fetchAllActivities()
+        {
+            $packageActivity = PackageActivity::all();
+
+            return response()->json([
+                'message' => 'success',
+                'status' => 200,
+                'data' => [
+                    'ActivityTotal' => $packageActivity->count(),
+                    'ActivityList' => PackageActivityResource::collection($packageActivity)
+                ]
+            ]);
+        }
 }

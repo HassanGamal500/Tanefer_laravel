@@ -67,6 +67,7 @@ Route::namespace('Admin')->group(function (){
     });
 
     # --------- package Activities  section ------------------
+    Route::get('activities/all', 'PackageActivityController@fetchAllActivities');
     Route::apiResource('activities','PackageActivityController');
     Route::get('activities/form/lists', 'PackageActivityController@formLists');
     Route::get('activities/activity/list', 'PackageActivityController@ActivityFilteredByCity');

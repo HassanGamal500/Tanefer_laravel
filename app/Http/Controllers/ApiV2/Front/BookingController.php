@@ -477,18 +477,18 @@ class BookingController extends Controller
     public function bookingHistory()
     {
         $user = Auth::user();
-        $userDetails = [
-            'name' => $user->username,
-            'email' => $user->email,
-            'phone' => $user->phone
-        ];
+        // $userDetails = [
+        //     'name' => $user->username,
+        //     'email' => $user->email,
+        //     'phone' => $user->phone
+        // ];
         $rowPerPage = \request()->row_per_page ?? 10;
         $historyQuery = BookingHistory::search(\request());
         $histories = $historyQuery->paginate($rowPerPage);
         return responseJson(\request(), [
             'historyTotal' => $histories->total(),
             'historyList' => BookingHistoryResource::collection($histories),
-            'userDetails' => (object)$userDetails
+            // 'userDetails' => (object)$userDetails
         ], 'success');
     }
 
@@ -496,8 +496,8 @@ class BookingController extends Controller
     {
         $details = BookingHistory::find($id);
         if (is_null($details)) {
-            return responseJson(request(), [], 'this booking details not found', 404);
+            return responseJson(request(), [], 'This booking detail not found', 404);
         }
         return new BookingHistoryResource($details);
-    }
+    }    
 }
