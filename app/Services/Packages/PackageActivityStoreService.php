@@ -185,7 +185,7 @@ class PackageActivityStoreService
             'seo_description' => $validatedData['seo_description'] ?? null,
             'featured_image'            => array_key_exists('featured_image',$validatedData) ? StoreFileService::SaveFile('cities',$validatedData['featured_image'],$validatedData['activity_title']) : null,
 
-            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $packageActivity->slug ? $validatedData['slug'] : Str::slug($validatedData['activity_title']),
+            'slug' => isset($validatedData['slug']) && $validatedData['slug'] !== $packageActivity->slug ? $validatedData['slug'] : Str::slug($validatedData['activity_title'].'_'.now()),
 
             'is_published' => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
             'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',

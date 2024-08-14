@@ -28,11 +28,11 @@ class TourController extends Controller
     public function allCityies()
     {
         if(request()->type == 'cruise'){
-            $cities =  TourCity::join('cruise_tour_city', 'cruise_tour_city.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
+            $cities =  TourCity::select('tour_cities.*')->join('cruise_tour_city', 'cruise_tour_city.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
         } elseif(request()->type == 'package') {
-            $cities = TourCity::join('package_cities', 'package_cities.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
+            $cities = TourCity::select('tour_cities.*')->join('package_cities', 'package_cities.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
         } elseif(request()->type == 'adventure') {
-            $cities = TourCity::join('package_activities', 'package_activities.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
+            $cities = TourCity::select('tour_cities.*')->join('package_activities', 'package_activities.tour_city_id', '=', 'tour_cities.id')->groupBy('tour_cities.id')->get()->unique();
         } else {
             $cities = TourCity::all();
         }
