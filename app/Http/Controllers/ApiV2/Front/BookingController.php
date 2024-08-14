@@ -477,20 +477,27 @@ class BookingController extends Controller
     public function bookingHistory()
     {
         $user = Auth::user();
-         $userDetails = [
-            'name' => $user->username,
-            'email' => $user->email,
-            'phone' => $user->phone
-        ];
-        $rowPerPage = \request()->row_per_page ?? 10;
-        $historyQuery = BookingHistory::search(\request());
+        // $userDetails = [
+        //     'name' => $user->username,
+        //     'email' => $user->email,
+        //     'phone' => $user->phone
+        // ];
+    
+        $rowPerPage = request()->row_per_page ?? 10;
+    
+        // Modify the query to filter by the authenticated user's ID
+        $historyQuery = BookingHistory::where('user_id', $user->id)
+                                      ->search(request());
+    
         $histories = $historyQuery->paginate($rowPerPage);
-        return responseJson(\request(), [
+    
+        return responseJson(request(), [
             'historyTotal' => $histories->total(),
             'historyList' => BookingHistoryResource::collection($histories),
-            'userDetails' => (object)$userDetails
+            //'userDetails' => (object)$userDetails
         ], 'success');
     }
+    
 
     public function bookingHistoryDetail($id)
     {
