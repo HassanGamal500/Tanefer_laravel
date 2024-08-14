@@ -27,23 +27,48 @@ class PackageActivityController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\JsonResponse
-     */
+    //  */
     public function index(Request $request)
     {
-        $rowPerPage = $request->row_per_page ?? 10;
+        $rowPerPage = $request->row_per_page ?? 10000;
+    
         $packageActivityQuery = PackageActivity::query();
-        if($request->city_id )
-            $packageActivityQuery->where('tour_city_id',$request->city_id);
-
-        $packageActivity = $packageActivityQuery->paginate($rowPerPage);
-
-        return response()->json([ 'message' =>'success','status' => 200,
-            'data'=> [
-                'ActivityTotal'=> $packageActivity->total(),
-                'ActivityList'=> PackageActivityResource::collection( $packageActivity )
+    
+        if ($request->city_id) {
+            $packageActivityQuery->where('tour_city_id', $request->city_id);
+        }
+    
+        $packageActivity = $rowPerPage === 'all' 
+            ? $packageActivityQuery->get()
+            : $packageActivityQuery->paginate($rowPerPage);
+    
+        return response()->json([
+            'message' => 'success',
+            'status' => 200,
+            'data' => [
+                'ActivityTotal' => $packageActivity instanceof \Illuminate\Database\Eloquent\Collection
+                    ? $packageActivity->count()
+                    : $packageActivity->total(),
+                'ActivityList' => PackageActivityResource::collection($packageActivity)
             ]
         ]);
     }
+    // public function index(Request $request)
+    // {
+    //     $rowPerPage = $request->row_per_page ?? 10;
+    //     $packageActivityQuery = PackageActivity::query();
+    //     if($request->city_id )
+    //         $packageActivityQuery->where('tour_city_id',$request->city_id);
+
+    //     $packageActivity = $packageActivityQuery->paginate($rowPerPage);
+
+    //     return response()->json([ 'message' =>'success','status' => 200,
+    //         'data'=> [
+    //             'ActivityTotal'=> $packageActivity->total(),
+    //             'ActivityList'=> PackageActivityResource::collection( $packageActivity )
+    //         ]
+    //     ]);
+    // }
 
     /**
      * Show the form for creating/editing the specified resource.
