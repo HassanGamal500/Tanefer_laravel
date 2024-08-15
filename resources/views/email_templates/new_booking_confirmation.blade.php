@@ -5,6 +5,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://db.onlinewebfonts.com/c/7ff36bbc69f7d5ba12def49c76f5ccd8?family=Alverata+Irregular+W01+Bold" rel="stylesheet">
+    <link href="https://db.onlinewebfonts.com/c/d701e718bde83870d60622d18f4f81de?family=Alverata+Irregular+W01+Regular" rel="stylesheet">
     <title>Package Details </title>
     <style type="text/css">
         * {
@@ -15,13 +17,13 @@
 
         .logo {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 80px;
             text-align: center;
         }
 
         h1 {
-            color: #C90;
-            font-family: "Times New Roman", serif;
+            color: #CC9900;
+            font-family: "Alverata Irregular W01 Bold", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -29,8 +31,8 @@
         }
 
         .h2, h2 {
-            color: #C90;
-            font-family: "Times New Roman", serif;
+            color: #CC9900;
+            font-family: "Alverata Irregular W01 Bold", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -39,7 +41,8 @@
 
         .p, p {
             color: black;
-            font-family: "Times New Roman", serif;
+            font-family: "Alverata Irregular W01 Regular" , serif;
+            /* font-family: "Times New Roman", serif; */
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
@@ -49,24 +52,32 @@
 
         .s2 {
             color: black;
-            font-family: "Times New Roman", serif;
+            font-family:  "Alverata Irregular W01 Regular" , serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: underline;
             font-size: 11pt;
         }
         .s8 {
-            color: #C90;
-            font-family: "Times New Roman", serif;
+            color: #CC9900;
+            font-family:  "Alverata Irregular W01 Regular" , serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: underline;
             font-size: 14pt;
         }
+        .s9 {
+            color: #CC9900;
+            font-family:  "Alverata Irregular W01 Regular" , serif;
+            font-style: normal;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 8pt;
+        }
 
         h4 {
             color: black;
-            font-family: "Times New Roman", serif;
+            font-family: "Alverata Irregular W01 Bold", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -75,7 +86,7 @@
 
         h3 {
             color: black;
-            font-family: "Times New Roman", serif;
+            font-family: "Alverata Irregular W01 Bold", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -85,14 +96,15 @@
             padding: 0 10%
         }
         div,h1,h2,h3,h4,h5,h6,p,a,span,ul,li,ol,table{
-            font-family: "Times New Roman", serif;
+            font-family: "Alverata Irregular W01 Bold", serif;
         }
     </style>
 </head>
 <body>
     <div class="logo">
-        <img height="150" width="100%" src="{{ asset('images/logo.png') }}" alt="check" >
+        <img height="150" width="100%" src="{{ asset('images/logo-cover-2.png') }}" alt="Logo" style="display: block; margin: 0; position: absolute; top: 0; left: 0;">
     </div>
+    
         @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
             @foreach ($combinedList as $adventure)
                 @php
@@ -103,18 +115,18 @@
                 @endphp
                 <div class="body">
                     <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                       - {{ $adventure->title }}
+                       {{ $adventure->title }}
                     </h1><br />
                     <h2 style="text-indent: 0pt;text-align: left;">18/2/2024</h2>
                     <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
                         Start From {{ $formattedStartTime }} - {{ $formattedEndTime }}
                     </p>
-                    <p class="s8" style="text-indent: 0pt;text-align: left;">overview:</p><br>
+                    <p class="s8" style="text-indent: 0pt;text-align: left;"> You're going to need the following: </p><br>
                     <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                         {!!$adventure->overview!!}
                     </p><br />
-                    <p class="s8" style="text-indent: 0pt;text-align: left;">intro:</p><br>
-                    <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                    <p class="s8" style="text-indent: 0pt;text-align: left;">Overview:</p><br>
+                    <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;  color: #000;">
                         {!!$adventure->intro!!}
                     </p><br />
                     <p class="s8" style="text-indent: 0pt;text-align: left;">itinerary:</p><br>
@@ -141,7 +153,7 @@
             @endphp
             <div class="body">
                 <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                Package Name: {{ $package_name }}
+                {{ $package_name }}
                 </h1><br />
                 @foreach ($combinedList as $adventureCollection)
                     @if(isset($adventureCollection['adventure_id']))
@@ -161,7 +173,7 @@
                                 $lastDate = calculateAdventureDate($booking->start_date, $day_number);
                             @endphp
                             <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                                - {{ $adventure->title }}
+                                {{ $adventure->title }}
                             </h1><br />
                             <h2 style="text-indent: 0pt;text-align: left;">
                                 <!--@if ($day_number > 1)-->
@@ -174,12 +186,12 @@
                             <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
                                 Start From {{ $formattedStartTime }} - {{ $formattedEndTime }}
                             </p><br />
-                            <p class="s8" style="text-indent: 0pt;text-align: left;">overview:</p>
+                            <p class="s8" style="text-indent: 0pt;text-align: left;">You're going to need the following: </p>
                             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                                 {!!$adventure->overview!!}
                             </p><br />
-                            <p class="s8" style="text-indent: 0pt;text-align: left;">intro:</p>
-                            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
+                            <p class="s8" style="text-indent: 0pt;text-align: left;">Overview:</p>
+                            <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;  color: #000;">
                                 {!!$adventure->intro!!}
                             </p><br />
                             <p class="s8" style="text-indent: 0pt;text-align: left;">itinerary:</p>
@@ -204,7 +216,7 @@
                                 $lastDate = calculateAdventureDate($booking->start_date, $day_number);
                             @endphp
                             <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                                - Free Day
+                                 Free Day
                             </h1><br />
                             <h2 style="text-indent: 0pt;text-align: left;">
                                 <!--@if ($day_number > 1)-->
@@ -232,7 +244,7 @@
                             $endDateFormat = $startDateFormat->copy()->addDays($cruise->number_of_nights - 2);
                         @endphp
                         <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                            - {{ $cruise->name }}
+                             {{ $cruise->name }}
                         </h1><br />
                         <h2 style="text-indent: 0pt;text-align: left;">
                             <!--@if ($day_number > 1)-->
@@ -242,7 +254,7 @@
                             <!--@endif-->
                             from {{ $startDateFormat->format('d M') }} to {{ $endDateFormat->format('d M Y') }}
                         </h2>
-                        <p class="s8" style="text-indent: 0pt;text-align: left;">Description:</p>
+                        <p class="s8" style="text-indent: 0pt;text-align: left;"></p>
                         <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                             {!! $cruise->description !!}
                         </p><br />
@@ -303,7 +315,7 @@
                 <!--<h2 style="text-indent: 0pt;text-align: left;">-->
                 <!--    from {{ $startDateFormat->format('d M') }} to {{ $endDateFormat->format('d M Y') }}-->
                 <!--</h2>-->
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Description:</p>
+                <p class="s8" style="text-indent: 0pt;text-align: left;"></p>
                 <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                     {!! $cruise->description !!}
                 </p><br />
@@ -342,22 +354,23 @@
         <p>Confirmation Code ({{ $booking->hotel_locator }})</p>
         @endif
         
-        <div class="body row">
-            <div class="col-md-6">
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Head Quarter - Egypt</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">29 Refaa St. Dokki, Giza</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">(G) Floor, Suite # B1</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">IATA # 90214176</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Tel: +2 333 84000/06</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Mobile: +201001705555</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">+201224806531</p>
+        <div class="body" style="display: flex; justify-content: space-between;">
+            <div style="flex: 0 0 48%;">
+                <p class="s9" style="text-indent: 0pt;text-align: left;">Head Quarter - Egypt</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">29 Refaa St. Dokki, Giza</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">(G) Floor, Suite # B1</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">IATA # 90214176</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">Tel: +2 333 84000/06</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">Mobile: +201001705555</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">+201224806531</p>
             </div>
-            <div class="col-md-6">
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Tanefer Tours Inc - USA</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">6066 Leesburg Pike Suite # 430</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">Falls Church, VA 20141</p>
-                <p class="s8" style="text-indent: 0pt;text-align: left;">IATA # 49575061</p>
+            <div style="flex: 0 0 48%;">
+                <p class="s9" style="text-indent: 0pt;text-align: left;">Tanefer Tours Inc - USA</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">6066 Leesburg Pike Suite # 430</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">Falls Church, VA 20141</p>
+                <p class="s9" style="text-indent: 0pt;text-align: left;">IATA # 49575061</p>
             </div>
         </div>
+        
     </body>
 </html>

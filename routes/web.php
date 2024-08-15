@@ -13,6 +13,11 @@
 
 use App\Models\Package;
 use Illuminate\Support\Facades\Date;
+use App\Mail\BookingConfirmation;
+use App\Mail\NewBooking;
+use Illuminate\Support\Str;
+use App\Mail\BookingCruiseConfirmation;
+
 
 //
 //Route::get('/', function () {

@@ -18,7 +18,7 @@
         @endphp
         <div class="body">
             <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-            Package Name: {{ $package_name }}
+            {{ $package_name }}
             </h1><br />
             @foreach ($combinedList as $adventureCollection)
                 @if(isset($adventureCollection['adventure_id']))
