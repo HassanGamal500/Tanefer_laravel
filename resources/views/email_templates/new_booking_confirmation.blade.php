@@ -17,7 +17,6 @@
 
         .logo {
             width: 100%;
-            margin-bottom: 80px;
             text-align: center;
         }
 
@@ -102,7 +101,7 @@
 </head>
 <body>
     <div class="logo">
-        <img height="150" width="100%" src="{{ asset('images/logo-cover-2.png') }}" alt="Logo" style="display: block; margin: 0; position: absolute; top: 0; left: 0;">
+        <img height="185px" width="100%" src="{{ asset('images/logo-cover-2.png') }}" alt="Logo" style="display: block; margin: 0; position: relative; top: 0; left: 0;">
     </div>
     
         @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
@@ -114,7 +113,7 @@
                     $formattedEndTime = $carbonEndTime->format('h:i A');
                 @endphp
                 <div class="body">
-                    <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
+                    <h1 style="padding-top: 10pt;text-indent: 0pt;text-align: left;">
                        {{ $adventure->title }}
                     </h1><br />
                     <h2 style="text-indent: 0pt;text-align: left;">18/2/2024</h2>
@@ -310,7 +309,7 @@
             @endphp
             <div class="body">
                 <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
-                Cruise Name: {{ $cruise->name }}
+                {{ $cruise->name }}
                 </h1><br />
                 <!--<h2 style="text-indent: 0pt;text-align: left;">-->
                 <!--    from {{ $startDateFormat->format('d M') }} to {{ $endDateFormat->format('d M Y') }}-->
