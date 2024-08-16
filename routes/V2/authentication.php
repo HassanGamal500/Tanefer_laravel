@@ -9,5 +9,6 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:passport')->group(function () {
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::post('profile', [AuthController::class, 'updateProfile']);
+    Route::post('profile/update-password', [AuthController::class, 'updatePassword']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
