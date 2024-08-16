@@ -476,7 +476,7 @@ class BookingController extends Controller
 
     public function bookingHistory()
     {
-        $user = Auth::user();
+        $user = Auth::guard('passport')->user();
         // $userDetails = [
         //     'name' => $user->username,
         //     'email' => $user->email,
