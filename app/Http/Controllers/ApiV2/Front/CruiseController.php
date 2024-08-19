@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use PDF;
 use App\Mail\NewBooking;
+use App\Services\BookingService;
 use Illuminate\Support\Facades\Mail;
 
 class CruiseController extends Controller
@@ -140,6 +141,8 @@ class CruiseController extends Controller
         Cruise::bookingData($validatedData,$booking);
         Cruise::BookingTravellers($validatedData,$booking);
         Cruise::storeBookingRooms($cachedData,$booking);
+
+        BookingService::storeBookingHistory($booking);
         
         try {
         	$url = 'https://tanefer.com/trip-booking/'.$booking->id;

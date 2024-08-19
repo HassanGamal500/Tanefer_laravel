@@ -8,6 +8,7 @@ use App\Http\Resources\Admin\PackageHotelResource as PackageHotelDetailsResource
 use App\Models\Booking;
 use App\Models\PackageHotel;
 use App\Models\GtaHotelPortfolio;
+use App\Services\BookingService;
 use App\Services\Packages\SearchService;
 use App\Services\Packages\CalculateFullPriceService;
 use Illuminate\Http\Request;
@@ -136,6 +137,8 @@ class PackageHotelController extends Controller
             'passengerType'         => $request->passengerDetails['passengerType'],
             'passport_issue_country'    => $request->passengerDetails['passport_issue_country']
         ]);
+
+        BookingService::storeBookingHistory($booking);
        
         return  responseJson($request,['booking_id'=>$booking->id, 'type' => 'hotel'], 'operation done successfully');
     }

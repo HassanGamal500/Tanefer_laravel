@@ -29,6 +29,7 @@ use Illuminate\Validation\ValidationException;
 use PDF;
 use App\Jobs\FinalBookingGTA;
 use App\Models\BookingHistory;
+use App\Services\BookingService as ServicesBookingService;
 use Illuminate\Support\Facades\Auth;
 use PhpParser\Node\Expr\Cast\Object_;
 use stdClass;
@@ -107,6 +108,7 @@ class BookingController extends Controller
         BookingService::storeHotel($request->accommodation, $booking->id);
         BookingService::storeHotelJPCode($validated, $booking->id);
         $bookingdata = Booking::find($booking->id);
+        ServicesBookingService::storeBookingHistory($booking);
         DB::transaction(function () use ($bookingdata, $validated) {
 
             // foreach ($validated['passengerDetails'] as $traveller){

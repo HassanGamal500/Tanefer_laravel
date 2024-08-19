@@ -12,6 +12,7 @@ use App\Models\AvailabilitiesTour;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
 use App\Models\TourCity;
+use App\Services\BookingService;
 use App\Services\Packages\ActivityBookingService;
 use App\Services\Packages\SearchService;
 use Carbon\Carbon;
@@ -234,6 +235,8 @@ class PackageActivityController extends Controller
         $booking = ActivityBookingService::storeBookingMainData($request);
 
         ActivityBookingService::storeBookingData($booking,$request);
+
+        BookingService::storeBookingHistory($booking);
 
         foreach ( $request->activities as $bookingActivity) {
             if(array_key_exists('date',$bookingActivity)){
