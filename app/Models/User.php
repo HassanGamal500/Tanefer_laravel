@@ -23,7 +23,15 @@ class User extends Authenticatable implements MustVerifyEmail,JWTSubject
      */
     protected $fillable = [
         'name', 'email', 'password','phone','code','available_points','client_id',
-        'block','registered_from_id','device_token', 'username', 'type'
+        'block','registered_from_id','device_token', 'username', 'type',
+        'passenger_title',
+        'passenger_gender',
+        'passenger_first_name',
+        'passenger_last_name',
+        'date_of_birth',
+        'pass_expire_date',
+        'pass_num',
+        'issue_country',
     ];
 
     protected $with = ['roles'];
