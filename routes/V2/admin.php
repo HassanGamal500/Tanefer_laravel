@@ -107,4 +107,5 @@ Route::namespace('Admin')->group(function (){
     Route::get('cruises-bookings' , 'BookingController@cruiseBookings');
     Route::get('hotels-bookings' , 'BookingController@hotelBookings');
     Route::get('clients-list', 'ClientController@index');
+    Route::delete('delete-client/{id}', 'ClientController@destroy');
 });
