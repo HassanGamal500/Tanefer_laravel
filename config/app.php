@@ -72,7 +72,8 @@ return [
     |
     */
 
-    'timezone' => 'America/New_York',
+    // 'timezone' => 'America/New_York',
+    'timezone' => 'Africa/Cairo',
 
     /*
     |--------------------------------------------------------------------------
