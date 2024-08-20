@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiV2\Front\AuthController;
-use App\Http\Controllers\TravellerController;
+use App\Http\Controllers\ApiV2\Front\TravellerController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('register', [AuthController::class, 'register']);

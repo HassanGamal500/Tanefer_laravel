@@ -104,14 +104,15 @@ class AuthController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         $user = Auth::user();
-
+    
         $validator = Validator::make($request->all(), [
             'username'  => 'sometimes|required|string|max:255|unique:users,username,' . $user->id,
             'email'     => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+            'code'      => 'sometimes|required|string|max:15',
             'phone'     => 'sometimes|required|string|max:15|unique:users,phone,' . $user->id,
             'password'  => 'sometimes|required|string|min:8|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -119,12 +120,15 @@ class AuthController extends Controller
                 'data' => $validator->errors()->first()
             ], 422);
         }
-
+    
         if ($request->has('username')) {
             $user->username = $request->username;
         }
         if ($request->has('email')) {
             $user->email = $request->email;
+        }
+        if ($request->has('code')) {
+            $user->code = $request->code;
         }
         if ($request->has('phone')) {
             $user->phone = $request->phone;
@@ -132,15 +136,16 @@ class AuthController extends Controller
         if ($request->has('password')) {
             $user->password = bcrypt($request->password);
         }
-
+    
         $user->save();
-
+    
         return response()->json([
             'status' => true,
             'message' => 'Profile updated successfully.',
             'data' => $user
         ], 200);
     }
+    
 
     public function logout(Request $request): JsonResponse
     {

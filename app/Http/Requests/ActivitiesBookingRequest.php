@@ -26,7 +26,7 @@ class ActivitiesBookingRequest extends ParentRequest
     {
         return [
             'contact_name'                => 'required',
-            'contact_phone'               => 'required',
+            'contact_phone'               => 'nullable',
             'contact_email'               => 'required|email',
             'total_price'                 => ['required','numeric'],
             "passengerDetails"            => "required",
