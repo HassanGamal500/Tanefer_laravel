@@ -21,6 +21,7 @@ class BookingCruiseRequest extends FormRequest
      *
      * @return array
      */
+    // rules for contact_phone changed temporary
     public function rules()
     {
         return [
@@ -31,7 +32,7 @@ class BookingCruiseRequest extends FormRequest
             'contact_person_name' => 'nullable',
             'contact_name'  => 'required',
             'contact_email' => 'required|email',
-            'contact_phone' => 'required',
+            'contact_phone' => 'nullable',
             'address'       => 'nullable',
             'zip_code'      => 'nullable',
             'passengerDetails' => 'required|array',

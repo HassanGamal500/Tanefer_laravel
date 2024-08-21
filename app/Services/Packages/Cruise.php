@@ -102,13 +102,13 @@ class Cruise
             'model_type' => get_class($cruise)
         ];
     }
-
+// pause contact_phone temporarily
     private static function collectionBookingData($validatedData)
     {
         return [
             'zipCode' => array_key_exists('zip_code',$validatedData) ? $validatedData['zip_code'] : null,
             'contact_name'  => $validatedData['contact_name'],
-            'contact_phone' => $validatedData['contact_phone'],
+            // 'contact_phone' => $validatedData['contact_phone'],
             'contact_email' => $validatedData['contact_email'],
             'address'       => array_key_exists('address',$validatedData) ? $validatedData['address'] : null,
             // 'contact_name'  => array_key_exists('contact_person_name',$validatedData) ? $validatedData['contact_person_name'] : null
