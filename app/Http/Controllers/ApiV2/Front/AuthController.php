@@ -48,11 +48,10 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'username'  => 'required_without:email|string',
-            'email'     => 'required_without:username|string|email',
+            'email'     => 'required|string|email',
             'password'  => 'required|string|min:8',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -60,19 +59,9 @@ class AuthController extends Controller
                 'data' => $validator->errors()->first()
             ], 422);
         }
-
-        $credentials = $request->only('username', 'password');
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('TaneferProject')->accessToken;
-            return response()->json([
-                'status' => true,
-                'message' => 'Login successful.',
-                'data' => ['token' => $token]
-            ], 200);
-        }
-
+    
         $credentials = $request->only('email', 'password');
+        
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('TaneferProject')->accessToken;
@@ -82,13 +71,14 @@ class AuthController extends Controller
                 'data' => ['token' => $token]
             ], 200);
         }
-
+    
         return response()->json([
             'status' => false,
             'message' => 'Unauthorized.',
             'data' => null
         ], 401);
     }
+    
 
     ///**  check this function **///
     public function getProfile(): JsonResponse
