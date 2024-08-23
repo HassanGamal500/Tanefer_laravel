@@ -21,7 +21,7 @@ class HomeController extends Controller
     {
         return view('home');
     }
-
+// payment method
     public function payment(Request $request) {
         // dd($request->all(), Cache::has($request->sessionId), Cache::get($request->sessionId));
         if(isset($request->type) && $request->type != 'hotel') {
@@ -67,7 +67,7 @@ class HomeController extends Controller
         }
         // make sure to fill your sha request pass phrase
         //$shaString = "*tanefarlive123RQ" . $shaString . "*tanefarlive123RQ"; //live
-        $shaString =  config('services.payfort.sha_phrase') . $shaString . config('services.payfort.sha_phrase'); //test
+        $shaString =  config('services.payfort.sha_request_phrase') . $shaString . config('services.payfort.sha_request_phrase'); //test
 
 
         $signature = hash("sha256", $shaString);
@@ -100,7 +100,7 @@ class HomeController extends Controller
             'command' => 'PURCHASE',
             'access_code' => config('services.payfort.access_code'),
             'merchant_identifier' => config('services.payfort.merchant_identifier'),
-            'merchant_reference' => 'TANEFER-' . rand('1000000000', '9999999999'),
+            'merchant_reference' => 'TANEFER-' . uniqid(),
             'amount' => $getPrice * 100,
             'currency' => 'USD',
             'language' => 'en',
@@ -119,7 +119,7 @@ class HomeController extends Controller
         }
         // make sure to fill your sha request pass phrase
         //$shaString = "*tanefarlive123RQ" . $shaString . "*tanefarlive123RQ"; //live
-        $shaString =  config('services.payfort.sha_phrase') . $shaString . config('services.payfort.sha_phrase'); //test
+        $shaString =  config('services.payfort.sha_request_phrase') . $shaString . config('services.payfort.sha_request_phrase'); //test
 
 
         $signature = hash("sha256", $shaString);

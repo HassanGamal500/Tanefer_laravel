@@ -33,8 +33,10 @@ return [
     'payfort' => [
         'access_code' => env('AWS_PAYMENT_ACCESS_CODE'),
         'merchant_identifier' => env('AWS_PAYMENT_MERCHANT_IDENTIFIER'),
-        'redirect_url' => env('AWS_REDIRECT_URL','https://sbcheckout.payfort.com/FortAPI/paymentPage'),
-        'sha_phrase'   => env('AWS_SHA_PHRASE')
+        'redirect_url' => env('AWS_REDIRECT_URL','https://checkout.payfort.com/FortAPI/paymentPage'),
+        // 'sha_phrase'   => env('AWS_SHA_PHRASE')
+        'sha_request_phrase' => env('AWS_SHA_REQUEST_PHRASE'),
+        'sha_response_phrase' => env('AWS_SHA_RESPONSE_PHRASE'),
     ]
 
 ];
