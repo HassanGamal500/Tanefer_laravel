@@ -26,14 +26,26 @@ class Payfort implements PaymentGatewayInterface
 {
     use PayfortTrait;
 
-    private $SHAType  = 'sha256';
-    private $SHARequestPhrase   = '*tanefar123RQ';
-    private $SHAResponsePhrase = '*tanefar123RQ';
-    private $language           = 'en';
+    // private $SHAType  = 'sha256';
+    // private $SHARequestPhrase   = '*tanefar123RQ';
+    // private $SHAResponsePhrase = '*tanefar123RQ';
+    // private $language           = 'en';
+    // private $merchantIdentifier;
+    // private $accessCode;
+    // private $currency           = 'USD';
+    // private $sandboxMode        = true;
+    // private $payfortEndpoint;
+    // private $refId;
+    // private $tokenUrl;
+    // public $sessionId;
+    private $SHAType = 'sha256';
+    private $SHARequestPhrase;
+    private $SHAResponsePhrase;
+    private $language = 'en';
     private $merchantIdentifier;
     private $accessCode;
-    private $currency           = 'USD';
-    private $sandboxMode        = true;
+    private $currency = 'USD';
+    private $sandboxMode = true;
     private $payfortEndpoint;
     private $refId;
     private $tokenUrl;
@@ -47,6 +59,12 @@ class Payfort implements PaymentGatewayInterface
 //        $this->payfortEndpoint = $payfortGateWay->rest_url;
 //        $this->tokenUrl = $payfortGateWay->soap_url;
 //        $this->merchant_reference = $this->generateMerchantReference();
+          // Load values from config/services.php
+          $this->SHARequestPhrase = config('services.payfort.sha_request_phrase');
+          $this->SHAResponsePhrase = config('services.payfort.sha_response_phrase');
+          $this->merchantIdentifier = config('services.payfort.merchant_identifier');
+          $this->accessCode = config('services.payfort.access_code');
+          $this->payfortEndpoint = config('services.payfort.redirect_url');
     }
     //tokenization + authorization
     public function holdAndApproveTransaction($creditCardInfo,$amount,$sessionId)
