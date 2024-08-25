@@ -261,7 +261,7 @@ class BookingController extends Controller
         ]);
 
         $url = request()->url . '?custom_package=' . $customPackageId->toString();
-        Mail::to([request()->email, 'online@tanefer.com']])->send(new SendCustomPackage(request()->email, $url));
+        Mail::to([request()->email, 'online@tanefer.com'])->send(new SendCustomPackage(request()->email, $url));
 
         return responseJson(request(), [], 'Email send to you with custom package link');
     }

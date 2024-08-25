@@ -5,8 +5,6 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://db.onlinewebfonts.com/c/7ff36bbc69f7d5ba12def49c76f5ccd8?family=Alverata+Irregular+W01+Bold" rel="stylesheet">
-    <link href="https://db.onlinewebfonts.com/c/d701e718bde83870d60622d18f4f81de?family=Alverata+Irregular+W01+Regular" rel="stylesheet">
     <title>Package Details </title>
     <style type="text/css">
         * {
@@ -22,7 +20,8 @@
 
         h1 {
             color: #CC9900;
-            font-family: "Alverata Irregular W01 Bold", serif;
+            /* font-family: "Alverata Irregular W01 Bold", serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -31,7 +30,8 @@
 
         .h2, h2 {
             color: #CC9900;
-            font-family: "Alverata Irregular W01 Bold", serif;
+            /* font-family: "Alverata Irregular W01 Bold", serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -40,8 +40,8 @@
 
         .p, p {
             color: black;
-            font-family: "Alverata Irregular W01 Regular" , serif;
-            /* font-family: "Times New Roman", serif; */
+            /* font-family: "Alverata Irregular W01 Regular" , serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
@@ -51,7 +51,8 @@
 
         .s2 {
             color: black;
-            font-family:  "Alverata Irregular W01 Regular" , serif;
+            /* font-family:  "Alverata Irregular W01 Regular" , serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: underline;
@@ -59,7 +60,8 @@
         }
         .s8 {
             color: #CC9900;
-            font-family:  "Alverata Irregular W01 Regular" , serif;
+            /* font-family:  "Alverata Irregular W01 Regular" , serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: underline;
@@ -67,7 +69,8 @@
         }
         .s9 {
             color: #CC9900;
-            font-family:  "Alverata Irregular W01 Regular" , serif;
+            /* font-family:  "Alverata Irregular W01 Regular" , serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: underline;
@@ -76,7 +79,8 @@
 
         h4 {
             color: black;
-            font-family: "Alverata Irregular W01 Bold", serif;
+            /* font-family: "Alverata Irregular W01 Bold", serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -85,7 +89,8 @@
 
         h3 {
             color: black;
-            font-family: "Alverata Irregular W01 Bold", serif;
+            /* font-family: "Alverata Irregular W01 Bold", serif; */
+            font-family: "Times New Roman", serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
@@ -95,7 +100,8 @@
             padding: 0 10%
         }
         div,h1,h2,h3,h4,h5,h6,p,a,span,ul,li,ol,table{
-            font-family: "Alverata Irregular W01 Bold", serif;
+            /* font-family: "Alverata Irregular W01 Bold", serif; */
+            font-family: "Times New Roman", serif;
         }
     </style>
 </head>
