@@ -103,24 +103,6 @@
     <div class="logo">
         <img height="185px" width="100%" src="{{ asset('images/logo-cover-2.png') }}" alt="Logo" style="display: block; margin: 0; position: relative; top: 0; left: 0;">
     </div>
-
-    @if(auth()->guard('passport')->user())
-    @php
-        $user = auth()->guard('passport')->user();
-        $name = $user->name != null && !empty($user->name) && $user->name != '' ? $user->name : $user->username;
-    @endphp
-    <div class="body">
-        <!-- <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-            Dear MR: {{ $name }}, Greetings from Tanefer Team! I’m from the Sales Department, and it will be my pleasure to be your personal tour consultant.
-        </p> -->
-        <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-            Thank you, ( {{ $username }} )
-                we have received your inquiry and one of our travel experts will contact you within 48 hours.
-                We\'ll send your new travel plans to your email
-                Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
-        </p>
-    </div>
-    @endif
     
         @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
             @foreach ($combinedList as $adventure)
@@ -263,14 +245,7 @@
                         <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
                              {{ $cruise->name }}
                         </h1><br />
-                        <h2 style="text-indent: 0pt;text-align: left;">
-                            <!--@if ($day_number > 1)-->
-                            <!--    {{ $formattedDate }} - {{ $formattedEndDate }}-->
-                            <!--@else-->
-                            <!--    {{ $formattedDate }}-->
-                            <!--@endif-->
-                            from {{ $startDateFormat->format('d M') }} to {{ $endDateFormat->format('d M Y') }}
-                        </h2>
+                        <p class="s8" style="text-indent: 0pt;text-align: left;">from {{ $startDateFormat->format('d M') }} to {{ $endDateFormat->format('d M Y') }}</p>
                         <p class="s8" style="text-indent: 0pt;text-align: left;"></p>
                         <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                             {!! $cruise->description !!}
@@ -370,28 +345,5 @@
         <p>Check In ({{ $hotelData->name }}) from (Check In {{ $booking->hotel_start_date }}) to (Check Out {{ $booking->hotel_end_date }}) </p>
         <p>Confirmation Code ({{ $booking->hotel_locator }})</p>
         @endif
-
-        
-        <div class="body">
-            <p class="s8" style="text-indent: 0pt;text-align: left;">Regards,<br>Tanefer team</p>
-            <br>
-            <div style="display: flex; justify-content: space-between;">
-                <div style="flex: 0 0 48%; width: 250px;">
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">Head Quarter - Egypt</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">29 Refaa St. Dokki, Giza</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">(G) Floor, Suite # B1</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">IATA # 90214176</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">Tel: <span style="text-align: right;">+2 333 84000/06</span></p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">Mobile: +201001705555</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">+201224806531</p>
-                </div>
-                <div style="flex: 0 0 48%; width: 250px;">
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">Tanefer Tours Inc - USA</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">6066 Leesburg Pike Suite # 430</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">Falls Church, VA 20141</p>
-                    <p class="s9" style="text-indent: 0pt;text-align: left;">IATA # 49575061</p>
-                </div>
-            </div>
-        </div>
     </body>
 </html>

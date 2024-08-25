@@ -288,13 +288,13 @@ class CruiseController extends Controller
         
         if($request->status == 'accept') {
             // return response()->json($cruiseData);
-            Mail::to($email)->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, null, $combinedList, $booking, $package_name));
+            Mail::to([$email, 'online@tanefer.com'])->send(new BookingCruiseConfirmation($bookId, $price, $username, $email, $cruiseData, $startDate, null, $combinedList, $booking, $package_name));
             
             return responseJson(request(), $booking, 'Email send to you with confirmation booking cruise link');
         } else {
             $updateBooking = Booking::where('id', $request->book_id)->update(['status' => 'Rejected']);
             
-            Mail::to($email)->send(new BookingCruiseRejection($bookId, $price, $username, $email, $cruiseData, $startDate));
+            Mail::to([$email, 'online@tanefer.com'])->send(new BookingCruiseRejection($bookId, $price, $username, $email, $cruiseData, $startDate));
             
             return responseJson(request(), $booking, 'Email send to you with rejection booking');
         }

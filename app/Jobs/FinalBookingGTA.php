@@ -64,7 +64,7 @@ class FinalBookingGTA implements ShouldQueue
             $bookingRS = $response->BookingRS;
             if($bookingRS) {
                 if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
-                    Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations ? $bookingRS->Reservations->Reservation->Locator : null, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
+                    Mail::to([$getBodyData->email, 'online@tanefer.com'])->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations ? $bookingRS->Reservations->Reservation->Locator : null, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
                 }
                 $booking->update([
                     'integration_booked'    => 1,

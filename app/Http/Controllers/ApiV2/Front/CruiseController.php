@@ -147,7 +147,7 @@ class CruiseController extends Controller
         try {
         	$url = 'https://tanefer.com/trip-booking/'.$booking->id;
         
-            $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+            $pdf = PDF::loadView('email_templates.new_booking_confirmation_pdf', [
                 'url' => $url,
                 'total_price' => $booking->total_price,
                 'contact_name' => $booking->bookingData->contact_name,
@@ -158,7 +158,7 @@ class CruiseController extends Controller
     
             $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, null, $booking, null);
             
-            Mail::to($booking->bookingData->contact_email)->send($mail->attachData($pdf->output(), "cruise_booking.pdf"));
+            Mail::to([$booking->bookingData->contact_email, 'online@tanefer.com'])->send($mail->attachData($pdf->output(), "cruise_booking.pdf"));
     
             $booking->update(['send_confirm_email' => 1]);
         } catch (Exception $ex) {
@@ -168,9 +168,9 @@ class CruiseController extends Controller
         
         $customTextMessage = '
             Thank you, ('.$request->contact_name.')
-            we have received your inquiry and one of our travel experts will contact you within 24 hours.
+            we have received your inquiry and one of our travel experts will contact you within 48 hours.
             We\'ll send your new travel plans to : '.$request->contact_email.'
-            Don\'t see a response after 24 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
+            Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
         ';
 
         return  responseJson($request,[

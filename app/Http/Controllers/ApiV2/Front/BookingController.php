@@ -212,7 +212,7 @@ class BookingController extends Controller
 
         $mail = new NewBooking($url, $price, $contactName, $combinedList, $booking, $package_name);
 
-        Mail::to($contactEmail)->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
+        Mail::to([$contactEmail, 'online@tanefer.com'])->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
 
         $bookingdata->update(['send_confirm_email' => 1]);
 
@@ -261,7 +261,7 @@ class BookingController extends Controller
         ]);
 
         $url = request()->url . '?custom_package=' . $customPackageId->toString();
-        Mail::to(request()->email)->send(new SendCustomPackage(request()->email, $url));
+        Mail::to([request()->email, 'online@tanefer.com']])->send(new SendCustomPackage(request()->email, $url));
 
         return responseJson(request(), [], 'Email send to you with custom package link');
     }
@@ -414,7 +414,7 @@ class BookingController extends Controller
                 ]);
 
                 $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
-                Mail::to($booking->bookingData->contact_email)
+                Mail::to([$booking->bookingData->contact_email, 'online@tanefer.com'])
                     ->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
 
                 $booking->update(['send_confirm_email' => 1]);

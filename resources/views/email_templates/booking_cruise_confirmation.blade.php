@@ -157,32 +157,50 @@
             <h1 style="padding-top: 3pt;text-indent: 0pt;text-align: left;">
             Cruise Name: {{ $cruise->name }}
             </h1><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">Description:</p>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            Description:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">Description:</p> -->
             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                 {!! $cruise->description !!}
-            </p><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">Children Policy:</p>
+            </p>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            Children Policy:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">Children Policy:</p> -->
             <ul>
                 @foreach($cruise->policies as $policy)
                 <li>{{ $policy }}</li>
                 @endforeach
-            </ul><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">cruise line:</p>
+            </ul>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            cruise line:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">cruise line:</p> -->
             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                 {!!$cruise->cruise_line!!}
-            </p><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">ship name:</p>
+            </p>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            ship name:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">ship name:</p> -->
             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                 {!!$cruise->ship_name!!}
-            </p><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">excludes:</p>
+            </p>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            excludes:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">excludes:</p> -->
             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                 {{ is_array($cruise->excludes) ? implode(', ', $cruise->excludes) : $cruise->excludes }}
-            </p><br />
-            <p class="s8" style="text-indent: 0pt;text-align: left;">includes:</p>
+            </p>
+            <h2 style="padding-top: 3pt;text-indent: 0pt;text-align: left;font-weight: bold;">
+            includes:
+            </h2>
+            <!-- <p class="s8" style="text-indent: 0pt;text-align: left;">includes:</p> -->
             <p style="padding-top: 5pt;text-indent: 0pt;text-align: left;">
                 {{ is_array($cruise->includes) ? implode(', ', $cruise->includes) : $cruise->includes }}
-            </p><br />
+            </p>
         </div>
     @endif
     

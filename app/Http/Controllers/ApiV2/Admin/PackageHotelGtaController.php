@@ -2493,7 +2493,7 @@ class PackageHotelGtaController extends Controller
             dd($requestData, $bookingRS);
             if($bookingRS) {
                 if($booking->model_type == 'App\Models\GtaHotelPortfolio'){
-                    Mail::to($getBodyData->email)->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
+                    Mail::to([$getBodyData->email, 'online@tanefer.com'])->send(new ConfirmIntegrationBooking($getBodyData->name, $hotelData->name, $bookingRS->Reservations->Reservation->Locator, $getBodyData->startDate, $getBodyData->endDate, $booking->adults, $booking->children));
                 }
                 $booking->update([
                     'integration_booked'    => 1,
