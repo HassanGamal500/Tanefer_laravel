@@ -38,6 +38,15 @@ class BookingService
                     $duration = $modelDetails->duration_digits . ' ' . $modelDetails->duration_type;
                     break;
             }
+
+            //pending payment, Confirm Payment, Cancelled
+            if ($booking->status == null || $booking->status === 'pending payment') {
+                $status = 'pending';
+            } elseif ($booking->status === 'Confirm Payment') {
+                $status = 'paid';
+            } else {
+                $status = 'cancelled';
+            }
             
             return BookingHistory::create([
                 'type'      => $type, //'adventure', 'cruise', 'package', 'hotel'
@@ -45,10 +54,23 @@ class BookingService
                 'date'      => now(),
                 'duration'  => $duration,
                 'total'     => $booking->total_price,
-                'status'    => $booking->status,
+                'status'    => $status,
                 'booking_id'=> $booking->id,
                 'user_id'   => $user->id
             ]);
         }
+    }
+
+    public static function updateBookingHistory($booking){
+        if ($booking->status == null || $booking->status === 'pending payment') {
+            $status = 'pending';
+        } elseif ($booking->status === 'Confirm Payment') {
+            $status = 'paid';
+        } else {
+            $status = 'cancelled';
+        }
+        return BookingHistory::whereBookingId($booking->id)->update([
+            'status'    => $status,
+        ]);
     }
 }
