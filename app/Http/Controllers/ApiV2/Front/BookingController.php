@@ -286,6 +286,8 @@ class BookingController extends Controller
                     'authorization_code' => request()->authorization_code
                 ]);
 
+                ServicesBookingService::updateBookingHistory($booking);
+
                 if (($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package') && $booking->integration_booked == 0) {
                     $hotelFormData = \DB::table('hotel_object_forms')->where('id', $booking->hotel_object_form_id)->first();
                     if ($booking->model_type == 'App\Models\Package') {
