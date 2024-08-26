@@ -193,8 +193,6 @@ class PackageActivityController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-
-
         DB::transaction(function () use ($validated,$request,$packageActivity ) {
             $packageActivity->update(PackageActivityStoreService::collectPackageActivityMainData($validated, $packageActivity));
 
@@ -212,6 +210,11 @@ class PackageActivityController extends Controller
                 foreach ( $validated['side_activity'] as $activity){
                     PackageActivityStoreService::storePackageActivitySideActivityData($packageActivity,$activity);
                 }
+            }
+            
+            if ($request->activity_image) {
+                $packageActivity->packageActivityImages()->delete();
+                PackageActivityStoreService::storePackageActivityImage($packageActivity, $request->activity_image);
             }
         });
         return response()->json(['message' =>'operation done successfully', 'status' => 200]);
