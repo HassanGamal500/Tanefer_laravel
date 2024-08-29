@@ -120,7 +120,7 @@
             Dear MR: {{ $name }}, Greetings from Tanefer Team! I’m from the Sales Department, and it will be my pleasure to be your personal tour consultant.
         </p> -->
         <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-            Thank you, ( {{ $username }} )
+            Thank you, ( {{ isset($username) ? $username : '' }} )
                 we have received your inquiry and one of our travel experts will contact you within 48 hours.
                 We\'ll send your new travel plans to your email
                 Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.

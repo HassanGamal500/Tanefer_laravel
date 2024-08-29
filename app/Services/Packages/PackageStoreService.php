@@ -289,6 +289,7 @@ class PackageStoreService
             'excludes'                      => $validatedData['package_excludes'] ? json_encode( $validatedData['package_excludes'] ) : null,
             'is_top'                            => array_key_exists('is_top',$validatedData) ? $validatedData['is_top'] : 0,
             'rank'                            => array_key_exists('rank',$validatedData) ? $validatedData['rank'] : 0,
+            'is_published'                  => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
             'start_days'                      => array_key_exists('start_days',$validatedData) ? strtolower(implode(',',$validatedData['start_days'])) : '',
             'slug'                            => $validatedData['slug'],
             'image_alt'                       => array_key_exists('image_alt',$validatedData) ? $validatedData['image_alt'] : null,

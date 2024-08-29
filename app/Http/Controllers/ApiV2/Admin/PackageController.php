@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\PackageRequest;
 use App\Http\Resources\Admin\PackageActivityDetails;
 use App\Http\Resources\Admin\PackageResource;
 use App\Http\Resources\TourCityResource;
+use App\Models\Booking;
 use App\Models\Package;
 use App\Models\PackageSlugHistory;
 use App\Models\TourCity;
@@ -219,21 +220,24 @@ class PackageController extends Controller
      */
     public function destroy(Package $package)
     {
+        $checkBookings = Booking::whereModelType('App\Models\Package')->whereModelId($package->id)->count();
+        if ($checkBookings > 0) {
+            return response()->json(['message' =>'you can not delete that because you have reservations', 'status' => 400]);
+        } else {
+            $package->packageTransportations()->delete();
+            $package->packageAdventure()->delete();
+            $package->packageAdventuredays()->delete();
+            $package->packageHotel()->delete();
+            // $package->packageActivity()->delete();
+            // $package->packageTrasportation()->delete();
+            $package->packageCity()->delete();
+            $package->packageAbilities()->delete();
 
-        $package->packageTransportations()->delete();
-        $package->packageAdventure()->delete();
-        $package->packageAdventuredays()->delete();
-        $package->packageHotel()->delete();
-        // $package->packageActivity()->delete();
-        // $package->packageTrasportation()->delete();
-        $package->packageCity()->delete();
-        $package->packageAbilities()->delete();
-
-        if( $package->delete() )
-            return response()->json(['message' =>'operation done successfully', 'status' => 200]);
-
+            if($package->delete()) {
+                return response()->json(['message' =>'operation done successfully', 'status' => 200]);
+            }
+        }
         return response()->json(['message' =>'operation failed', 'status' => 400]);
-
     }
 
     /** this function merge extra needed data to be stored depending on some conditions

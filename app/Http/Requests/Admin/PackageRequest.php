@@ -72,6 +72,7 @@ class PackageRequest extends ParentRequest
             // 'package_cities.*.transportation.*.price_per_person'       =>  'nullable',
             'is_top'                                => 'nullable|boolean',
             'rank'                                => 'required_if:is_top,1|integer',
+            'is_published'                        => 'required|boolean',
             'has_supplement'                      => 'boolean',
             'start_days'                          => 'array',
             'seasons'                             => 'array',

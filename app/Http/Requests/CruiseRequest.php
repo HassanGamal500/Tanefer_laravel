@@ -31,6 +31,7 @@ class CruiseRequest extends FormRequest
             'featured_image' => 'nullable|mimes:jpeg,png,jpg,gif',
             'master_image' => 'nullable|mimes:jpeg,png,jpg,gif',
             'name' => 'required',
+            'is_published' => 'required|boolean',
             'cruise_line' => 'nullable',
             'ship_name'   => 'nullable',
             'facilities'  => 'nullable|array',

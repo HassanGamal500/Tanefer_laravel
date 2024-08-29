@@ -119,6 +119,7 @@ class CruiseStoreService
     {
         $data = [
             'name' => $validatedData['name'],
+            'is_published' => array_key_exists('is_published', $validatedData) ? (boolean)$validatedData['is_published'] : 0,
             'cruise_line' => array_key_exists('cruise_line', $validatedData) ? $validatedData['cruise_line'] : null,
             'ship_name'   => array_key_exists('ship_name', $validatedData) ? $validatedData['ship_name'] : null,
             'facilities'  => array_key_exists('facilities',$validatedData) ? implode(',',$validatedData['facilities']) : null,

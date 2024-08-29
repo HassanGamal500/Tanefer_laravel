@@ -169,9 +169,14 @@ class CruiseController extends Controller
     
     public function destroy(Cruise $cruise)
     {
-        if( $cruise->delete() )
-            return response()->json(['message' =>'operation done successfully', 'status' => 200]);
-
+        $checkBookings = Booking::whereModelType('App\Models\Cruise')->whereModelId($cruise->id)->count();
+        if ($checkBookings > 0) {
+            return response()->json(['message' =>'you can not delete that because you have reservations', 'status' => 400]);
+        } else {
+            if($cruise->delete()) {
+                return response()->json(['message' =>'operation done successfully', 'status' => 200]);
+            }
+        }
         return response()->json(['message' =>'operation failed', 'status' => 400]);
     }
     

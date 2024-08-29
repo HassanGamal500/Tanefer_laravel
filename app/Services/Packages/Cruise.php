@@ -55,7 +55,7 @@ class Cruise
         }
 
         // return  $cruiseQuery->orderByDesc('id');
-        return  $cruiseQuery->orderBy ('sort', 'asc');
+        return  $cruiseQuery->where('is_published', 1)->orderBy ('sort', 'asc');
     }
 
     public static function bookingCruise($validatedData,$cruise,$cachedData)

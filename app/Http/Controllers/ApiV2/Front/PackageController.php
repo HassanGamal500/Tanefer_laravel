@@ -34,14 +34,14 @@ class PackageController extends Controller
     public function index(Request $request){
 
         $tripsNumber = $request->trips_number ?? 6 ;
-        $trip = Package::orderBy('price_per_person','asc')->take($tripsNumber)->get();
+        $trip = Package::where('is_published', 1)->orderBy('price_per_person','asc')->take($tripsNumber)->get();
 
         return responseJson($request,PackageResource::collection( $trip ),'success');
     }
 
     public function topPackages()
     {
-        $packages = Package::where('is_top', 1)->orderBy('rank','desc')->get();
+        $packages = Package::where('is_published', 1)->where('is_top', 1)->orderBy('rank','desc')->get();
 
         return responseJson(\request(),PackageResource::collection( $packages ),'success');
     }
@@ -55,7 +55,7 @@ class PackageController extends Controller
                 $cityQuery->where('tour_city_id',$cityID);
             });
         }
-        $trips = $tripQuery->orderByDesc('price_per_person')->get();
+        $trips = $tripQuery->where('is_published', 1)->orderByDesc('price_per_person')->get();
 
       return  responseJson($request, [
             'tripTotal'=> $trips->count(),

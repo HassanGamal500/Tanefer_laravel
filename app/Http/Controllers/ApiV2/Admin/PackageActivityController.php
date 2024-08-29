@@ -9,6 +9,7 @@ use App\Http\Resources\Admin\PackageActivityListResource;
 use App\Http\Resources\Admin\PackageActivityResource;
 use App\Http\Resources\TourCityResource;
 use App\Models\AvailabilitiesTour;
+use App\Models\Booking;
 use App\Models\PackageActivity;
 use App\Models\PricingTiersTour;
 use App\Models\Cruise;
@@ -233,13 +234,16 @@ class PackageActivityController extends Controller
         if(is_null($packageActivity)){
             abort(404);
         }
-
-        $packageActivity->packageActivitySideActivity()->delete() ;
-        if( $packageActivity->delete() )
-            return response()->json(['message' =>'operation done successfully', 'status' => 200]);
-
+        $checkBookings = Booking::whereModelType('App\Models\PackageActivity')->whereModelId($packageActivityId)->count();
+        if ($checkBookings > 0) {
+            return response()->json(['message' =>'you can not delete that because you have reservations', 'status' => 400]);
+        } else {
+            $packageActivity->packageActivitySideActivity()->delete() ;
+            if($packageActivity->delete()) {
+                return response()->json(['message' =>'operation done successfully', 'status' => 200]);
+            }
+        }
         return response()->json(['message' =>'operation failed', 'status' => 400]);
-
     }
 
     /**

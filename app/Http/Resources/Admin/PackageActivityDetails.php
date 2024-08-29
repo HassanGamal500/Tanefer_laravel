@@ -53,6 +53,7 @@ class PackageActivityDetails extends JsonResource
             // 'packageStartCity'         => $startCity,
             'isTop'                    => $this->is_top,
             'rank'                     => $this->rank,
+            'is_published'             => $this->is_published,
             // 'packageCities'            => PackageCityResource::collection( $this->packageCity ),
             'start_days'               => array_filter(explode(',',$this->start_days)),
             // 'seasons'                  => $this->seasons,
