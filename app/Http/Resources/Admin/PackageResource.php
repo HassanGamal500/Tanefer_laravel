@@ -48,6 +48,7 @@ class PackageResource extends JsonResource
             'packageIncludes'          => json_decode( $this->includes ) ?? [] ,
             'packageExcludes'          => json_decode( $this->excludes ) ?? [] ,
             // 'packageStartCity'         => $startCity,
+            'is_published'             => $this->is_published,
             'isTop'                    => $this->is_top,
             'rank'                     => $this->rank,
             // 'packageCities'            => PackageCityResource::collection( $this->packageCity ),
