@@ -51,9 +51,13 @@ class PayfortController extends Controller
                         'authorization_code' => request()->authorization_code
                     ]);
                     $url = 'https://tanefer.com/trip-booking/'.$booking->id;
-                    Mail::to([$booking->bookingData->contact_email, 'online@tanefer.com'])
-                        ->send(new BookingConfirmation($url,$booking->total_price,$booking->bookingData->contact_name));
-                    $booking->update(['send_confirm_email' => 1]);
+                    // Mail::to([$booking->bookingData->contact_email, 'online@tanefer.com'])
+                    //     ->send(new BookingConfirmation($url,$booking->total_price,$booking->bookingData->contact_name));
+                    // $booking->update(['send_confirm_email' => 1]);
+                    Mail::to($booking->bookingData->contact_email)
+                        ->cc('online@tanefer.com')
+                        ->send(new BookingConfirmation($url, $booking->total_price, $booking->bookingData->contact_name));
+                        $booking->update(['send_confirm_email' => 1]);
                 }
             }
             if($booking->bookingPayment == null){

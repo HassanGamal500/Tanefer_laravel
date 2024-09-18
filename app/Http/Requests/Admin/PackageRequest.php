@@ -31,7 +31,7 @@ class PackageRequest extends ParentRequest
             'package_occupancy'                            => 'nullable',
             'package_starting_airport'                     => 'nullable|string|',
             'package_title'                                => 'required|string|max:191',
-            'package_image'                                => 'nullable|image|max:2000',
+            'package_image'                                => 'nullable|image|max:5000',
             'package_overview'                             => 'required',
             'package_nights_number'                        => 'required|integer',
             'package_duration'                             => 'required|integer',
@@ -88,7 +88,7 @@ class PackageRequest extends ParentRequest
         ];
 
         if(request()->method() == 'POST'){
-            $rules['package_image']  = 'nullable|image|max:2000';
+            $rules['package_image']  = 'nullable|image|max:5000';
         }else{
             $rules['slug'] = ['required',Rule::unique('packages','slug')->ignore($this->route('id'))];
         }

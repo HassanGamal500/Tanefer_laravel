@@ -70,7 +70,10 @@ Route::get('gta-get-hotel-type-categories' , 'Front\PackageHotelGtaController@ge
 Route::get('gta-get-room-categories' , 'Front\PackageHotelGtaController@get_room_categories');
 Route::get('gta-get-boards' , 'Front\PackageHotelGtaController@get_hotel_boards');
 Route::get('gta-get-hotel' , 'Front\PackageHotelGtaController@get_hotel');
-
+//added to test zone search
+Route::get('search-zones' , 'Front\PackageHotelGtaController@searchZones');
+Route::get('city-by-jpd-code', 'Front\PackageHotelGtaController@get_city_by_jpd_code');
+Route::get('search-hotels-by-address', 'Front\PackageHotelGtaController@search_hotels_by_address');
 
 
 Route::get('get-hotel' , 'Admin\PackageHotelGtaController@sendSoapRequest');

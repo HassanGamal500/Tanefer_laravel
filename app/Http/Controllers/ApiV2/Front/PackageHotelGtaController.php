@@ -14,6 +14,9 @@ use App\Models\GtaHotelPortfolio;
 use App\Models\GtaRegion;
 use App\Models\GtaZone;
 use Illuminate\Http\Request;
+use DB;
+use Illuminate\Support\Facades\Cache;
+
 
 class PackageHotelGtaController extends Controller
 {
@@ -270,6 +273,27 @@ class PackageHotelGtaController extends Controller
             'data'=> GtaRegionResource::collection( $zone )
         ]);
     }
+    // code added to modifiy search by zone
+
+    public function searchZones(Request $request) {
+        $query = $request->input('query');
+
+        // Cache the search results 10 mins
+        $zones = Cache::remember('zones_search_' . $query, 600, function () use ($query) {
+            return DB::table('gta_zones')
+                ->select('gta_zones.id', 'gta_zones.name', 'gta_zones.jpd_code', 'parent.name as parent_name', 'grandparent.name as grandparent_name', 'area_type')
+                ->leftJoin('gta_zones as parent', 'gta_zones.parent_code', '=', 'parent.code')
+                ->leftJoin('gta_zones as grandparent', 'parent.parent_code', '=', 'grandparent.code')
+                ->whereRaw("MATCH(gta_zones.name) AGAINST(? IN BOOLEAN MODE)", [$query])
+                ->orWhere('gta_zones.name', 'LIKE', '%' . $query . '%')
+                ->limit(50)
+                ->get();
+        });
+
+        return response()->json($zones);
+    }
+
+    // end of new code
     
     public function get_hotel_catalogues(){
 
@@ -316,30 +340,97 @@ class PackageHotelGtaController extends Controller
         ]);
     }
 
-    public function get_hotel(Request $request){
+    // public function get_hotel(Request $request){
 
-        $zone_id = $request->zone_id ?? null;
-        $hotel_category_id  = $request->hotel_category_id ?? null;
-        $city_id = $request->city_id ?? null;
-        $hotel = GtaHotelPortfolio::query();
+    //     $zone_id = $request->zone_id ?? null;
+    //     $hotel_category_id  = $request->hotel_category_id ?? null;
+    //     $city_id = $request->city_id ?? null;
+    //     $hotel = GtaHotelPortfolio::query();
 
-        if($zone_id && $zone_id != null && $zone_id != 'null' && $zone_id != '') {
-            $hotel->where('zone_id',$zone_id);
+    //     if($zone_id && $zone_id != null && $zone_id != 'null' && $zone_id != '') {
+    //         $hotel->where('zone_id',$zone_id);
+    //     }
+    //     if($hotel_category_id && $hotel_category_id != null && $hotel_category_id != 'null' && $hotel_category_id != '') {
+    //         $hotel->where('hotel_category_id',$hotel_category_id);
+    //     }
+    //     if($city_id && $city_id != null && $city_id != 'null' && $city_id != '') {
+    //         $hotel->where('city_id',$city_id);
+    //     }
+
+    //     $hotel_data = $hotel->get();
+
+    //     return response()->json([ 'message' =>'success','status' => 200,
+    //         'data'=> GtaHotelResource::collection( $hotel_data )
+    //     ]);
+    // }
+        // Fetch city by jpd_code
+        public function get_city_by_jpd_code(Request $request)
+        {
+            $jpd_code = $request->jpd_code;
+            $city = GtaCity::where('jpd_code', $jpd_code)->first();
+
+            if ($city) {
+                return response()->json(['city_id' => $city->id], 200);
+            } else {
+                return response()->json(['message' => 'City not found'], 404);
+            }
         }
-        if($hotel_category_id && $hotel_category_id != null && $hotel_category_id != 'null' && $hotel_category_id != '') {
-            $hotel->where('hotel_category_id',$hotel_category_id);
+// HotelController.php
+
+        public function search_hotels_by_address(Request $request)
+        {
+            $addressFragment = $request->input('address_fragment');
+
+            if (!$addressFragment) {
+                return response()->json(['message' => 'Address fragment is required'], 400);
+            }
+
+            // Query hotels where the address contains the provided fragment
+            $hotels = GtaHotelPortfolio::where('address', 'LIKE', '%' . $addressFragment . '%')->get();
+
+            if ($hotels->isEmpty()) {
+                return response()->json(['message' => 'No hotels found'], 404);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'status' => 200,
+                'data' => GtaHotelResource::collection($hotels)
+            ]);
         }
-        if($city_id && $city_id != null && $city_id != 'null' && $city_id != '') {
-            $hotel->where('city_id',$city_id);
+
+        public function get_hotel(Request $request)
+        {
+            $zone_id = $request->zone_id ?? null;
+            $hotel_category_id = $request->hotel_category_id ?? null;
+            $city_id = $request->city_id ?? null;
+            $address_fragment = $request->address_fragment ?? null;
+            
+            $hotel = GtaHotelPortfolio::query();
+        
+            // If city_id is present, search by city
+            if (!empty($city_id)) {
+                $hotel->where('city_id', $city_id);
+            }
+            // If searching by address (REG area type)
+            elseif (!empty($address_fragment)) {
+                $hotel->where('address', 'LIKE', '%' . $address_fragment . '%');
+            }
+            // If zone_id is provided, use the default zone search
+            elseif (!empty($zone_id)) {
+                $hotel->where('zone_id', $zone_id);
+            }
+        
+            if (!empty($hotel_category_id)) {
+                $hotel->where('hotel_category_id', $hotel_category_id);
+            }
+        
+            $hotel_data = $hotel->get();
+        
+            return response()->json([
+                'message' => 'success',
+                'status' => 200,
+                'data' => GtaHotelResource::collection($hotel_data)
+            ]);
         }
-
-        $hotel_data = $hotel->get();
-
-        return response()->json([ 'message' =>'success','status' => 200,
-            'data'=> GtaHotelResource::collection( $hotel_data )
-        ]);
-    }
-
-
-
-}
+    }        

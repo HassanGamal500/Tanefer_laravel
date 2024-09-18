@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Tanefer Mail</title>
+    <title>Tanefer Mail Test</title>
     <style type="text/css">
         * {
             margin: 0;
@@ -85,7 +85,7 @@
     <div class="logo">
         <img height="150" width="100%" src="{{ asset('images/logo.png') }}" alt="check" >
     </div>
-        @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
+        {{-- @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
             @foreach ($adventures as $adventure)
                 @php
                     $carbonStartTime = Carbon\Carbon::createFromFormat('H:i', $adventure->start_time);
@@ -122,7 +122,7 @@
                 </p><br />
 
             @endforeach
-        @endif
+        @endif --}}
     {{-- <h1 style="padding-top: 3pt;padding-left: 17pt;text-indent: 0pt;text-align: left;">
         Classical Egypt 7 Days / 6 Nights
     </h1><br />
@@ -136,5 +136,6 @@
     <p style="padding-top: 4pt;padding-left: 17pt;text-indent: 0pt;text-align: left;">
         Free evening Overnight in Cairo
     </p> --}}
+    <h1>Hello this is a testing email</h1>
 </body>
 </html>
