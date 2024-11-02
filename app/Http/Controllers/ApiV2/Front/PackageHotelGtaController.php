@@ -385,7 +385,6 @@ class PackageHotelGtaController extends Controller
                 return response()->json(['message' => 'Address fragment is required'], 400);
             }
 
-            // Query hotels where the address contains the provided fragment
             $hotels = GtaHotelPortfolio::where('address', 'LIKE', '%' . $addressFragment . '%')->get();
 
             if ($hotels->isEmpty()) {

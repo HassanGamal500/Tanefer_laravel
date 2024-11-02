@@ -110,49 +110,6 @@
         <img height="185px" width="100%" src="{{ asset('images/logo-cover-2.png') }}" alt="Logo" style="display: block; margin: 0; position: relative; top: 0; left: 0;">
     </div>
 
-    {{-- @if(auth()->guard('passport')->user())
-    @php
-        $user = auth()->guard('passport')->user();
-        $name = $user->name != null && !empty($user->name) && $user->name != '' ? $user->name : $user->username;
-    @endphp
-    <div class="body">
-        <!-- <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-            Dear MR: {{ $name }}, Greetings from Tanefer Team! I’m from the Sales Department, and it will be my pleasure to be your personal tour consultant.
-        </p> -->
-        <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-            Thank you, ( {{ isset($username) ? $username : '' }} )
-                we have received your inquiry and one of our travel experts will contact you within 48 hours.
-                We\'ll send your new travel plans to your email
-                Don\'t see a response after 48 hours? Please check your spam folder for a message from Tanefer team . We all end up there occasionally.
-        </p>
-    </div>
-    @endif --}}
-
-        @php
-            $user = auth()->guard('passport')->user();
-        @endphp
-
-        @if($user)
-            @php
-                $name = $user->name ?? $user->username;
-            @endphp
-            <div class="body">
-                <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-                    Thank you, {{ $name }}. We have received your inquiry and one of our travel experts will contact you within 48 hours.
-                    We’ll send your new travel plans to your email.
-                    Don’t see a response after 48 hours? Please check your spam folder for a message from the Tanefer team.
-                </p>
-            </div>
-        @else
-            <div class="body">
-                <p style="padding-top: 4pt;text-indent: 0pt;text-align: left;">
-                    Thank you for your inquiry! One of our travel experts will contact you within 48 hours.
-                    We’ll send your new travel plans to your email.
-                    Don’t see a response after 48 hours? Please check your spam folder for a message from the Tanefer team.
-                </p>
-            </div>
-        @endif
-
     
         @if($booking->model_ids != null && $booking->model_type == 'App\Models\PackageActivity')
             @foreach ($combinedList as $adventure)

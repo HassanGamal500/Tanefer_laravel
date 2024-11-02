@@ -141,14 +141,12 @@ class PackageHotelGtaController extends Controller
             'trace' => true,
             'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
         );
-
-        // $client = new \SoapClient("https://xml-uat.bookingengine.es/WebService/JP/WebServiceJP.asmx?WSDL", $options);
-        
-        // live
+    
+        // Live environment
         $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
         $email = 'Xml_TaneferTours';
         $password = 'Tanefer_xml@159';
-        
+    
         $startDate = $request->start_date;
         $endDate = $request->end_date;
         $hotels = $request->hotels;
@@ -160,57 +158,48 @@ class PackageHotelGtaController extends Controller
         $hotelSearch = $request->hotel_name;
         $hotelCategory = $request->hotel_category;
         $hotelTypeCategory = $request->hotel_type_category;
-        
+    
+        $page = $request->input('page', 1);
+        $pageSize = 100;
+        $totalHotels = count($hotels);
+        $totalPages = ceil($totalHotels / $pageSize);
+        $offset = ($page - 1) * $pageSize;
+        $hotelsForPage = array_slice($hotels, $offset, $pageSize);
+    
+        if (count($hotelsForPage) == 0) {
+            return response()->json(['error' => 'No hotels available for the current page'], 400);
+        }
+    
         $segments = array();
         $paxes = array();
-        $relPaxes = array();
         $relPaxesDist = array();
-        
-        $paxNumberSum = 0;
         $paxCount = 0;
-        
-        if(count($hotels) > 500) {
-            $hotels = array_slice($hotels, 0, 500, true);
-        }
-        
-        if(isset($rooms) && $rooms > 0) {
-            for($r = 0; $r < count($rooms); $r++) {
+    
+        if (isset($rooms) && is_array($rooms) && count($rooms) > 0) {
+            foreach ($rooms as $r => $room) {
                 $relPaxesIds = [];
-        
-                if(isset($rooms[$r]['travellers']) && $rooms[$r]['travellers'] > 0) {
-                    for($rx = 1; $rx <= $rooms[$r]['travellers']; $rx++) {
-                        // $paxNumber = (string)($rx + $paxNumberSum);
-                        $paxNumber = (string)($paxCount + $rx);
-                        $relPaxesIds[] = ['IdPax' => $paxNumber];
-                        $paxes[] = ['IdPax' => $paxNumber];
-                        // $paxCount++;
+    
+                if (isset($room['travellers']) && $room['travellers'] > 0) {
+                    for ($i = 1; $i <= $room['travellers']; $i++) {
+                        $paxCount++;
+                        $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+                        $paxes[] = ['IdPax' => (string)$paxCount];
                     }
-                    $paxCount += $rooms[$r]['travellers'];
                 }
-        
-                $roomAdults = isset($rooms[$r]['travellers']) && $rooms[$r]['travellers'] > 0 ? $rooms[$r]['travellers'] : 0;
-        
-                if(isset($rooms[$r]['children']) && $rooms[$r]['children'] > 0) {
-                    for($ry = 0; $ry < $rooms[$r]['children']; $ry++) {
-                        // $paxNumber = (string)($ry + $roomAdults + 1);
-                        // $paxNumber = (string)($paxCount + 1);
-                        $paxNumber = (string)($paxCount + $ry + 1);
-                        $relPaxesIds[] = ['IdPax' => $paxNumber];
-                        $paxes[] = ['IdPax' => $paxNumber, 'Age' => $rooms[$r]['ages'][$ry]];
-                        // $paxCount++;
+    
+                if (isset($room['children']) && $room['children'] > 0) {
+                    for ($j = 0; $j < $room['children']; $j++) {
+                        $paxCount++;
+                        $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+                        $paxes[] = ['IdPax' => (string)$paxCount, 'Age' => $room['ages'][$j]];
                     }
-                    $paxCount += $rooms[$r]['children'];
                 }
-        
-                $roomChildren = isset($rooms[$r]['children']) && $rooms[$r]['children'] > 0 ? $rooms[$r]['children'] : 0;
-        
-                $paxNumberSum = $roomAdults + $roomChildren;
-        
-                if ((isset($rooms[$r]['travellers']) && $rooms[$r]['travellers'] > 0) || (isset($rooms[$r]['children']) && $rooms[$r]['children'] > 0)) {
-                    if(isset($rooms[$r]['category']) && !empty($rooms[$r]['category']) && $rooms[$r]['category'] != null && $rooms[$r]['category'] != 'null') {
+    
+                if (!empty($relPaxesIds)) {
+                    if (isset($room['category']) && !empty($room['category']) && $room['category'] != 'all') {
                         $relPaxesDist[] = [
                             'RelPaxes' => ['RelPax' => $relPaxesIds],
-                            'Rooms' => ['Room' => ['CategoryType' => $rooms[$r]['category'] != 'all' ? $rooms[$r]['category'] : '']]
+                            'Rooms' => ['Room' => ['CategoryType' => $room['category']]]
                         ];
                     } else {
                         $relPaxesDist[] = [
@@ -219,49 +208,43 @@ class PackageHotelGtaController extends Controller
                     }
                 }
             }
+        } else {
+            return response()->json(['error' => 'No room occupancy data provided'], 400);
         }
-        
-        $hotelCodes = array(
-            'HotelCode' => $hotels
-        );
-        
+    
+        $hotelCodes = ['HotelCode' => $hotelsForPage];
+    
+    
         $segments['SearchSegmentHotels'] = [
             'Start' => $startDate,
             'End' => $endDate
         ];
-        
+    
         $segments['CountryOfResidence'] = 'EG';
-        
         $segments['HotelCodes'] = $hotelCodes;
-        
-        if (isset($hotelSearch) && !empty($hotelSearch) && $hotelSearch != null && $hotelSearch != 'null') {
+    
+        if (!empty($hotelSearch)) {
             $segments['HotelName'] = $hotelSearch;
         }
-        
-        if (isset($hotelCategory) && !empty($hotelCategory) && $hotelCategory != null && $hotelCategory != 'null' && $hotelCategory != 'all') {
+    
+        if (!empty($hotelCategory) && $hotelCategory != 'all') {
             $segments['HotelCategories'] = [
-                'HotelCategory' => [
-                    'Type' => $hotelCategory
-                ]
+                'HotelCategory' => ['Type' => $hotelCategory]
             ];
         }
-        
-        if (isset($hotelTypeCategory) && !empty($hotelTypeCategory) && $hotelTypeCategory != null && $hotelTypeCategory != 'null' && $hotelTypeCategory != 'all') {
+    
+        if (!empty($hotelTypeCategory) && $hotelTypeCategory != 'all') {
             $segments['HotelTypes'] = [
-                'HotelType' => [
-                    'Type' => $hotelTypeCategory
-                ]
+                'HotelType' => ['Type' => $hotelTypeCategory]
             ];
         }
-        
-        if (isset($board) && !empty($board) && $board != null && $board != 'null' && $board != 'all') {
+    
+        if (!empty($board) && $board != 'all') {
             $segments['Boards'] = [
-                'Board' => [
-                    'Type' => $board
-                ]
+                'Board' => ['Type' => $board]
             ];
         }
-        
+    
         $requestData = array(
             'HotelAvailRQ' => array(
                 'Version' => '1.1',
@@ -282,24 +265,420 @@ class PackageHotelGtaController extends Controller
                 'AdvancedOptions' => array(
                     'ShowHotelInfo' => true,
                     'ShowCancellationPolicies' => true,
-                    // 'ShowOnlyBestPriceCombination' => true,
                     'ShowAllCombinations' => true,
                     'ShowOnlyAvailable' => true,
-                    'TimeOut' => '10000',
+                    'TimeOut' => '100000',
                     'UseCurrency' => 'USD'
                 )
             )
         );
-        
-        // return response()->json($requestData);
-        
+    
+        // Log the full $requestData
+       // \Storage::disk('local')->put('request_data.json', json_encode($requestData, JSON_PRETTY_PRINT));
+    
         try {
+            // Make the SOAP request
             $response = $client->__soapCall('HotelAvail', array('parameters' => $requestData));
-            return response()->json($response);
+    
+            // Capture and log the SOAP request and response AFTER the call
+           // $logRequestData = $client->__getLastRequest();  // Capture the actual SOAP request sent
+           // \Storage::disk('local')->put('request_log.xml', $logRequestData);
+    
+        //    $logResponseData = $client->__getLastResponse();
+          //  \Storage::disk('local')->put('response_log.xml', $logResponseData);
+    
+            return response()->json([
+                'data' => $response,
+                'pagination' => [
+                    'total_hotels' => $totalHotels,
+                    'current_page' => $page,
+                    'page_size' => $pageSize,
+                    'total_pages' => $totalPages
+                ]
+            ]);
         } catch (SoapFault $fault) {
-            echo "Error: " . $fault->getMessage();
+            // Log error details
+            \Storage::disk('local')->put('error_log.txt', "Error: " . $fault->getMessage());
+    
+            return response()->json(['error' => "Error: " . $fault->getMessage()], 500);
         }
     }
+    
+    
+    // convert an array to XML
+    private function arrayToXml($data, &$xmlData) {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
+                    $key = 'item' . $key; 
+                }
+                $subnode = $xmlData->addChild($key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xmlData->addChild("$key", htmlspecialchars("$value"));
+            }
+        }
+    }
+    
+    /** temp re-run to test old version **/
+    
+        // public function availability(Request $request)
+        // {
+        //     $options = array(
+        //         'soap_version' => SOAP_1_2,
+        //         'encoding' => 'UTF-8',
+        //         'exceptions' => true,
+        //         'trace' => true,
+        //         'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+        //     );
+        
+        //     // live
+        //     $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+        //     $email = 'Xml_TaneferTours';
+        //     $password = 'Tanefer_xml@159';
+        
+        //     $startDate = $request->start_date;
+        //     $endDate = $request->end_date;
+        //     $hotels = $request->hotels;
+        //     $adults = $request->adults;
+        //     $children = $request->children;
+        //     $ages = $request->ages;
+        //     $rooms = $request->rooms;
+        //     $board = $request->board;
+        //     $hotelSearch = $request->hotel_name;
+        //     $hotelCategory = $request->hotel_category;
+        //     $hotelTypeCategory = $request->hotel_type_category;
+        
+        //     $page = $request->input('page', 1);
+        //     $pageSize = $request->input('page_size', 500);
+        
+        //     $totalHotels = count($hotels);
+        //     $totalPages = ceil($totalHotels / $pageSize);
+        
+        //     $offset = ($page - 1) * $pageSize;
+        
+        //     $hotelsForPage = array_slice($hotels, $offset, $pageSize);
+        
+    
+        //     $segments = array();
+        //     $paxes = array();
+        //     $relPaxesDist = array();
+        
+        //     $paxCount = 0;
+        
+    
+        //     if (isset($rooms) && is_array($rooms) && count($rooms) > 0) {
+        //         foreach ($rooms as $r => $room) {
+        //             $relPaxesIds = [];
+        
+    
+        //             if (isset($room['travellers']) && $room['travellers'] > 0) {
+        //                 for ($i = 1; $i <= $room['travellers']; $i++) {
+        //                     $paxCount++;
+        //                     $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+        //                     $paxes[] = ['IdPax' => (string)$paxCount];
+        //                 }
+        //             }
+        
+        //             if (isset($room['children']) && $room['children'] > 0) {
+        //                 for ($j = 0; $j < $room['children']; $j++) {
+        //                     $paxCount++;
+        //                     $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+        //                     $paxes[] = ['IdPax' => (string)$paxCount, 'Age' => $room['ages'][$j]];
+        //                 }
+        //             }
+        
+        //             if (!empty($relPaxesIds)) {
+        //                 if (isset($room['category']) && !empty($room['category']) && $room['category'] != 'all') {
+        //                     $relPaxesDist[] = [
+        //                         'RelPaxes' => ['RelPax' => $relPaxesIds],
+        //                         'Rooms' => ['Room' => ['CategoryType' => $room['category']]]
+        //                     ];
+        //                 } else {
+        //                     $relPaxesDist[] = [
+        //                         'RelPaxes' => ['RelPax' => $relPaxesIds]
+        //                     ];
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         return response()->json(['error' => 'No room occupancy data provided'], 400);
+        //     }
+        
+        //     $hotelCodes = ['HotelCode' => $hotelsForPage];
+        
+        //     $segments['SearchSegmentHotels'] = [
+        //         'Start' => $startDate,
+        //         'End' => $endDate
+        //     ];
+        
+        //     $segments['CountryOfResidence'] = 'EG';
+        //     $segments['HotelCodes'] = $hotelCodes;
+        
+        //     if (!empty($hotelSearch)) {
+        //         $segments['HotelName'] = $hotelSearch;
+        //     }
+        
+        //     if (!empty($hotelCategory) && $hotelCategory != 'all') {
+        //         $segments['HotelCategories'] = [
+        //             'HotelCategory' => ['Type' => $hotelCategory]
+        //         ];
+        //     }
+        
+        //     if (!empty($hotelTypeCategory) && $hotelTypeCategory != 'all') {
+        //         $segments['HotelTypes'] = [
+        //             'HotelType' => ['Type' => $hotelTypeCategory]
+        //         ];
+        //     }
+        
+        //     if (!empty($board) && $board != 'all') {
+        //         $segments['Boards'] = [
+        //             'Board' => ['Type' => $board]
+        //         ];
+        //     }
+        
+        //     $requestData = array(
+        //         'HotelAvailRQ' => array(
+        //             'Version' => '1.1',
+        //             'Language' => 'en',
+        //             'Login' => array(
+        //                 'Email' => $email,
+        //                 'Password' => $password
+        //             ),
+        //             'Paxes' => array(
+        //                 'Pax' => $paxes
+        //             ),
+        //             'HotelRequest' => array(
+        //                 'SearchSegmentsHotels' => $segments,
+        //                 'RelPaxesDist' => array(
+        //                     'RelPaxDist' => $relPaxesDist
+        //                 )
+        //             ),
+        //             'AdvancedOptions' => array(
+        //                 'ShowHotelInfo' => true,
+        //                 'ShowCancellationPolicies' => true,
+        //                 'ShowAllCombinations' => true,
+        //                 'ShowOnlyAvailable' => true,
+        //                 'TimeOut' => '100000',
+        //                 'UseCurrency' => 'USD'
+        //             )
+        //         )
+        //     );
+        
+        //     try {
+        //         $response = $client->__soapCall('HotelAvail', array('parameters' => $requestData));
+        
+        //         return response()->json([
+        //             'data' => $response,
+        //             'pagination' => [
+        //                 'total_hotels' => $totalHotels,
+        //                 'current_page' => $page,
+        //                 'page_size' => $pageSize,
+        //                 'total_pages' => $totalPages
+        //             ]
+        //         ]);
+        //     } catch (SoapFault $fault) {
+        //         echo "Error: " . $fault->getMessage();
+        //     }
+        // }
+    
+    // *********  test for more than 500 char  ********** //
+    // public function availability(Request $request)
+    // {
+    //     $options = array(
+    //         'soap_version' => SOAP_1_2,
+    //         'encoding' => 'UTF-8',
+    //         'exceptions' => true,
+    //         'trace' => true,
+    //         'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE,
+    //     );
+    
+    //     // live
+    //     $client = new \SoapClient("http://xml.gte.travel/WebService/JP/WebServiceJP.asmx?WSDL", $options);
+    //     $email = 'Xml_TaneferTours';
+    //     $password = 'Tanefer_xml@159';
+    
+    //     $startDate = $request->start_date;
+    //     $endDate = $request->end_date;
+    //     $hotels = $request->hotels;
+    //     $adults = $request->adults ?? 2; // Default to 2 adults if not provided
+    //     $children = $request->children ?? 0; // Default to 0 children
+    //     $ages = $request->ages ?? []; // Default to empty array if no ages provided
+    //     $rooms = $request->rooms ?? []; // Default to empty array if no rooms provided
+    //     $board = $request->board;
+    //     $hotelSearch = $request->hotel_name;
+    //     $hotelCategory = $request->hotel_category;
+    //     $hotelTypeCategory = $request->hotel_type_category;
+    
+    //     $pageSize = 500; // API limit for max hotels per request
+    //     $totalHotels = count($hotels); // Total number of hotels
+    //     $totalPages = ceil($totalHotels / $pageSize); // Total number of chunks (pages)
+    
+    //     $finalResponse = null; // Variable to store the final response
+    
+    //     for ($page = 1; $page <= $totalPages; $page++) {
+    //         // Calculate the offset for the current chunk
+    //         $offset = ($page - 1) * $pageSize;
+    
+    //         // Get the subset of hotels for the current chunk
+    //         $hotelsForPage = array_slice($hotels, $offset, $pageSize);
+    
+    //         // Initialize variables for segments, paxes, and relPaxesDist
+    //         $segments = array();
+    //         $paxes = array();
+    //         $relPaxesDist = array();
+    
+    //         $paxCount = 0;
+    
+    //         // Process room and occupancy details with fallback defaults
+    //         if (isset($rooms) && is_array($rooms) && count($rooms) > 0) {
+    //             foreach ($rooms as $r => $room) {
+    //                 $relPaxesIds = [];
+    
+    //                 // Add adults and children to paxes and relPaxesDist
+    //                 if (isset($room['travellers']) && $room['travellers'] > 0) {
+    //                     for ($i = 1; $i <= $room['travellers']; $i++) {
+    //                         $paxCount++;
+    //                         $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+    //                         $paxes[] = ['IdPax' => (string)$paxCount];
+    //                     }
+    //                 }
+    
+    //                 if (isset($room['children']) && $room['children'] > 0) {
+    //                     for ($j = 0; $j < $room['children']; $j++) {
+    //                         $paxCount++;
+    //                         $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+    //                         $paxes[] = ['IdPax' => (string)$paxCount, 'Age' => $room['ages'][$j]];
+    //                     }
+    //                 }
+    
+    //                 if (!empty($relPaxesIds)) {
+    //                     if (isset($room['category']) && !empty($room['category']) && $room['category'] != 'all') {
+    //                         $relPaxesDist[] = [
+    //                             'RelPaxes' => ['RelPax' => $relPaxesIds],
+    //                             'Rooms' => ['Room' => ['CategoryType' => $room['category']]]
+    //                         ];
+    //                     } else {
+    //                         $relPaxesDist[] = [
+    //                             'RelPaxes' => ['RelPax' => $relPaxesIds]
+    //                         ];
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             // If no rooms data is provided, use a default room configuration
+    //             $relPaxesIds = [];
+    //             for ($i = 1; $i <= $adults; $i++) {
+    //                 $paxCount++;
+    //                 $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+    //                 $paxes[] = ['IdPax' => (string)$paxCount];
+    //             }
+    
+    //             if ($children > 0) {
+    //                 for ($j = 0; $j < $children; $j++) {
+    //                     $paxCount++;
+    //                     $relPaxesIds[] = ['IdPax' => (string)$paxCount];
+    //                     $paxes[] = ['IdPax' => (string)$paxCount, 'Age' => $ages[$j] ?? 5]; // Default age to 5 if not provided
+    //                 }
+    //             }
+    
+    //             $relPaxesDist[] = [
+    //                 'RelPaxes' => ['RelPax' => $relPaxesIds],
+    //                 'Rooms' => ['Room' => ['CategoryType' => 'standard']] // Default to standard room
+    //             ];
+    //         }
+    
+    //         $hotelCodes = ['HotelCode' => $hotelsForPage];
+    
+    //         $segments['SearchSegmentHotels'] = [
+    //             'Start' => $startDate,
+    //             'End' => $endDate
+    //         ];
+    
+    //         $segments['CountryOfResidence'] = 'EG';
+    //         $segments['HotelCodes'] = $hotelCodes;
+    
+    //         if (!empty($hotelSearch)) {
+    //             $segments['HotelName'] = $hotelSearch;
+    //         }
+    
+    //         if (!empty($hotelCategory) && $hotelCategory != 'all') {
+    //             $segments['HotelCategories'] = [
+    //                 'HotelCategory' => ['Type' => $hotelCategory]
+    //             ];
+    //         }
+    
+    //         if (!empty($hotelTypeCategory) && $hotelTypeCategory != 'all') {
+    //             $segments['HotelTypes'] = [
+    //                 'HotelType' => ['Type' => $hotelTypeCategory]
+    //             ];
+    //         }
+    
+    //         if (!empty($board) && $board != 'all') {
+    //             $segments['Boards'] = [
+    //                 'Board' => ['Type' => $board]
+    //             ];
+    //         }
+    
+    //         $requestData = array(
+    //             'HotelAvailRQ' => array(
+    //                 'Version' => '1.1',
+    //                 'Language' => 'en',
+    //                 'Login' => array(
+    //                     'Email' => $email,
+    //                     'Password' => $password
+    //                 ),
+    //                 'Paxes' => array(
+    //                     'Pax' => $paxes
+    //                 ),
+    //                 'HotelRequest' => array(
+    //                     'SearchSegmentsHotels' => $segments,
+    //                     'RelPaxesDist' => array(
+    //                         'RelPaxDist' => $relPaxesDist
+    //                     )
+    //                 ),
+    //                 'AdvancedOptions' => array(
+    //                     'ShowHotelInfo' => true,
+    //                     'ShowCancellationPolicies' => true,
+    //                     'ShowAllCombinations' => true,
+    //                     'ShowOnlyAvailable' => true,
+    //                     'TimeOut' => '100000',
+    //                     'UseCurrency' => 'USD'
+    //                 )
+    //             )
+    //         );
+    
+    //         try {
+    //             $response = $client->__soapCall('HotelAvail', array('parameters' => $requestData));
+    
+    //             // Check if the 'Results' property exists in the response before accessing it
+    //             if ($page === 1) {
+    //                 $finalResponse = $response; // First page's response is the base
+    //             } else {
+    //                 if (isset($response->Results->HotelResult)) {
+    //                     // Merge subsequent page results into the final response
+    //                     $finalResponse->Results->HotelResult = array_merge(
+    //                         $finalResponse->Results->HotelResult ?? [],
+    //                         $response->Results->HotelResult
+    //                     );
+    //                 }
+    //             }
+    
+    //         } catch (SoapFault $fault) {
+    //             echo "Error: " . $fault->getMessage();
+    //         }
+    //     }
+    
+    //     // Return the combined response with pagination metadata
+    //     return response()->json([
+    //         'data' => $finalResponse,
+    //         'pagination' => [
+    //             'total_hotels' => $totalHotels,
+    //             'page_size' => $pageSize,
+    //             'total_pages' => $totalPages
+    //         ]
+    //     ]);
+    // }
 
     public function checkAvailability(Request $request)
     {
