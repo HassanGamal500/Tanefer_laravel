@@ -428,13 +428,32 @@ class BookingController extends Controller
             }
 
             if (($booking->model_type == 'App\Models\GtaHotelPortfolio' || $booking->model_type == 'App\Models\Package')) {
-                // echo 'You have been booked successfully';die;
+                // Determine if $combinedList exists or should be null
+                $combinedList = isset($combinedList) ? $combinedList : null;
+            
+                // Load the view with conditional combined list
+                $pdf = PDF::loadView('email_templates.new_booking_confirmation', [
+                    'url' => $url,
+                    'total_price' => $booking->total_price,
+                    'contact_name' => $booking->bookingData->contact_name,
+                    'combinedList' => $combinedList,
+                    'booking' => $booking,
+                    'package_name' => $package_name,
+                ]);
+            
+                // Prepare the email with the same conditional combined list
+                $mail = new NewBooking($url, $booking->total_price, $booking->bookingData->contact_name, $combinedList, $booking, $package_name);
+                Mail::to([$booking->bookingData->contact_email, 'online@tanefer.com'])
+                    ->send($mail->attachData($pdf->output(), "package_itenrary.pdf"));
+            
+                $booking->update(['send_confirm_email' => 1]);
                 $message = 'You have been booked successfully';
                 return responseJson(request(), [], $message);
             } else {
                 $message = 'Your booking confirmed';
                 return responseJson(request(), [], $message);
             }
+
         }
 
         $message = 'Your booking under processing, We will email you soon with booking status';
