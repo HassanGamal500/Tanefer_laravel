@@ -151,24 +151,32 @@ class BookingService
     }
     
     public static function storeHotelJPCode($validatedData, $booking_id) {
-        if (isset($validatedData['hotelJPCodes']) && !empty($validatedData['hotelJPCodes'] != null)) {
+        if (isset($validatedData['hotelJPCodes']) && is_array($validatedData['hotelJPCodes'])) {
             foreach ($validatedData['hotelJPCodes'] as $key => $hotel) {
-                $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $hotel)->first();
-                if ($hotelData) {
-                    BookingHotel::create([
-                        'booking_id'        => $booking_id,
-                        'hotel_id'          => $hotelData->id,
-                        'object_form_id'    => $validatedData['finalBookHotelsFormData'][$key],
-                        'start_date'        => $validatedData['hotelStartDates'][$key],
-                        'end_date'          => $validatedData['hotelEndDates'][$key],
-                        'jpcode'            => $hotel,
-                        'int_code'          => $validatedData['hotelIntCodes'][$key] ?? null,
-                        'locator'           => $validatedData['hotelLocators'][$key] ?? null
-                    ]);
+                if ($hotel !== null && $hotel !== '') {
+                    $hotelData = \DB::table('gta_hotel_portfolios')->where('Jpd_code', $hotel)->first();
+    
+                    // Only proceed if hotel data exists and object_form_id is not null
+                    if ($hotelData && !empty($validatedData['finalBookHotelsFormData'][$key])) {
+                        BookingHotel::create([
+                            'booking_id'        => $booking_id,
+                            'hotel_id'          => $hotelData->id,
+                            'object_form_id'    => $validatedData['finalBookHotelsFormData'][$key],  // Ensure this is not null
+                            'start_date'        => $validatedData['hotelStartDates'][$key] ?? null,
+                            'end_date'          => $validatedData['hotelEndDates'][$key] ?? null,
+                            'jpcode'            => $hotel,
+                            'int_code'          => $validatedData['hotelIntCodes'][$key] ?? null,
+                            'locator'           => $validatedData['hotelLocators'][$key] ?? null
+                        ]);
+                    } else {
+                        // Log or handle cases where object_form_id or hotel data is missing
+                        \Log::warning("Missing required data for booking entry: hotelJPCodes key $key.");
+                    }
                 }
             }
         }
     }
+    
 
     private static function collectBookingCityData($booking_city)
     {
